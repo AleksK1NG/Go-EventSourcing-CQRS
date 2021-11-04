@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/AleksK1NG/es-microservice/pkg/constants"
+	"github.com/AleksK1NG/es-microservice/pkg/eventstroredb"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/AleksK1NG/es-microservice/pkg/mongodb"
 	"github.com/AleksK1NG/es-microservice/pkg/probes"
@@ -20,13 +21,14 @@ func init() {
 }
 
 type Config struct {
-	ServiceName      string           `mapstructure:"serviceName"`
-	Logger           *logger.Config   `mapstructure:"logger"`
-	GRPC             GRPC             `mapstructure:"grpc"`
-	Mongo            *mongodb.Config  `mapstructure:"mongo"`
-	MongoCollections MongoCollections `mapstructure:"mongoCollections"`
-	Probes           probes.Config    `mapstructure:"probes"`
-	Jaeger           *tracing.Config  `mapstructure:"jaeger"`
+	ServiceName      string                         `mapstructure:"serviceName"`
+	Logger           *logger.Config                 `mapstructure:"logger"`
+	GRPC             GRPC                           `mapstructure:"grpc"`
+	Mongo            *mongodb.Config                `mapstructure:"mongo"`
+	MongoCollections MongoCollections               `mapstructure:"mongoCollections"`
+	Probes           probes.Config                  `mapstructure:"probes"`
+	Jaeger           *tracing.Config                `mapstructure:"jaeger"`
+	EventStoreConfig eventstroredb.EventStoreConfig `mapstructure:"eventStoreConfig"`
 }
 
 type GRPC struct {
