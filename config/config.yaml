@@ -1,0 +1,35 @@
+serviceName: es_service
+grpc:
+  port: :5001
+  development: true
+probes:
+  readinessPath: /ready
+  livenessPath: /live
+  port: :3001
+  pprof: :6001
+  prometheusPath: /metrics
+  prometheusPort: :8001
+  checkIntervalSeconds: 10
+logger:
+  level: debug
+  devMode: false
+  encoder: json
+postgres:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  dbName: products
+  sslMode: false
+mongo:
+  uri: "mongodb://localhost:27017"
+  user: admin
+  password: admin
+  db: orders
+mongoCollections:
+  products: orders
+jaeger:
+  enable: true
+  serviceName: es_service
+  hostPort: "localhost:6831"
+  logSpans: false
