@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package orderService;
+
+option go_package = "./;orderService";
+
+message Order {
+  string ID = 1;
+  repeated string ItemsIDs = 2;
+  bool Created = 3;
+  bool Paid = 4;
+  bool Submitted = 5;
+  bool Delivering = 6;
+  bool Delivered = 7;
+  bool Canceled = 8;
+}
+
+message CreateOrderReq {
+  string AggregateID = 1;
+  repeated string ItemID = 2;
+}
+
+message CreateOrderRes {
+  string AggregateID = 1;
+}
+
+message PayOrderReq {
+  string AggregateID = 1;
+}
+
+message PayOrderRes {
+  string AggregateID = 1;
+}
+
+message SubmitOrderReq {
+  string AggregateID = 1;
+}
+
+message SubmitOrderRes {
+  string AggregateID = 1;
+}
+
+message GetOrderByIDReq {
+  string AggregateID = 1;
+}
+
+message GetOrderByIDRes {
+  Order Order = 1;
+}
+
+message UpdateOrderReq {
+  string AggregateID = 1;
+  repeated string ItemID = 2;
+}
+
+message UpdateOrderRes {}
+
+service orderService {
+  rpc CreateOrder(CreateOrderReq) returns (CreateOrderRes);
+  rpc PayOrder(PayOrderReq) returns (PayOrderRes);
+  rpc SubmitOrder(SubmitOrderReq) returns (SubmitOrderRes);
+  rpc GetOrderByID(GetOrderByIDReq) returns (GetOrderByIDRes);
+  rpc UpdateOrder(UpdateOrderReq) returns (UpdateOrderRes);
+}

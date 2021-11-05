@@ -103,12 +103,12 @@ swagger:
 	swag init -g **/**/*.go
 
 # ==============================================================================
-# Proto
+# Usage:
+# install local https://github.com/protocolbuffers/protobuf
+# go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+# go get -u google.golang.org/grpc
+# PROTO use your_file_name.proto
 
-proto_writer:
-	@echo Generating product writer microservice proto
-	cd writer_service/proto/product_writer && protoc --go_out=. --go-grpc_opt=require_unimplemented_servers=false --go-grpc_out=. product_writer.proto
-
-proto_writer_message:
-	@echo Generating product writer messages microservice proto
-	cd writer_service/proto/product_writer && protoc --go_out=. --go-grpc_opt=require_unimplemented_servers=false --go-grpc_out=. product_writer_messages.proto
+proto_order:
+	@echo Generating order microservice gRPC proto
+	cd proto/order && protoc --go_out=. --go-grpc_opt=require_unimplemented_servers=false --go-grpc_out=. order.proto

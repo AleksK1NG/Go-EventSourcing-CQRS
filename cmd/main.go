@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/AleksK1NG/es-microservice/config"
+	"github.com/AleksK1NG/es-microservice/internal/server"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"log"
 )
@@ -23,4 +24,5 @@ func main() {
 
 	appLogger.Infof("CFG: %+v", cfg)
 	appLogger.Info("Success =D")
+	appLogger.Fatal(server.NewServer(cfg, appLogger).Run())
 }
