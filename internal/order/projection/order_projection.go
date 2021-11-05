@@ -22,7 +22,6 @@ func NewOrderProjection(log logger.Logger, db *esdb.Client, mongoRepo repository
 	return &orderProjection{log: log, db: db, mongoRepo: mongoRepo}
 }
 
-// Worker kafka consumer worker fetch and process messages from reader
 type Worker func(ctx context.Context, stream *esdb.Subscription, wg *sync.WaitGroup, workerID int)
 
 func (o *orderProjection) Subscribe(ctx context.Context, prefixes []string, poolSize int, worker Worker) error {
@@ -114,17 +113,11 @@ func (o *orderProjection) When(ctx context.Context, evt es.Event) error {
 	}
 }
 
-func GetOrderAggregateID(eventAggregateID string) string {
-	return strings.ReplaceAll(eventAggregateID, "order-", "")
-}
-
 func (o *orderProjection) handleOrderCreateEvent(ctx context.Context, evt es.Event) error {
 	var eventData events.OrderCreatedData
 	if err := evt.GetJsonData(&eventData); err != nil {
 		return err
 	}
-
-	//aggregateID := GetOrderAggregateID(evt.AggregateID)
 
 	op := &models.OrderProjection{
 		OrderID:    GetOrderAggregateID(evt.AggregateID),
@@ -148,13 +141,11 @@ func (o *orderProjection) handleOrderCreateEvent(ctx context.Context, evt es.Eve
 
 func (o *orderProjection) handleOrderPaidEvent(ctx context.Context, evt es.Event) error {
 	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), Paid: true}
-
 	return o.mongoRepo.UpdateOrder(ctx, op)
 }
 
 func (o *orderProjection) handleSubmitEvent(ctx context.Context, evt es.Event) error {
 	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), Submitted: true}
-
 	return o.mongoRepo.UpdateOrder(ctx, op)
 }
 
@@ -166,4 +157,8 @@ func (o *orderProjection) handleUpdateEvent(ctx context.Context, evt es.Event) e
 
 	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), ItemsIDs: eventData.ItemsIDs}
 	return o.mongoRepo.UpdateOrder(ctx, op)
+}
+
+func GetOrderAggregateID(eventAggregateID string) string {
+	return strings.ReplaceAll(eventAggregateID, "order-", "")
 }
