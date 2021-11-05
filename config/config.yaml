@@ -27,7 +27,7 @@ mongo:
   password: admin
   db: orders
 mongoCollections:
-  products: orders
+  orders: orders
 jaeger:
   enable: true
   serviceName: es_service
