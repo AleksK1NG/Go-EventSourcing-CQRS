@@ -23,12 +23,11 @@ func NewSubmitOrderHandler(log logger.Logger, cfg *config.Config, es es.Aggregat
 }
 
 func (c *submitOrderHandler) Handle(ctx context.Context, command *aggregate.SubmitOrderCommand) error {
-	err := c.es.Exists(ctx, command.AggregateID)
+	order := aggregate.NewOrderAggregateWithID(command.AggregateID)
+	err := c.es.Exists(ctx, order.GetID())
 	if err != nil {
 		return err
 	}
-
-	order := aggregate.NewOrderAggregateWithID(command.AggregateID)
 
 	if err := c.es.Load(ctx, order); err != nil {
 		return err
