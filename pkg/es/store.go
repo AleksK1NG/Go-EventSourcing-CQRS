@@ -7,7 +7,7 @@ import (
 // AggregateStore is responsible for loading and saving aggregates.
 type AggregateStore interface {
 	// Load loads the most recent version of an aggregate to provided  into params aggregate with a type and id.
-	Load(ctx context.Context, id string, aggregate Aggregate) error
+	Load(ctx context.Context, aggregate Aggregate) error
 
 	// Save saves the uncommitted events for an aggregate.
 	Save(ctx context.Context, aggregate Aggregate) error

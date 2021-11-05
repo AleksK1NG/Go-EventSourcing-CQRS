@@ -30,7 +30,7 @@ func (c *orderPaidHandler) Handle(ctx context.Context, command *aggregate.OrderP
 
 	order := aggregate.NewOrderAggregateWithID(command.AggregateID)
 
-	if err := c.es.Load(ctx, order.GetID(), order); err != nil {
+	if err := c.es.Load(ctx, order); err != nil {
 		return err
 	}
 

@@ -36,7 +36,7 @@ func (q *getOrderByIDHandler) Handle(ctx context.Context, command *GetOrderByIDQ
 	//}
 
 	order := aggregate.NewOrderAggregateWithID(command.ID)
-	if err := q.es.Load(ctx, command.ID, order); err != nil {
+	if err := q.es.Load(ctx, order); err != nil {
 		return nil, err
 	}
 

@@ -30,7 +30,7 @@ func (c *submitOrderHandler) Handle(ctx context.Context, command *aggregate.Subm
 
 	order := aggregate.NewOrderAggregateWithID(command.AggregateID)
 
-	if err := c.es.Load(ctx, order.GetID(), order); err != nil {
+	if err := c.es.Load(ctx, order); err != nil {
 		return err
 	}
 
