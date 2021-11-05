@@ -3,9 +3,13 @@ package server
 import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/config"
+	"github.com/AleksK1NG/es-microservice/internal/order/service"
+	"github.com/AleksK1NG/es-microservice/pkg/es/store"
+	"github.com/AleksK1NG/es-microservice/pkg/eventstroredb"
 	"github.com/AleksK1NG/es-microservice/pkg/interceptors"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/EventStore/EventStore-Client-Go/esdb"
+	"github.com/go-playground/validator"
 	"os"
 	"os/signal"
 	"syscall"
@@ -16,10 +20,12 @@ type server struct {
 	log logger.Logger
 	db  *esdb.Client
 	im  interceptors.InterceptorManager
+	os  *service.OrderService
+	v   *validator.Validate
 }
 
 func NewServer(cfg *config.Config, log logger.Logger) *server {
-	return &server{cfg: cfg, log: log}
+	return &server{cfg: cfg, log: log, v: validator.New()}
 }
 
 func (s *server) Run() error {
@@ -27,6 +33,16 @@ func (s *server) Run() error {
 	defer cancel()
 
 	s.im = interceptors.NewInterceptorManager(s.log)
+
+	//orderProjection := projection.NewOrderProjection(s.log, s.cfg, eventStore, mongoRepository)
+
+	db, err := eventstroredb.NewEventStoreDB(s.cfg.EventStoreConfig)
+	if err != nil {
+		return err
+	}
+
+	aggregateStore := store.NewAggregateStore(s.log, db)
+	s.os = service.NewOrderService(s.log, s.cfg, aggregateStore)
 
 	closeGrpcServer, grpcServer, err := s.newOrderGrpcServer()
 	if err != nil {

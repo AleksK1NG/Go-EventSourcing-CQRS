@@ -79,7 +79,7 @@ func (a *aggregateStore) Exists(ctx context.Context, streamID string) error {
 	for {
 		_, err := stream.Recv()
 		if errors.Is(err, esdb.ErrStreamNotFound) {
-			return errors.New("Stream not found")
+			return esdb.ErrStreamNotFound
 		}
 		if errors.Is(err, io.EOF) {
 			break

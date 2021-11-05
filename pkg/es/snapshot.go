@@ -7,7 +7,7 @@ type Snapshot struct {
 	ID      string        `json:"id"`
 	Type    AggregateType `json:"type"`
 	State   []byte        `json:"state"`
-	Version int64         `json:"version"`
+	Version uint64        `json:"version"`
 }
 
 // NewSnapshotFromAggregate create new snapshot from the Aggregate state.
