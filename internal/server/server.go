@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/config"
+	"github.com/AleksK1NG/es-microservice/internal/order/projection"
 	"github.com/AleksK1NG/es-microservice/internal/order/service"
 	"github.com/AleksK1NG/es-microservice/pkg/es/store"
 	"github.com/AleksK1NG/es-microservice/pkg/eventstroredb"
@@ -43,6 +44,12 @@ func (s *server) Run() error {
 
 	aggregateStore := store.NewAggregateStore(s.log, db)
 	s.os = service.NewOrderService(s.log, s.cfg, aggregateStore)
+
+	orderProjection := projection.NewOrderProjection(s.log, db)
+
+	go func() {
+		s.log.Fatal(orderProjection.ProcessEvents(ctx))
+	}()
 
 	closeGrpcServer, grpcServer, err := s.newOrderGrpcServer()
 	if err != nil {
