@@ -13,10 +13,10 @@ type AggregateStore interface {
 	Save(ctx context.Context, aggregate Aggregate) error
 
 	// Exists check aggregate exists by id.
-	Exists(ctx context.Context, aggregateID string) (bool, error)
+	Exists(ctx context.Context, streamID string) error
 
-	EventStore
-	SnapshotStore
+	//EventStore
+	//SnapshotStore
 }
 
 // EventStore is an interface for an event sourcing event store.
