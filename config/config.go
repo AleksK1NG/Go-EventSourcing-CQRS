@@ -37,7 +37,7 @@ type GRPC struct {
 }
 
 type MongoCollections struct {
-	Products string `mapstructure:"products"`
+	Orders string `mapstructure:"orders" validate:"required"`
 }
 
 func InitConfig() (*Config, error) {
