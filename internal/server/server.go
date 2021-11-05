@@ -48,8 +48,12 @@ func (s *server) Run() error {
 	orderProjection := projection.NewOrderProjection(s.log, db)
 
 	go func() {
-		s.log.Fatal(orderProjection.ProcessEvents(ctx))
+		s.log.Fatal(orderProjection.Subscribe(ctx, []string{"order-"}, 60, orderProjection.ProcessEvents))
 	}()
+
+	//go func() {
+	//	s.log.Fatal(orderProjection.ProcessEvents(ctx))
+	//}()
 
 	closeGrpcServer, grpcServer, err := s.newOrderGrpcServer()
 	if err != nil {
