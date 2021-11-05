@@ -18,8 +18,8 @@ func NewAggregateStore(log logger.Logger, db *esdb.Client) *aggregateStore {
 	return &aggregateStore{log: log, db: db}
 }
 
-func (a *aggregateStore) Load(ctx context.Context, streamID string, aggregate es.Aggregate) error {
-	stream, err := a.db.ReadStream(ctx, streamID, esdb.ReadStreamOptions{
+func (a *aggregateStore) Load(ctx context.Context, aggregate es.Aggregate) error {
+	stream, err := a.db.ReadStream(ctx, aggregate.GetID(), esdb.ReadStreamOptions{
 		//Direction: esdb.Forwards,
 		//From:      esdb.Revision(1),
 	}, 100)

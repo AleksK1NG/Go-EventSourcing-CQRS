@@ -1,5 +1,7 @@
 package es
 
+import "fmt"
+
 // HandleCommand Aggregate commands' handler method
 // Example
 //
@@ -118,7 +120,7 @@ func NewAggregateBase(when when) *AggregateBase {
 
 // SetID set AggregateBase ID
 func (a *AggregateBase) SetID(id string) *AggregateBase {
-	a.ID = id
+	a.ID = fmt.Sprintf("%s-%s", a.GetType(), id)
 	return a
 }
 
