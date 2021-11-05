@@ -166,7 +166,7 @@ func (a *AggregateBase) GetUncommittedEvents() []Event {
 func (a *AggregateBase) Load(events []Event) error {
 
 	for _, evt := range events {
-		if evt.GetAggregateID() != a.GetID() || evt.GetAggregateType() != a.GetType() {
+		if evt.GetAggregateID() != a.GetID() {
 			return ErrInvalidAggregate
 		}
 
