@@ -4,7 +4,7 @@ import "github.com/AleksK1NG/es-microservice/internal/order/events"
 
 type CreateOrderCommand struct {
 	events.OrderCreatedData
-	AggregateID string
+	AggregateID string `json:"aggregateID" validate:"required,gte=0"`
 }
 
 func NewCreateOrderCommand(orderCreatedData events.OrderCreatedData, aggregateID string) *CreateOrderCommand {
@@ -16,7 +16,7 @@ func (o *CreateOrderCommand) GetAggregateID() string {
 }
 
 type OrderPaidCommand struct {
-	AggregateID string
+	AggregateID string `json:"aggregateID" validate:"required,gte=0"`
 }
 
 func NewOrderPaidCommand(aggregateID string) *OrderPaidCommand {
@@ -28,7 +28,7 @@ func (o *OrderPaidCommand) GetAggregateID() string {
 }
 
 type SubmitOrderCommand struct {
-	AggregateID string
+	AggregateID string `json:"aggregateID" validate:"required,gte=0"`
 }
 
 func NewSubmitOrderCommand(aggregateID string) *SubmitOrderCommand {
@@ -40,12 +40,12 @@ func (o *SubmitOrderCommand) GetAggregateID() string {
 }
 
 type OrderUpdatedCommand struct {
-	events.OrderCreatedData
-	AggregateID string
+	events.OrderUpdatedData
+	AggregateID string `json:"aggregateID" validate:"required,gte=0"`
 }
 
-func NewOrderUpdatedCommand(orderCreatedData events.OrderCreatedData, aggregateID string) *OrderUpdatedCommand {
-	return &OrderUpdatedCommand{OrderCreatedData: orderCreatedData, AggregateID: aggregateID}
+func NewOrderUpdatedCommand(orderUpdatedData events.OrderUpdatedData, aggregateID string) *OrderUpdatedCommand {
+	return &OrderUpdatedCommand{OrderUpdatedData: orderUpdatedData, AggregateID: aggregateID}
 }
 
 func (o *OrderUpdatedCommand) GetAggregateID() string {
