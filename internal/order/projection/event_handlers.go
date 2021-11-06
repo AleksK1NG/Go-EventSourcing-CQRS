@@ -23,11 +23,7 @@ func (o *orderProjection) handleOrderCreateEvent(ctx context.Context, evt es.Eve
 		Delivered:    false,
 		Canceled:     false,
 		AccountEmail: eventData.AccountEmail,
-		TotalPrice:   0,
-	}
-
-	for _, item := range eventData.ShopItems {
-		op.TotalPrice += item.Price
+		TotalPrice:   GetShopItemsTotalPrice(eventData.ShopItems),
 	}
 
 	result, err := o.mongoRepo.Insert(ctx, op)
@@ -56,8 +52,14 @@ func (o *orderProjection) handleUpdateEvent(ctx context.Context, evt es.Event) e
 	}
 
 	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), ShopItems: eventData.ShopItems}
-	for _, item := range eventData.ShopItems {
-		op.TotalPrice += item.Price
-	}
+	op.TotalPrice = GetShopItemsTotalPrice(eventData.ShopItems)
 	return o.mongoRepo.UpdateOrder(ctx, op)
+}
+
+func GetShopItemsTotalPrice(shopItems []*models.ShopItem) float64 {
+	var totalPrice float64 = 0
+	for _, item := range shopItems {
+		totalPrice += item.Price * float64(item.Quantity)
+	}
+	return totalPrice
 }
