@@ -89,10 +89,42 @@ services:
       - "9411:9411"
     networks: [ "microservices" ]
 
+  node01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.1
+    container_name: node01
+    restart: always
+    environment:
+      - node.name=node01
+      - cluster.name=es-cluster-7
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms128m -Xmx128m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es-data01:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks: [ "microservices" ]
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.11.1
+    restart: always
+    environment:
+      ELASTICSEARCH_HOSTS: http://node01:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - node01
+    networks: [ "microservices" ]
+
 volumes:
   mongodb_data_container:
   eventstore-volume-data:
   eventstore-volume-logs:
+  es-data01:
+    driver: local
 
 networks:
   microservices:
