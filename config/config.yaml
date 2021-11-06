@@ -35,3 +35,6 @@ jaeger:
   logSpans: false
 eventStoreConfig:
   connectionString: "esdb://localhost:2113?tls=false"
+subscriptions:
+  poolSize: 60
+  orderPrefix: "order-"

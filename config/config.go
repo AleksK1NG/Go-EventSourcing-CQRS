@@ -29,6 +29,7 @@ type Config struct {
 	Probes           probes.Config                  `mapstructure:"probes"`
 	Jaeger           *tracing.Config                `mapstructure:"jaeger"`
 	EventStoreConfig eventstroredb.EventStoreConfig `mapstructure:"eventStoreConfig"`
+	Subscriptions    Subscriptions                  `mapstructure:"subscriptions"`
 }
 
 type GRPC struct {
@@ -38,6 +39,11 @@ type GRPC struct {
 
 type MongoCollections struct {
 	Orders string `mapstructure:"orders" validate:"required"`
+}
+
+type Subscriptions struct {
+	PoolSize    int    `mapstructure:"poolSize" validate:"required,gte=0"`
+	OrderPrefix string `mapstructure:"orderPrefix" validate:"required"`
 }
 
 func InitConfig() (*Config, error) {
