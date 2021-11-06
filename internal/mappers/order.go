@@ -8,13 +8,15 @@ import (
 
 func OrderProjectionFromAggregate(orderAggregate *aggregate.OrderAggregate) *models.OrderProjection {
 	return &models.OrderProjection{
-		OrderID:    projection.GetOrderAggregateID(orderAggregate.GetID()),
-		ItemsIDs:   orderAggregate.Order.ItemsIDs,
-		Created:    orderAggregate.Order.Created,
-		Paid:       orderAggregate.Order.Paid,
-		Submitted:  orderAggregate.Order.Submitted,
-		Delivering: orderAggregate.Order.Delivering,
-		Delivered:  orderAggregate.Order.Delivered,
-		Canceled:   orderAggregate.Order.Canceled,
+		OrderID:      projection.GetOrderAggregateID(orderAggregate.GetID()),
+		ShopItems:    orderAggregate.Order.ShopItems,
+		Created:      orderAggregate.Order.Created,
+		Paid:         orderAggregate.Order.Paid,
+		Submitted:    orderAggregate.Order.Submitted,
+		Delivering:   orderAggregate.Order.Delivering,
+		Delivered:    orderAggregate.Order.Delivered,
+		Canceled:     orderAggregate.Order.Canceled,
+		AccountEmail: orderAggregate.Order.AccountEmail,
+		TotalPrice:   orderAggregate.Order.TotalPrice,
 	}
 }

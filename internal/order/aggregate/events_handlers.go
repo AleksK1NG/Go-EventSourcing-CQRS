@@ -11,8 +11,12 @@ func (a *OrderAggregate) handleOrderCreatedEvent(evt es.Event) error {
 		return err
 	}
 
-	a.Order.ItemsIDs = eventData.ItemsIDs
+	a.Order.AccountEmail = eventData.AccountEmail
+	a.Order.ShopItems = eventData.ShopItems
 	a.Order.Created = true
+	for _, item := range a.Order.ShopItems {
+		a.Order.TotalPrice += item.Price
+	}
 	return nil
 }
 
@@ -43,10 +47,14 @@ func (a *OrderAggregate) handleOrderCanceledEvent(evt es.Event) error {
 }
 
 func (a *OrderAggregate) handleOrderUpdatedEvent(evt es.Event) error {
-	var eventData events.OrderCreatedData
+	var eventData events.OrderUpdatedData
 	if err := evt.GetJsonData(&eventData); err != nil {
 		return err
 	}
-	a.Order.ItemsIDs = eventData.ItemsIDs
+
+	a.Order.ShopItems = eventData.ShopItems
+	for _, item := range a.Order.ShopItems {
+		a.Order.TotalPrice += item.Price
+	}
 	return nil
 }

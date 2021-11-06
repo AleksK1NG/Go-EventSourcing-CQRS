@@ -7,7 +7,7 @@ import (
 )
 
 func (a *OrderAggregate) handleCreateOrderCommand(command *CreateOrderCommand) error {
-	createdData := &events.OrderCreatedData{ItemsIDs: command.ItemsIDs}
+	createdData := &events.OrderCreatedData{ShopItems: command.ShopItems, AccountEmail: command.AccountEmail}
 	createdDataBytes, err := json.Marshal(createdData)
 	if err != nil {
 		return err
@@ -15,7 +15,7 @@ func (a *OrderAggregate) handleCreateOrderCommand(command *CreateOrderCommand) e
 
 	createOrderEvent := events.NewCreateOrderEvent(a, createdDataBytes)
 
-	if a.Order.Created || a.Version != 0 || command.OrderCreatedData.ItemsIDs == nil {
+	if a.Order.Created || a.Version != 0 || command.OrderCreatedData.ShopItems == nil {
 		return errors.New("already created")
 	}
 
@@ -65,7 +65,7 @@ func (a *OrderAggregate) handleOrderUpdatedCommand(command *OrderUpdatedCommand)
 		return errors.New("already submitted")
 	}
 
-	eventData := &events.OrderCreatedData{ItemsIDs: command.ItemsIDs}
+	eventData := &events.OrderUpdatedData{ShopItems: command.ShopItems}
 	eventDataBytes, err := json.Marshal(eventData)
 	if err != nil {
 		return err

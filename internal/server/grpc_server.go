@@ -45,7 +45,7 @@ func (s *server) newOrderGrpcServer() (func() error, *grpc.Server, error) {
 		),
 	)
 
-	grpcService := grpc2.NewOrderGrpcService(s.log, s.os)
+	grpcService := grpc2.NewOrderGrpcService(s.log, s.os, s.v)
 	orderService.RegisterOrderServiceServer(grpcServer, grpcService)
 	grpc_prometheus.Register(grpcServer)
 
