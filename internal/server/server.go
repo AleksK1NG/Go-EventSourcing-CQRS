@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/config"
+	"github.com/AleksK1NG/es-microservice/internal/order/projection/elastic_projection"
 	"github.com/AleksK1NG/es-microservice/internal/order/projection/mongo_projection"
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
 	"github.com/AleksK1NG/es-microservice/internal/order/service"
@@ -66,13 +67,14 @@ func (s *server) Run() error {
 	defer mongoDBConn.Disconnect(ctx) // nolint: errcheck
 	s.log.Infof("Mongo connected: %v", mongoDBConn.NumberSessionsInProgress())
 
-	elasticClient, err := elasticsearch.NewElasticClient()
+	elasticClient, err := elasticsearch.NewElasticClient(s.cfg.Elastic)
 	if err != nil {
 		return err
 	}
 	s.elasticClient = elasticClient
 
 	mongoRepository := repository.NewMongoRepository(s.log, s.cfg, s.mongoClient)
+	elasticRepository := repository.NewElasticRepository(s.log, s.cfg, s.elasticClient)
 
 	db, err := eventstroredb.NewEventStoreDB(s.cfg.EventStoreConfig)
 	if err != nil {
@@ -82,12 +84,21 @@ func (s *server) Run() error {
 	aggregateStore := store.NewAggregateStore(s.log, db)
 	s.os = service.NewOrderService(s.log, s.cfg, aggregateStore, mongoRepository)
 
-	orderProjection := mongo_projection.NewOrderProjection(s.log, db, mongoRepository)
+	mongoProjection := mongo_projection.NewOrderProjection(s.log, db, mongoRepository)
+	elasticProjection := elastic_projection.NewElasticProjection(s.log, db, elasticRepository)
 
 	go func() {
-		err := orderProjection.Subscribe(ctx, []string{s.cfg.Subscriptions.OrderPrefix}, s.cfg.Subscriptions.PoolSize, orderProjection.ProcessEvents)
+		err := mongoProjection.Subscribe(ctx, []string{s.cfg.Subscriptions.OrderPrefix}, s.cfg.Subscriptions.PoolSize, mongoProjection.ProcessEvents)
 		if err != nil {
 			s.log.Errorf("orderProjection.Subscribe: %v", err)
+			cancel()
+		}
+	}()
+
+	go func() {
+		err := elasticProjection.Subscribe(ctx, []string{s.cfg.Subscriptions.OrderPrefix}, s.cfg.Subscriptions.PoolSize, elasticProjection.ProcessEvents)
+		if err != nil {
+			s.log.Errorf("elasticProjection.Subscribe: %v", err)
 			cancel()
 		}
 	}()
