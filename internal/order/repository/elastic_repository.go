@@ -16,6 +16,7 @@ type ElasticRepository interface {
 	IndexOrder(ctx context.Context, order *models.OrderProjection) error
 	GetByID(ctx context.Context, orderID string) (*models.OrderProjection, error)
 	UpdateOrder(ctx context.Context, order *models.OrderProjection) error
+	Search(ctx context.Context, text string) ([]*models.OrderProjection, error)
 }
 
 type elasticRepository struct {
@@ -82,4 +83,57 @@ func (e *elasticRepository) UpdateOrder(ctx context.Context, order *models.Order
 
 	e.log.Infof("UpdateOrder result: %+v", res)
 	return nil
+}
+
+func (e *elasticRepository) Search(ctx context.Context, text string) ([]*models.OrderProjection, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticRepository.Search")
+	defer span.Finish()
+	span.LogFields(log.String("Search", text))
+
+	shouldMatch := v7.NewBoolQuery().
+		Should(
+			v7.NewMatchPhrasePrefixQuery("shopItems.title", text),
+			v7.NewMatchPhrasePrefixQuery("shopItems.description", text),
+		).
+		MinimumNumberShouldMatch(1)
+
+	//boolQuery := v7.NewBoolQuery().Must(
+	//	v7.NewTermQuery("shopItems.title", text),
+	//	v7.NewTermQuery("shopItems.description", text),
+	//)
+
+	//boolQuery := v7.NewBoolQuery().Must(
+	//	v7.NewMatchPhrasePrefixQuery("shopItems.title", text),
+	//	v7.NewMatchPhrasePrefixQuery("shopItems.description", text),
+	//)
+
+	searchResult, err := e.elasticClient.Search(e.cfg.ElasticIndexes.Orders).
+		Query(shouldMatch).
+		//Query(v7.NewMatchPhrasePrefixQuery("shopItems.title", text)).
+		From(0).
+		//Sort("title", true).
+		Size(60).     // take documents 0-9
+		Pretty(true). // pretty print request and response JSON
+		Do(ctx)
+	if err != nil {
+		tracing.TraceErr(span, err)
+		return nil, err
+	}
+
+	orders := make([]*models.OrderProjection, 0, len(searchResult.Hits.Hits))
+	for _, hit := range searchResult.Hits.Hits {
+		jsonBytes, err := hit.Source.MarshalJSON()
+		if err != nil {
+			tracing.TraceErr(span, err)
+			return nil, err
+		}
+		var order models.OrderProjection
+		if err := json.Unmarshal(jsonBytes, &order); err != nil {
+			tracing.TraceErr(span, err)
+			return nil, err
+		}
+		orders = append(orders, &order)
+	}
+
+	return orders, nil
 }

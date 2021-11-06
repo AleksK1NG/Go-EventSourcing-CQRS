@@ -1,11 +1,12 @@
 package queries
 
 type OrderQueries struct {
-	GetOrderByIDQuery GetOrderByIDQueryHandler
+	GetOrderByID GetOrderByIDQueryHandler
+	SearchOrders SearchOrdersQueryHandler
 }
 
-func NewOrderQueries(getOrderByIDQuery GetOrderByIDQueryHandler) *OrderQueries {
-	return &OrderQueries{GetOrderByIDQuery: getOrderByIDQuery}
+func NewOrderQueries(getOrderByID GetOrderByIDQueryHandler, searchOrders SearchOrdersQueryHandler) *OrderQueries {
+	return &OrderQueries{GetOrderByID: getOrderByID, SearchOrders: searchOrders}
 }
 
 type GetOrderByIDQuery struct {
@@ -14,4 +15,12 @@ type GetOrderByIDQuery struct {
 
 func NewGetOrderByIDQuery(ID string) *GetOrderByIDQuery {
 	return &GetOrderByIDQuery{ID: ID}
+}
+
+type SearchOrdersQuery struct {
+	SearchText string `json:"searchText"`
+}
+
+func NewSearchOrdersQuery(searchText string) *SearchOrdersQuery {
+	return &SearchOrdersQuery{SearchText: searchText}
 }

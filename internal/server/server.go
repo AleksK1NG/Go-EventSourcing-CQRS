@@ -82,7 +82,7 @@ func (s *server) Run() error {
 	}
 
 	aggregateStore := store.NewAggregateStore(s.log, db)
-	s.os = service.NewOrderService(s.log, s.cfg, aggregateStore, mongoRepository)
+	s.os = service.NewOrderService(s.log, s.cfg, aggregateStore, mongoRepository, elasticRepository)
 
 	mongoProjection := mongo_projection.NewOrderProjection(s.log, db, mongoRepository)
 	elasticProjection := elastic_projection.NewElasticProjection(s.log, db, elasticRepository)

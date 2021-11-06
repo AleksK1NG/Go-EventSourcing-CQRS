@@ -22,6 +22,7 @@ type OrderServiceClient interface {
 	SubmitOrder(ctx context.Context, in *SubmitOrderReq, opts ...grpc.CallOption) (*SubmitOrderRes, error)
 	GetOrderByID(ctx context.Context, in *GetOrderByIDReq, opts ...grpc.CallOption) (*GetOrderByIDRes, error)
 	UpdateOrder(ctx context.Context, in *UpdateOrderReq, opts ...grpc.CallOption) (*UpdateOrderRes, error)
+	Search(ctx context.Context, in *SearchReq, opts ...grpc.CallOption) (*SearchRes, error)
 }
 
 type orderServiceClient struct {
@@ -77,6 +78,15 @@ func (c *orderServiceClient) UpdateOrder(ctx context.Context, in *UpdateOrderReq
 	return out, nil
 }
 
+func (c *orderServiceClient) Search(ctx context.Context, in *SearchReq, opts ...grpc.CallOption) (*SearchRes, error) {
+	out := new(SearchRes)
+	err := c.cc.Invoke(ctx, "/orderService.orderService/Search", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServiceServer is the server API for OrderService service.
 // All implementations should embed UnimplementedOrderServiceServer
 // for forward compatibility
@@ -86,6 +96,7 @@ type OrderServiceServer interface {
 	SubmitOrder(context.Context, *SubmitOrderReq) (*SubmitOrderRes, error)
 	GetOrderByID(context.Context, *GetOrderByIDReq) (*GetOrderByIDRes, error)
 	UpdateOrder(context.Context, *UpdateOrderReq) (*UpdateOrderRes, error)
+	Search(context.Context, *SearchReq) (*SearchRes, error)
 }
 
 // UnimplementedOrderServiceServer should be embedded to have forward compatible implementations.
@@ -106,6 +117,9 @@ func (UnimplementedOrderServiceServer) GetOrderByID(context.Context, *GetOrderBy
 }
 func (UnimplementedOrderServiceServer) UpdateOrder(context.Context, *UpdateOrderReq) (*UpdateOrderRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrder not implemented")
+}
+func (UnimplementedOrderServiceServer) Search(context.Context, *SearchReq) (*SearchRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
 }
 
 // UnsafeOrderServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -209,6 +223,24 @@ func _OrderService_UpdateOrder_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).Search(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/orderService.orderService/Search",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).Search(ctx, req.(*SearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _OrderService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "orderService.orderService",
 	HandlerType: (*OrderServiceServer)(nil),
@@ -232,6 +264,10 @@ var _OrderService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateOrder",
 			Handler:    _OrderService_UpdateOrder_Handler,
+		},
+		{
+			MethodName: "Search",
+			Handler:    _OrderService_Search_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
