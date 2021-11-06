@@ -96,9 +96,9 @@ func (s *orderGrpcService) GetOrderByID(ctx context.Context, req *orderService.G
 		return nil, s.errResponse(codes.Internal, err)
 	}
 
-	orderProjection, err := s.os.Queries.GetOrderByIDQuery.Handle(ctx, query)
+	orderProjection, err := s.os.Queries.GetOrderByID.Handle(ctx, query)
 	if err != nil {
-		s.log.WarnMsg("GetOrderByIDQuery.Handle", err)
+		s.log.WarnMsg("GetOrderByID.Handle", err)
 		return nil, s.errResponse(codes.Internal, err)
 	}
 
@@ -122,6 +122,26 @@ func (s *orderGrpcService) UpdateOrder(ctx context.Context, req *orderService.Up
 	}
 
 	return &orderService.UpdateOrderRes{}, nil
+}
+
+func (s *orderGrpcService) Search(ctx context.Context, req *orderService.SearchReq) (*orderService.SearchRes, error) {
+	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.Search")
+	defer span.Finish()
+	span.LogFields(log.String("Search req", req.String()))
+
+	query := queries.NewSearchOrdersQuery(req.GetSearchText())
+	if err := s.v.StructCtx(ctx, query); err != nil {
+		s.log.WarnMsg("validate", err)
+		return nil, s.errResponse(codes.Internal, err)
+	}
+
+	searchResult, err := s.os.Queries.SearchOrders.Handle(ctx, query)
+	if err != nil {
+		s.log.WarnMsg("UpdateOrder.Handle", err)
+		return nil, s.errResponse(codes.Internal, err)
+	}
+
+	return &orderService.SearchRes{Orders: models.OrderProjectionsToProto(searchResult)}, nil
 }
 
 func (s *orderGrpcService) errResponse(c codes.Code, err error) error {

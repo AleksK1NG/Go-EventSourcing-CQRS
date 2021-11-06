@@ -70,3 +70,11 @@ func OrderProjectionToProto(order *OrderProjection) *orderService.Order {
 		AccountEmail: order.AccountEmail,
 	}
 }
+
+func OrderProjectionsToProto(orderProjections []*OrderProjection) []*orderService.Order {
+	orders := make([]*orderService.Order, 0, len(orderProjections))
+	for _, projection := range orderProjections {
+		orders = append(orders, OrderProjectionToProto(projection))
+	}
+	return orders
+}

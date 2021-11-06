@@ -19,6 +19,7 @@ func NewOrderService(
 	cfg *config.Config,
 	es es.AggregateStore,
 	mongoRepo repository.OrderRepository,
+	elasticRepository repository.ElasticRepository,
 ) *OrderService {
 
 	createOrderHandler := commands.NewCreateOrderHandler(log, cfg, es)
@@ -27,9 +28,10 @@ func NewOrderService(
 	updateOrderCmdHandler := commands.NewUpdateOrderCmdHandler(log, cfg, es)
 
 	getOrderByIDHandler := queries.NewGetOrderByIDHandler(log, cfg, es, mongoRepo)
+	searchOrdersHandler := queries.NewSearchOrdersHandler(log, cfg, es, elasticRepository)
 
 	orderCommands := commands.NewOrderCommands(createOrderHandler, orderPaidHandler, submitOrderHandler, updateOrderCmdHandler)
-	orderQueries := queries.NewOrderQueries(getOrderByIDHandler)
+	orderQueries := queries.NewOrderQueries(getOrderByIDHandler, searchOrdersHandler)
 
 	return &OrderService{Commands: orderCommands, Queries: orderQueries}
 }

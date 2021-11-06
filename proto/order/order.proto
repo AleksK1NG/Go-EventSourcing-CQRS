@@ -67,10 +67,19 @@ message UpdateOrderReq {
 
 message UpdateOrderRes {}
 
+message SearchReq {
+  string SearchText = 1;
+}
+
+message SearchRes {
+  repeated Order Orders = 1;
+}
+
 service orderService {
   rpc CreateOrder(CreateOrderReq) returns (CreateOrderRes);
   rpc PayOrder(PayOrderReq) returns (PayOrderRes);
   rpc SubmitOrder(SubmitOrderReq) returns (SubmitOrderRes);
   rpc GetOrderByID(GetOrderByIDReq) returns (GetOrderByIDRes);
   rpc UpdateOrder(UpdateOrderReq) returns (UpdateOrderRes);
+  rpc Search(SearchReq) returns (SearchRes);
 }
