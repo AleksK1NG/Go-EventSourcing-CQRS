@@ -8,8 +8,10 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/queries"
 	"github.com/AleksK1NG/es-microservice/internal/order/service"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
+	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/AleksK1NG/es-microservice/proto/order"
 	"github.com/go-playground/validator"
+	"github.com/opentracing/opentracing-go/log"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -25,6 +27,10 @@ func NewOrderGrpcService(log logger.Logger, os *service.OrderService, v *validat
 }
 
 func (s *orderGrpcService) CreateOrder(ctx context.Context, req *orderService.CreateOrderReq) (*orderService.CreateOrderRes, error) {
+	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.CreateOrder")
+	defer span.Finish()
+	span.LogFields(log.String("CreateOrder req", req.String()))
+
 	orderCreatedData := events.OrderCreatedData{ShopItems: models.ShopItemsFromProto(req.GetShopItems()), AccountEmail: req.GetAccountEmail()}
 	command := aggregate.NewCreateOrderCommand(orderCreatedData, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
@@ -42,6 +48,10 @@ func (s *orderGrpcService) CreateOrder(ctx context.Context, req *orderService.Cr
 }
 
 func (s *orderGrpcService) PayOrder(ctx context.Context, req *orderService.PayOrderReq) (*orderService.PayOrderRes, error) {
+	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.PayOrder")
+	defer span.Finish()
+	span.LogFields(log.String("PayOrder req", req.String()))
+
 	command := aggregate.NewOrderPaidCommand(req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.WarnMsg("validate", err)
@@ -57,6 +67,10 @@ func (s *orderGrpcService) PayOrder(ctx context.Context, req *orderService.PayOr
 }
 
 func (s *orderGrpcService) SubmitOrder(ctx context.Context, req *orderService.SubmitOrderReq) (*orderService.SubmitOrderRes, error) {
+	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.SubmitOrder")
+	defer span.Finish()
+	span.LogFields(log.String("SubmitOrder req", req.String()))
+
 	command := aggregate.NewSubmitOrderCommand(req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.WarnMsg("validate", err)
@@ -72,6 +86,10 @@ func (s *orderGrpcService) SubmitOrder(ctx context.Context, req *orderService.Su
 }
 
 func (s *orderGrpcService) GetOrderByID(ctx context.Context, req *orderService.GetOrderByIDReq) (*orderService.GetOrderByIDRes, error) {
+	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.GetOrderByID")
+	defer span.Finish()
+	span.LogFields(log.String("GetOrderByID req", req.String()))
+
 	query := queries.NewGetOrderByIDQuery(req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, query); err != nil {
 		s.log.WarnMsg("validate", err)
@@ -88,6 +106,10 @@ func (s *orderGrpcService) GetOrderByID(ctx context.Context, req *orderService.G
 }
 
 func (s *orderGrpcService) UpdateOrder(ctx context.Context, req *orderService.UpdateOrderReq) (*orderService.UpdateOrderRes, error) {
+	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.UpdateOrder")
+	defer span.Finish()
+	span.LogFields(log.String("UpdateOrder req", req.String()))
+
 	command := aggregate.NewOrderUpdatedCommand(events.OrderUpdatedData{ShopItems: models.ShopItemsFromProto(req.GetShopItems())}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.WarnMsg("validate", err)
@@ -95,7 +117,8 @@ func (s *orderGrpcService) UpdateOrder(ctx context.Context, req *orderService.Up
 	}
 
 	if err := s.os.Commands.UpdateOrder.Handle(ctx, command); err != nil {
-		return nil, err
+		s.log.WarnMsg("UpdateOrder.Handle", err)
+		return nil, s.errResponse(codes.Internal, err)
 	}
 
 	return &orderService.UpdateOrderRes{}, nil

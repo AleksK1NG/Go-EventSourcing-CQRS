@@ -5,11 +5,19 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/models"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
+	"github.com/AleksK1NG/es-microservice/pkg/tracing"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/log"
 )
 
 func (o *orderProjection) handleOrderCreateEvent(ctx context.Context, evt es.Event) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "orderProjection.handleOrderCreateEvent")
+	defer span.Finish()
+	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
+
 	var eventData events.OrderCreatedData
 	if err := evt.GetJsonData(&eventData); err != nil {
+		tracing.TraceErr(span, err)
 		return err
 	}
 
@@ -36,18 +44,31 @@ func (o *orderProjection) handleOrderCreateEvent(ctx context.Context, evt es.Eve
 }
 
 func (o *orderProjection) handleOrderPaidEvent(ctx context.Context, evt es.Event) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "orderProjection.handleOrderPaidEvent")
+	defer span.Finish()
+	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
+
 	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), Paid: true}
 	return o.mongoRepo.UpdateOrder(ctx, op)
 }
 
 func (o *orderProjection) handleSubmitEvent(ctx context.Context, evt es.Event) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "orderProjection.handleSubmitEvent")
+	defer span.Finish()
+	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
+
 	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), Submitted: true}
 	return o.mongoRepo.UpdateOrder(ctx, op)
 }
 
 func (o *orderProjection) handleUpdateEvent(ctx context.Context, evt es.Event) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "orderProjection.handleUpdateEvent")
+	defer span.Finish()
+	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
+
 	var eventData events.OrderUpdatedData
 	if err := evt.GetJsonData(&eventData); err != nil {
+		tracing.TraceErr(span, err)
 		return err
 	}
 

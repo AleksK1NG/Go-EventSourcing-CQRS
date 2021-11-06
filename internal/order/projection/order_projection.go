@@ -6,7 +6,9 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
+	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/EventStore/EventStore-Client-Go/esdb"
+	"github.com/opentracing/opentracing-go/log"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 	"strings"
@@ -83,6 +85,10 @@ func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.Subscr
 }
 
 func (o *orderProjection) When(ctx context.Context, evt es.Event) error {
+	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderProjection.When")
+	defer span.Finish()
+	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
+
 	switch evt.GetEventType() {
 
 	case events.OrderCreated:
