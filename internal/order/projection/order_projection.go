@@ -2,7 +2,6 @@ package projection
 
 import (
 	"context"
-	"github.com/AleksK1NG/es-microservice/internal/models"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
@@ -26,7 +25,7 @@ func NewOrderProjection(log logger.Logger, db *esdb.Client, mongoRepo repository
 type Worker func(ctx context.Context, stream *esdb.Subscription, workerID int) error
 
 func (o *orderProjection) Subscribe(ctx context.Context, prefixes []string, poolSize int, worker Worker) error {
-	o.log.Infof("starting order subscription prefixes: %+v", prefixes)
+	o.log.Infof("starting order subscription: %+v", prefixes)
 
 	stream, err := o.db.SubscribeToAll(ctx, esdb.SubscribeToAllOptions{
 		Filter: &esdb.SubscriptionFilter{Type: esdb.StreamFilterType, Prefixes: prefixes},
@@ -109,52 +108,6 @@ func (o *orderProjection) When(ctx context.Context, evt es.Event) error {
 	default:
 		return es.ErrInvalidEventType
 	}
-}
-
-func (o *orderProjection) handleOrderCreateEvent(ctx context.Context, evt es.Event) error {
-	var eventData events.OrderCreatedData
-	if err := evt.GetJsonData(&eventData); err != nil {
-		return err
-	}
-
-	op := &models.OrderProjection{
-		OrderID:    GetOrderAggregateID(evt.AggregateID),
-		ItemsIDs:   eventData.ItemsIDs,
-		Created:    true,
-		Paid:       false,
-		Submitted:  false,
-		Delivering: false,
-		Delivered:  false,
-		Canceled:   false,
-	}
-
-	result, err := o.mongoRepo.Insert(ctx, op)
-	if err != nil {
-		return err
-	}
-
-	o.log.Debugf("projection OrderCreated result: %s", result)
-	return nil
-}
-
-func (o *orderProjection) handleOrderPaidEvent(ctx context.Context, evt es.Event) error {
-	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), Paid: true}
-	return o.mongoRepo.UpdateOrder(ctx, op)
-}
-
-func (o *orderProjection) handleSubmitEvent(ctx context.Context, evt es.Event) error {
-	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), Submitted: true}
-	return o.mongoRepo.UpdateOrder(ctx, op)
-}
-
-func (o *orderProjection) handleUpdateEvent(ctx context.Context, evt es.Event) error {
-	var eventData events.OrderCreatedData
-	if err := evt.GetJsonData(&eventData); err != nil {
-		return err
-	}
-
-	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), ItemsIDs: eventData.ItemsIDs}
-	return o.mongoRepo.UpdateOrder(ctx, op)
 }
 
 func GetOrderAggregateID(eventAggregateID string) string {

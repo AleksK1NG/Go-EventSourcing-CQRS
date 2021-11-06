@@ -38,6 +38,10 @@ func (s *server) Run() error {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
 
+	if err := s.v.StructCtx(ctx, s.cfg); err != nil {
+		return errors.Wrap(err, "cfg validate")
+	}
+
 	s.im = interceptors.NewInterceptorManager(s.log)
 
 	mongoDBConn, err := mongodb.NewMongoDBConn(ctx, s.cfg.Mongo)
@@ -61,13 +65,8 @@ func (s *server) Run() error {
 	orderProjection := projection.NewOrderProjection(s.log, db, mongoRepository)
 
 	go func() {
-		s.log.Fatal(orderProjection.Subscribe(ctx, []string{"order-"}, 60, orderProjection.ProcessEvents))
+		s.log.Fatal(orderProjection.Subscribe(ctx, []string{s.cfg.Subscriptions.OrderPrefix}, s.cfg.Subscriptions.PoolSize, orderProjection.ProcessEvents))
 	}()
-
-	//go func() {
-	//	s.log.Fatal(orderProjection.ProcessEvents(ctx))
-	//}()
-
 	closeGrpcServer, grpcServer, err := s.newOrderGrpcServer()
 	if err != nil {
 		return err
