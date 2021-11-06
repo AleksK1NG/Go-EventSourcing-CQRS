@@ -9,6 +9,8 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/log"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -28,8 +30,12 @@ func NewGetOrderByIDHandler(log logger.Logger, cfg *config.Config, es es.Aggrega
 	return &getOrderByIDHandler{log: log, cfg: cfg, es: es, mongoRepo: mongoRepo}
 }
 
-func (q *getOrderByIDHandler) Handle(ctx context.Context, command *GetOrderByIDQuery) (*models.OrderProjection, error) {
-	orderProjection, err := q.mongoRepo.GetByID(ctx, command.ID)
+func (q *getOrderByIDHandler) Handle(ctx context.Context, query *GetOrderByIDQuery) (*models.OrderProjection, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "getOrderByIDHandler.Handle")
+	defer span.Finish()
+	span.LogFields(log.String("AggregateID", query.ID))
+
+	orderProjection, err := q.mongoRepo.GetByID(ctx, query.ID)
 	if err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
 		return nil, err
 	}
@@ -37,7 +43,7 @@ func (q *getOrderByIDHandler) Handle(ctx context.Context, command *GetOrderByIDQ
 		return orderProjection, nil
 	}
 
-	order := aggregate.NewOrderAggregateWithID(command.ID)
+	order := aggregate.NewOrderAggregateWithID(query.ID)
 	if err := q.es.Load(ctx, order); err != nil {
 		return nil, err
 	}

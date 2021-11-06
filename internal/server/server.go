@@ -11,8 +11,10 @@ import (
 	"github.com/AleksK1NG/es-microservice/pkg/interceptors"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/AleksK1NG/es-microservice/pkg/mongodb"
+	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/EventStore/EventStore-Client-Go/esdb"
 	"github.com/go-playground/validator"
+	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"os"
@@ -42,6 +44,15 @@ func (s *server) Run() error {
 		return errors.Wrap(err, "cfg validate")
 	}
 
+	if s.cfg.Jaeger.Enable {
+		tracer, closer, err := tracing.NewJaegerTracer(s.cfg.Jaeger)
+		if err != nil {
+			return err
+		}
+		defer closer.Close() // nolint: errcheck
+		opentracing.SetGlobalTracer(tracer)
+	}
+
 	s.im = interceptors.NewInterceptorManager(s.log)
 
 	mongoDBConn, err := mongodb.NewMongoDBConn(ctx, s.cfg.Mongo)
@@ -65,10 +76,16 @@ func (s *server) Run() error {
 	orderProjection := projection.NewOrderProjection(s.log, db, mongoRepository)
 
 	go func() {
-		s.log.Fatal(orderProjection.Subscribe(ctx, []string{s.cfg.Subscriptions.OrderPrefix}, s.cfg.Subscriptions.PoolSize, orderProjection.ProcessEvents))
+		err := orderProjection.Subscribe(ctx, []string{s.cfg.Subscriptions.OrderPrefix}, s.cfg.Subscriptions.PoolSize, orderProjection.ProcessEvents)
+		if err != nil {
+			s.log.Errorf("orderProjection.Subscribe: %v", err)
+			cancel()
+		}
 	}()
+
 	closeGrpcServer, grpcServer, err := s.newOrderGrpcServer()
 	if err != nil {
+		cancel()
 		return err
 	}
 	defer closeGrpcServer() // nolint: errcheck

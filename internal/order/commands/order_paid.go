@@ -6,6 +6,9 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
+	"github.com/AleksK1NG/es-microservice/pkg/tracing"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/log"
 )
 
 type OrderPaidCommandHandler interface {
@@ -23,6 +26,10 @@ func NewOrderPaidHandler(log logger.Logger, cfg *config.Config, es es.AggregateS
 }
 
 func (c *orderPaidHandler) Handle(ctx context.Context, command *aggregate.OrderPaidCommand) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "orderPaidHandler.Handle")
+	defer span.Finish()
+	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
+
 	order := aggregate.NewOrderAggregateWithID(command.AggregateID)
 	err := c.es.Exists(ctx, order.GetID())
 	if err != nil {
@@ -34,6 +41,7 @@ func (c *orderPaidHandler) Handle(ctx context.Context, command *aggregate.OrderP
 	}
 
 	if err := order.HandleCommand(command); err != nil {
+		tracing.TraceErr(span, err)
 		return err
 	}
 
