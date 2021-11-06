@@ -8,8 +8,9 @@ import (
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/EventStore/EventStore-Client-Go/esdb"
+	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 	"strings"
-	"sync"
 )
 
 type orderProjection struct {
@@ -22,7 +23,7 @@ func NewOrderProjection(log logger.Logger, db *esdb.Client, mongoRepo repository
 	return &orderProjection{log: log, db: db, mongoRepo: mongoRepo}
 }
 
-type Worker func(ctx context.Context, stream *esdb.Subscription, wg *sync.WaitGroup, workerID int)
+type Worker func(ctx context.Context, stream *esdb.Subscription, workerID int) error
 
 func (o *orderProjection) Subscribe(ctx context.Context, prefixes []string, poolSize int, worker Worker) error {
 	o.log.Infof("starting order subscription prefixes: %+v", prefixes)
@@ -35,24 +36,22 @@ func (o *orderProjection) Subscribe(ctx context.Context, prefixes []string, pool
 	}
 	defer stream.Close()
 
-	wg := &sync.WaitGroup{}
+	g, ctx := errgroup.WithContext(ctx)
 	for i := 0; i <= poolSize; i++ {
-		wg.Add(1)
-		go worker(ctx, stream, wg, i)
+		g.Go(func() error {
+			return worker(ctx, stream, i)
+		})
 	}
-
-	wg.Wait()
-	return nil
+	return g.Wait()
 }
 
-func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.Subscription, wg *sync.WaitGroup, workerID int) {
-	defer wg.Done()
+func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.Subscription, workerID int) error {
 
 	for {
 		select {
 		case <-ctx.Done():
 			o.log.Errorf("ctxDone: %v", ctx.Err())
-			return
+			return ctx.Err()
 		default:
 		}
 
@@ -62,8 +61,9 @@ func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.Subscr
 			o.log.Error("Subscription Dropped")
 			if event.SubscriptionDropped.Error != nil {
 				o.log.Errorf("SubscriptionDropped error: %s", event.SubscriptionDropped.Error.Error())
+				return event.SubscriptionDropped.Error
 			}
-			return
+			return errors.New("Subscription Dropped")
 		}
 
 		if event.EventAppeared != nil {
@@ -81,8 +81,6 @@ func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.Subscr
 			}
 		}
 	}
-
-	o.log.Infof("subscription finished: %sm workerID: %v", stream.Id(), workerID)
 }
 
 func (o *orderProjection) When(ctx context.Context, evt es.Event) error {
