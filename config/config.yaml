@@ -38,3 +38,7 @@ eventStoreConfig:
 subscriptions:
   poolSize: 60
   orderPrefix: "order-"
+elastic:
+  url: "http://localhost:9200"
+elasticIndexes:
+  orders: "orders"

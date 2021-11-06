@@ -1,4 +1,4 @@
-package projection
+package mongo_projection
 
 import (
 	"context"

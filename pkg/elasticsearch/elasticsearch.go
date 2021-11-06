@@ -6,7 +6,11 @@ import (
 	v7 "github.com/olivere/elastic/v7"
 )
 
-func NewElasticClient() (*v7.Client, error) {
+type Config struct {
+	URL string `mapstructure:"url"`
+}
+
+func NewElasticClient(cfg Config) (*v7.Client, error) {
 	// Starting with elastic.v5, you must pass a context to execute each service
 	ctx := context.Background()
 
@@ -14,7 +18,7 @@ func NewElasticClient() (*v7.Client, error) {
 	// on 127.0.0.1:9200. Of course you can configure your client to connect
 	// to other hosts and configure it in various other ways.
 	client, err := v7.NewClient(
-		v7.SetURL("http://localhost:9200"),
+		v7.SetURL(cfg.URL),
 		v7.SetSniff(false),
 		v7.SetGzip(true),
 	)
