@@ -229,16 +229,32 @@ func (l *appLogger) HttpMiddlewareAccessLogger(method, uri string, status int, s
 }
 
 func (l *appLogger) GrpcMiddlewareAccessLogger(method string, time time.Duration, metaData map[string][]string, err error) {
-	l.logger.Info(
-		constants.GRPC,
-		zap.String(constants.METHOD, method),
-		zap.Duration(constants.TIME, time),
-		zap.Any(constants.METADATA, metaData),
-		zap.Error(err),
-	)
+	if err != nil {
+		l.logger.Info(
+			constants.GRPC,
+			zap.String(constants.METHOD, method),
+			zap.Duration(constants.TIME, time),
+			zap.Any(constants.METADATA, metaData),
+			zap.String(constants.ERROR, err.Error()),
+		)
+		return
+	}
+	l.logger.Info(constants.GRPC, zap.String(constants.METHOD, method), zap.Duration(constants.TIME, time), zap.Any(constants.METADATA, metaData))
 }
 
 func (l *appLogger) GrpcClientInterceptorLogger(method string, req, reply interface{}, time time.Duration, metaData map[string][]string, err error) {
+	if err != nil {
+		l.logger.Info(
+			constants.GRPC,
+			zap.String(constants.METHOD, method),
+			zap.Any(constants.REQUEST, req),
+			zap.Any(constants.REPLY, reply),
+			zap.Duration(constants.TIME, time),
+			zap.Any(constants.METADATA, metaData),
+			zap.String(constants.ERROR, err.Error()),
+		)
+		return
+	}
 	l.logger.Info(
 		constants.GRPC,
 		zap.String(constants.METHOD, method),
@@ -246,7 +262,6 @@ func (l *appLogger) GrpcClientInterceptorLogger(method string, req, reply interf
 		zap.Any(constants.REPLY, reply),
 		zap.Duration(constants.TIME, time),
 		zap.Any(constants.METADATA, metaData),
-		zap.Error(err),
 	)
 }
 
