@@ -6,6 +6,7 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/projection"
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
 	"github.com/AleksK1NG/es-microservice/internal/order/service"
+	"github.com/AleksK1NG/es-microservice/pkg/elasticsearch"
 	"github.com/AleksK1NG/es-microservice/pkg/es/store"
 	"github.com/AleksK1NG/es-microservice/pkg/eventstroredb"
 	"github.com/AleksK1NG/es-microservice/pkg/interceptors"
@@ -14,6 +15,7 @@ import (
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/EventStore/EventStore-Client-Go/esdb"
 	"github.com/go-playground/validator"
+	v7 "github.com/olivere/elastic/v7"
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -23,13 +25,14 @@ import (
 )
 
 type server struct {
-	cfg         *config.Config
-	log         logger.Logger
-	db          *esdb.Client
-	im          interceptors.InterceptorManager
-	os          *service.OrderService
-	v           *validator.Validate
-	mongoClient *mongo.Client
+	cfg           *config.Config
+	log           logger.Logger
+	db            *esdb.Client
+	im            interceptors.InterceptorManager
+	os            *service.OrderService
+	v             *validator.Validate
+	mongoClient   *mongo.Client
+	elasticClient *v7.Client
 }
 
 func NewServer(cfg *config.Config, log logger.Logger) *server {
@@ -62,6 +65,12 @@ func (s *server) Run() error {
 	s.mongoClient = mongoDBConn
 	defer mongoDBConn.Disconnect(ctx) // nolint: errcheck
 	s.log.Infof("Mongo connected: %v", mongoDBConn.NumberSessionsInProgress())
+
+	elasticClient, err := elasticsearch.NewElasticClient()
+	if err != nil {
+		return err
+	}
+	s.elasticClient = elasticClient
 
 	mongoRepository := repository.NewMongoRepository(s.log, s.cfg, s.mongoClient)
 
