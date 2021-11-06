@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/config"
-	"github.com/AleksK1NG/es-microservice/internal/order/projection"
+	"github.com/AleksK1NG/es-microservice/internal/order/projection/mongo_projection"
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
 	"github.com/AleksK1NG/es-microservice/internal/order/service"
 	"github.com/AleksK1NG/es-microservice/pkg/elasticsearch"
@@ -82,7 +82,7 @@ func (s *server) Run() error {
 	aggregateStore := store.NewAggregateStore(s.log, db)
 	s.os = service.NewOrderService(s.log, s.cfg, aggregateStore, mongoRepository)
 
-	orderProjection := projection.NewOrderProjection(s.log, db, mongoRepository)
+	orderProjection := mongo_projection.NewOrderProjection(s.log, db, mongoRepository)
 
 	go func() {
 		err := orderProjection.Subscribe(ctx, []string{s.cfg.Subscriptions.OrderPrefix}, s.cfg.Subscriptions.PoolSize, orderProjection.ProcessEvents)

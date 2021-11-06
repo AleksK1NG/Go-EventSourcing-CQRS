@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/AleksK1NG/es-microservice/pkg/constants"
+	"github.com/AleksK1NG/es-microservice/pkg/elasticsearch"
 	"github.com/AleksK1NG/es-microservice/pkg/eventstroredb"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/AleksK1NG/es-microservice/pkg/mongodb"
@@ -30,6 +31,8 @@ type Config struct {
 	Jaeger           *tracing.Config                `mapstructure:"jaeger"`
 	EventStoreConfig eventstroredb.EventStoreConfig `mapstructure:"eventStoreConfig"`
 	Subscriptions    Subscriptions                  `mapstructure:"subscriptions"`
+	Elastic          elasticsearch.Config           `mapstructure:"elastic"`
+	ElasticIndexes   ElasticIndexes                 `mapstructure:"elasticIndexes"`
 }
 
 type GRPC struct {
@@ -44,6 +47,10 @@ type MongoCollections struct {
 type Subscriptions struct {
 	PoolSize    int    `mapstructure:"poolSize" validate:"required,gte=0"`
 	OrderPrefix string `mapstructure:"orderPrefix" validate:"required"`
+}
+
+type ElasticIndexes struct {
+	Orders string `mapstructure:"orders" validate:"required"`
 }
 
 func InitConfig() (*Config, error) {
