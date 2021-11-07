@@ -13,7 +13,6 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
-	"strings"
 )
 
 type orderProjection struct {
@@ -132,8 +131,4 @@ func (o *orderProjection) When(ctx context.Context, evt es.Event) error {
 		o.log.Debugf("when eventType: %s", evt.EventType)
 		return nil
 	}
-}
-
-func GetOrderAggregateID(eventAggregateID string) string {
-	return strings.ReplaceAll(eventAggregateID, "order-", "")
 }

@@ -23,7 +23,7 @@ func (o *orderProjection) handleOrderCreateEvent(ctx context.Context, evt es.Eve
 	}
 
 	op := &models.OrderProjection{
-		OrderID:      GetOrderAggregateID(evt.AggregateID),
+		OrderID:      aggregate.GetOrderAggregateID(evt.AggregateID),
 		ShopItems:    eventData.ShopItems,
 		Created:      true,
 		Paid:         false,
@@ -49,7 +49,7 @@ func (o *orderProjection) handleOrderPaidEvent(ctx context.Context, evt es.Event
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), Paid: true}
+	op := &models.OrderProjection{OrderID: aggregate.GetOrderAggregateID(evt.AggregateID), Paid: true}
 	return o.mongoRepo.UpdateOrder(ctx, op)
 }
 
@@ -58,7 +58,7 @@ func (o *orderProjection) handleSubmitEvent(ctx context.Context, evt es.Event) e
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), Submitted: true}
+	op := &models.OrderProjection{OrderID: aggregate.GetOrderAggregateID(evt.AggregateID), Submitted: true}
 	return o.mongoRepo.UpdateOrder(ctx, op)
 }
 
@@ -73,7 +73,7 @@ func (o *orderProjection) handleUpdateEvent(ctx context.Context, evt es.Event) e
 		return err
 	}
 
-	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), ShopItems: eventData.ShopItems}
+	op := &models.OrderProjection{OrderID: aggregate.GetOrderAggregateID(evt.AggregateID), ShopItems: eventData.ShopItems}
 	op.TotalPrice = aggregate.GetShopItemsTotalPrice(eventData.ShopItems)
 	return o.mongoRepo.UpdateOrder(ctx, op)
 }

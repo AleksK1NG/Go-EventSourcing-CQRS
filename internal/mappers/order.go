@@ -3,12 +3,11 @@ package mappers
 import (
 	"github.com/AleksK1NG/es-microservice/internal/models"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
-	"github.com/AleksK1NG/es-microservice/internal/order/projection/mongo_projection"
 )
 
 func OrderProjectionFromAggregate(orderAggregate *aggregate.OrderAggregate) *models.OrderProjection {
 	return &models.OrderProjection{
-		OrderID:      mongo_projection.GetOrderAggregateID(orderAggregate.GetID()),
+		OrderID:      aggregate.GetOrderAggregateID(orderAggregate.GetID()),
 		ShopItems:    orderAggregate.Order.ShopItems,
 		Created:      orderAggregate.Order.Created,
 		Paid:         orderAggregate.Order.Paid,
