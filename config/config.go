@@ -45,8 +45,10 @@ type MongoCollections struct {
 }
 
 type Subscriptions struct {
-	PoolSize    int    `mapstructure:"poolSize" validate:"required,gte=0"`
-	OrderPrefix string `mapstructure:"orderPrefix" validate:"required"`
+	PoolSize                   int    `mapstructure:"poolSize" validate:"required,gte=0"`
+	OrderPrefix                string `mapstructure:"orderPrefix" validate:"required,gte=0"`
+	MongoProjectionGroupName   string `mapstructure:"mongoProjectionGroupName" validate:"required,gte=0"`
+	ElasticProjectionGroupName string `mapstructure:"elasticProjectionGroupName" validate:"required,gte=0"`
 }
 
 type ElasticIndexes struct {

@@ -42,4 +42,6 @@ const (
 	Size   = "size"
 	Search = "search"
 	ID     = "id"
+
+	EsAll = "$all"
 )

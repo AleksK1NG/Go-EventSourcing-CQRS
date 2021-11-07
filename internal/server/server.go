@@ -84,8 +84,8 @@ func (s *server) Run() error {
 	aggregateStore := store.NewAggregateStore(s.log, db)
 	s.os = service.NewOrderService(s.log, s.cfg, aggregateStore, mongoRepository, elasticRepository)
 
-	mongoProjection := mongo_projection.NewOrderProjection(s.log, db, mongoRepository)
-	elasticProjection := elastic_projection.NewElasticProjection(s.log, db, elasticRepository)
+	mongoProjection := mongo_projection.NewOrderProjection(s.log, db, mongoRepository, s.cfg)
+	elasticProjection := elastic_projection.NewElasticProjection(s.log, db, elasticRepository, s.cfg)
 
 	go func() {
 		err := mongoProjection.Subscribe(ctx, []string{s.cfg.Subscriptions.OrderPrefix}, s.cfg.Subscriptions.PoolSize, mongoProjection.ProcessEvents)

@@ -2,8 +2,10 @@ package elastic_projection
 
 import (
 	"context"
+	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
+	"github.com/AleksK1NG/es-microservice/pkg/constants"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
@@ -19,24 +21,25 @@ type Worker func(ctx context.Context, stream *esdb.PersistentSubscription, worke
 type elasticProjection struct {
 	log               logger.Logger
 	db                *esdb.Client
+	cfg               *config.Config
 	elasticRepository repository.ElasticRepository
 }
 
-func NewElasticProjection(log logger.Logger, db *esdb.Client, elasticRepository repository.ElasticRepository) *elasticProjection {
-	return &elasticProjection{log: log, db: db, elasticRepository: elasticRepository}
+func NewElasticProjection(log logger.Logger, db *esdb.Client, elasticRepository repository.ElasticRepository, cfg *config.Config) *elasticProjection {
+	return &elasticProjection{log: log, db: db, elasticRepository: elasticRepository, cfg: cfg}
 }
 
 func (o *elasticProjection) Subscribe(ctx context.Context, prefixes []string, poolSize int, worker Worker) error {
 	o.log.Infof("starting elastic subscription: %+v", prefixes)
 
-	err := o.db.CreatePersistentSubscriptionAll(ctx, "order-elastic", esdb.PersistentAllSubscriptionOptions{
+	err := o.db.CreatePersistentSubscriptionAll(ctx, o.cfg.Subscriptions.ElasticProjectionGroupName, esdb.PersistentAllSubscriptionOptions{
 		Filter: &esdb.SubscriptionFilter{Type: esdb.StreamFilterType, Prefixes: prefixes},
 	})
 	if err != nil {
-		o.log.Errorf("CreatePersistentSubscriptionAll: %v", err)
+		o.log.Warnf("CreatePersistentSubscriptionAll: %v", err)
 	}
 
-	stream, err := o.db.ConnectToPersistentSubscription(ctx, "$all", "order-elastic", esdb.ConnectToPersistentSubscriptionOptions{})
+	stream, err := o.db.ConnectToPersistentSubscription(ctx, constants.EsAll, o.cfg.Subscriptions.ElasticProjectionGroupName, esdb.ConnectToPersistentSubscriptionOptions{})
 	if err != nil {
 		return err
 	}
