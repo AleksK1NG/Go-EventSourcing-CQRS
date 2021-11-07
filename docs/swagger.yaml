@@ -1,0 +1,233 @@
+definitions:
+  models.OrderProjection:
+    properties:
+      accountEmail:
+        type: string
+      canceled:
+        type: boolean
+      created:
+        type: boolean
+      delivered:
+        type: boolean
+      delivering:
+        type: boolean
+      id:
+        type: string
+      orderId:
+        type: string
+      paid:
+        type: boolean
+      shopItems:
+        items:
+          $ref: '#/definitions/models.ShopItem'
+        type: array
+      submitted:
+        type: boolean
+      totalPrice:
+        type: number
+    required:
+    - accountEmail
+    type: object
+  models.ShopItem:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: integer
+      title:
+        type: string
+    type: object
+  orderService.Order:
+    properties:
+      AccountEmail:
+        type: string
+      Canceled:
+        type: boolean
+      Created:
+        type: boolean
+      Delivered:
+        type: boolean
+      Delivering:
+        type: boolean
+      ID:
+        type: string
+      Paid:
+        type: boolean
+      ShopItems:
+        items:
+          $ref: '#/definitions/orderService.ShopItem'
+        type: array
+      Submitted:
+        type: boolean
+      TotalPrice:
+        type: number
+    type: object
+  orderService.Pagination:
+    properties:
+      HasMore:
+        type: boolean
+      Page:
+        type: integer
+      Size:
+        type: integer
+      TotalCount:
+        type: integer
+      TotalPages:
+        type: integer
+    type: object
+  orderService.SearchRes:
+    properties:
+      Orders:
+        items:
+          $ref: '#/definitions/orderService.Order'
+        type: array
+      Pagination:
+        $ref: '#/definitions/orderService.Pagination'
+    type: object
+  orderService.ShopItem:
+    properties:
+      Description:
+        type: string
+      ID:
+        type: string
+      Price:
+        type: number
+      Quantity:
+        type: integer
+      Title:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /orders:
+    post:
+      consumes:
+      - application/json
+      description: Create new order
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      summary: Create order
+      tags:
+      - Orders
+  /orders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get order by id
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OrderProjection'
+      summary: Get order
+      tags:
+      - Orders
+    put:
+      consumes:
+      - application/json
+      description: Update existing order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Update order
+      tags:
+      - Orders
+  /orders/pay/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Pay existing order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Pay order
+      tags:
+      - Orders
+  /orders/search:
+    get:
+      consumes:
+      - application/json
+      description: Full text search by title and description
+      parameters:
+      - description: search text
+        in: query
+        name: search
+        type: string
+      - description: page number
+        in: query
+        name: page
+        type: string
+      - description: number of elements
+        in: query
+        name: size
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.SearchRes'
+      summary: Search orders
+      tags:
+      - Orders
+  /orders/submit/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Submit existing order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Submit order
+      tags:
+      - Orders
+swagger: "2.0"

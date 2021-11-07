@@ -33,6 +33,7 @@ type Config struct {
 	Subscriptions    Subscriptions                  `mapstructure:"subscriptions"`
 	Elastic          elasticsearch.Config           `mapstructure:"elastic"`
 	ElasticIndexes   ElasticIndexes                 `mapstructure:"elasticIndexes"`
+	Http             Http                           `mapstructure:"http"`
 }
 
 type GRPC struct {
@@ -53,6 +54,15 @@ type Subscriptions struct {
 
 type ElasticIndexes struct {
 	Orders string `mapstructure:"orders" validate:"required"`
+}
+
+type Http struct {
+	Port                string   `mapstructure:"port" validate:"required"`
+	Development         bool     `mapstructure:"development"`
+	BasePath            string   `mapstructure:"basePath" validate:"required"`
+	OrdersPath          string   `mapstructure:"ordersPath" validate:"required"`
+	DebugErrorsResponse bool     `mapstructure:"debugErrorsResponse"`
+	IgnoreLogUrls       []string `mapstructure:"ignoreLogUrls"`
 }
 
 func InitConfig() (*Config, error) {

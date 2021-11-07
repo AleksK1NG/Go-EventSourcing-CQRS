@@ -118,3 +118,10 @@ proto_order:
 
 mongo:
 	cd ./scripts && mongo admin -u admin -p admin < init.js
+
+# ==============================================================================
+# Swagger
+
+swagger:
+	@echo Starting swagger generating
+	swag init -g **/**/*.go

@@ -4,10 +4,25 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
+	"github.com/labstack/echo/v4"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"google.golang.org/grpc/metadata"
 )
+
+func StartHttpServerTracerSpan(c echo.Context, operationName string) (context.Context, opentracing.Span) {
+	spanCtx, err := opentracing.GlobalTracer().Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(c.Request().Header))
+	if err != nil {
+		serverSpan := opentracing.GlobalTracer().StartSpan(operationName)
+		ctx := opentracing.ContextWithSpan(c.Request().Context(), serverSpan)
+		return ctx, serverSpan
+	}
+
+	serverSpan := opentracing.GlobalTracer().StartSpan(operationName, ext.RPCServerOption(spanCtx))
+	ctx := opentracing.ContextWithSpan(c.Request().Context(), serverSpan)
+
+	return ctx, serverSpan
+}
 
 func GetTextMapCarrierFromEvent(event es.Event) opentracing.TextMapCarrier {
 	metadataMap := make(opentracing.TextMapCarrier)

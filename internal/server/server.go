@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/config"
+	"github.com/AleksK1NG/es-microservice/internal/order/delivery/http"
 	"github.com/AleksK1NG/es-microservice/internal/order/projection/elastic_projection"
 	"github.com/AleksK1NG/es-microservice/internal/order/projection/mongo_projection"
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
@@ -12,10 +13,12 @@ import (
 	"github.com/AleksK1NG/es-microservice/pkg/eventstroredb"
 	"github.com/AleksK1NG/es-microservice/pkg/interceptors"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
+	"github.com/AleksK1NG/es-microservice/pkg/middlewares"
 	"github.com/AleksK1NG/es-microservice/pkg/mongodb"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/EventStore/EventStore-Client-Go/esdb"
 	"github.com/go-playground/validator"
+	"github.com/labstack/echo/v4"
 	v7 "github.com/olivere/elastic/v7"
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
@@ -30,14 +33,16 @@ type server struct {
 	log           logger.Logger
 	db            *esdb.Client
 	im            interceptors.InterceptorManager
+	mw            middlewares.MiddlewareManager
 	os            *service.OrderService
 	v             *validator.Validate
 	mongoClient   *mongo.Client
 	elasticClient *v7.Client
+	echo          *echo.Echo
 }
 
 func NewServer(cfg *config.Config, log logger.Logger) *server {
-	return &server{cfg: cfg, log: log, v: validator.New()}
+	return &server{cfg: cfg, log: log, v: validator.New(), echo: echo.New()}
 }
 
 func (s *server) Run() error {
@@ -58,6 +63,7 @@ func (s *server) Run() error {
 	}
 
 	s.im = interceptors.NewInterceptorManager(s.log)
+	s.mw = middlewares.NewMiddlewareManager(s.log, s.cfg)
 
 	mongoDBConn, err := mongodb.NewMongoDBConn(ctx, s.cfg.Mongo)
 	if err != nil {
@@ -102,6 +108,17 @@ func (s *server) Run() error {
 			cancel()
 		}
 	}()
+
+	orderHandlers := http.NewOrderHandlers(s.echo.Group(s.cfg.Http.OrdersPath), s.log, s.mw, s.cfg, s.v, s.os)
+	orderHandlers.MapRoutes()
+
+	go func() {
+		if err := s.runHttpServer(); err != nil {
+			s.log.Errorf(" s.runHttpServer: %v", err)
+			cancel()
+		}
+	}()
+	s.log.Infof("API Gateway is listening on PORT: %s", s.cfg.Http.Port)
 
 	closeGrpcServer, grpcServer, err := s.newOrderGrpcServer()
 	if err != nil {
