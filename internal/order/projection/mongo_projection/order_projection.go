@@ -29,32 +29,18 @@ type Worker func(ctx context.Context, stream *esdb.PersistentSubscription, worke
 func (o *orderProjection) Subscribe(ctx context.Context, prefixes []string, poolSize int, worker Worker) error {
 	o.log.Infof("starting order subscription: %+v", prefixes)
 
-	//err := o.db.CreatePersistentSubscription(ctx, "$ce-order", "order", esdb.PersistentStreamSubscriptionOptions{
-	//	Settings:      nil,
-	//})
-	//if err != nil {
-	//	return err
-	//}
-	//err := o.db.CreatePersistentSubscriptionAll(ctx, "order1", esdb.PersistentAllSubscriptionOptions{
-	//	Filter: &esdb.SubscriptionFilter{Type: esdb.StreamFilterType, Prefixes: prefixes},
-	//})
-	//if err != nil {
-	//	return err
-	//}
+	err := o.db.CreatePersistentSubscriptionAll(ctx, "order1", esdb.PersistentAllSubscriptionOptions{
+		Filter: &esdb.SubscriptionFilter{Type: esdb.StreamFilterType, Prefixes: prefixes},
+	})
+	if err != nil {
+		o.log.Errorf("CreatePersistentSubscriptionAll: %v", err)
+	}
 
 	stream, err := o.db.ConnectToPersistentSubscription(ctx, "$all", "order1", esdb.ConnectToPersistentSubscriptionOptions{})
 	if err != nil {
 		return err
 	}
 	defer stream.Close()
-
-	//stream, err := o.db.SubscribeToAll(ctx, esdb.SubscribeToAllOptions{
-	//	Filter: &esdb.SubscriptionFilter{Type: esdb.StreamFilterType, Prefixes: prefixes},
-	//})
-	//if err != nil {
-	//	return err
-	//}
-	//defer stream.Close()
 
 	g, ctx := errgroup.WithContext(ctx)
 	for i := 0; i <= poolSize; i++ {
