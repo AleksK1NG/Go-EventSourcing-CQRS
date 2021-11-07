@@ -100,7 +100,7 @@ func (o *elasticProjection) ProcessEvents(ctx context.Context, stream *esdb.Pers
 }
 
 func (o *elasticProjection) When(ctx context.Context, evt es.Event) error {
-	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderProjection.When")
+	ctx, span := tracing.StartProjectionTracerSpan(ctx, "elasticProjection.When", evt)
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 

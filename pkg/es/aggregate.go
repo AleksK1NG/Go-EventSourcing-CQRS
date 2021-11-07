@@ -1,6 +1,9 @@
 package es
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 // HandleCommand Aggregate commands' handler method
 // Example
@@ -18,7 +21,7 @@ import "fmt"
 //	}
 //}
 type HandleCommand interface {
-	HandleCommand(command Command) error
+	HandleCommand(ctx context.Context, command Command) error
 }
 
 // When process and update aggregate state on specified es.Event type

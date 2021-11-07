@@ -1,9 +1,12 @@
 package aggregate
 
 import (
+	"context"
 	"github.com/AleksK1NG/es-microservice/internal/models"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/log"
 )
 
 const (
@@ -69,21 +72,24 @@ func (a *OrderAggregate) When(evt es.Event) error {
 	}
 }
 
-func (a *OrderAggregate) HandleCommand(command es.Command) error {
+func (a *OrderAggregate) HandleCommand(ctx context.Context, command es.Command) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "OrderAggregate.HandleCommand")
+	defer span.Finish()
+	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
 	switch c := command.(type) {
 
 	case *CreateOrderCommand:
-		return a.handleCreateOrderCommand(c)
+		return a.handleCreateOrderCommand(ctx, c)
 
 	case *OrderPaidCommand:
-		return a.handleOrderPaidCommand(c)
+		return a.handleOrderPaidCommand(ctx, c)
 
 	case *SubmitOrderCommand:
-		return a.handleSubmitOrderCommand(c)
+		return a.handleSubmitOrderCommand(ctx, c)
 
 	case *OrderUpdatedCommand:
-		return a.handleOrderUpdatedCommand(c)
+		return a.handleOrderUpdatedCommand(ctx, c)
 
 	default:
 		return es.ErrInvalidCommandType

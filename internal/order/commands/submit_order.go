@@ -40,7 +40,7 @@ func (c *submitOrderHandler) Handle(ctx context.Context, command *aggregate.Subm
 		return err
 	}
 
-	if err := order.HandleCommand(command); err != nil {
+	if err := order.HandleCommand(ctx, command); err != nil {
 		tracing.TraceErr(span, err)
 		return err
 	}

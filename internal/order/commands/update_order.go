@@ -30,6 +30,8 @@ func (c *updateOrderCmdHandler) Handle(ctx context.Context, command *aggregate.O
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
+	c.log.Infof("(TEXT MAP CARRIER): %+v", tracing.ExtractTextMapCarrier(span.Context()))
+
 	order := aggregate.NewOrderAggregateWithID(command.AggregateID)
 	err := c.es.Exists(ctx, order.GetID())
 	if err != nil {
@@ -40,7 +42,7 @@ func (c *updateOrderCmdHandler) Handle(ctx context.Context, command *aggregate.O
 		return err
 	}
 
-	if err := order.HandleCommand(command); err != nil {
+	if err := order.HandleCommand(ctx, command); err != nil {
 		tracing.TraceErr(span, err)
 		return err
 	}

@@ -26,11 +26,6 @@ func (o *elasticProjection) handleOrderCreateEvent(ctx context.Context, evt es.E
 		OrderID:      aggregate.GetOrderAggregateID(evt.AggregateID),
 		ShopItems:    eventData.ShopItems,
 		Created:      true,
-		Paid:         false,
-		Submitted:    false,
-		Delivering:   false,
-		Delivered:    false,
-		Canceled:     false,
 		AccountEmail: eventData.AccountEmail,
 		TotalPrice:   aggregate.GetShopItemsTotalPrice(eventData.ShopItems),
 	}
