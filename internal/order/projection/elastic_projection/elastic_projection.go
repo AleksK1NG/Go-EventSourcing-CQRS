@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-type Worker func(ctx context.Context, stream *esdb.Subscription, workerID int) error
+type Worker func(ctx context.Context, stream *esdb.PersistentSubscription, workerID int) error
 
 type elasticProjection struct {
 	log               logger.Logger
@@ -29,9 +29,14 @@ func NewElasticProjection(log logger.Logger, db *esdb.Client, elasticRepository 
 func (o *elasticProjection) Subscribe(ctx context.Context, prefixes []string, poolSize int, worker Worker) error {
 	o.log.Infof("starting elastic subscription: %+v", prefixes)
 
-	stream, err := o.db.SubscribeToAll(ctx, esdb.SubscribeToAllOptions{
+	err := o.db.CreatePersistentSubscriptionAll(ctx, "order-elastic", esdb.PersistentAllSubscriptionOptions{
 		Filter: &esdb.SubscriptionFilter{Type: esdb.StreamFilterType, Prefixes: prefixes},
 	})
+	if err != nil {
+		o.log.Errorf("CreatePersistentSubscriptionAll: %v", err)
+	}
+
+	stream, err := o.db.ConnectToPersistentSubscription(ctx, "$all", "order-elastic", esdb.ConnectToPersistentSubscriptionOptions{})
 	if err != nil {
 		return err
 	}
@@ -46,7 +51,7 @@ func (o *elasticProjection) Subscribe(ctx context.Context, prefixes []string, po
 	return g.Wait()
 }
 
-func (o *elasticProjection) ProcessEvents(ctx context.Context, stream *esdb.Subscription, workerID int) error {
+func (o *elasticProjection) ProcessEvents(ctx context.Context, stream *esdb.PersistentSubscription, workerID int) error {
 
 	for {
 		select {
@@ -68,16 +73,24 @@ func (o *elasticProjection) ProcessEvents(ctx context.Context, stream *esdb.Subs
 		}
 
 		if event.EventAppeared != nil {
-			streamId := event.EventAppeared.OriginalEvent().StreamID
+			streamID := event.EventAppeared.OriginalEvent().StreamID
 			revision := event.EventAppeared.OriginalEvent().EventNumber
-
-			o.log.Infof("received event %v@%v", revision, streamId)
-			o.log.Infof("process subscription: %s workerID: %v", stream.Id(), workerID)
+			o.log.Infof("(event): revision: %v, streamID: %v, workerID: %v, EventType: %s", revision, streamID, workerID, event.EventAppeared.Event.EventType)
 
 			err := o.When(ctx, es.NewEventFromRecorded(event.EventAppeared.Event))
 			if err != nil {
 				o.log.Errorf("order projection when: %v", err)
+				if err := stream.Nack(err.Error(), esdb.Nack_Unknown, event.EventAppeared); err != nil {
+					o.log.Errorf("stream.Nack: %v", err)
+					return err
+				}
 			}
+			err = stream.Ack(event.EventAppeared)
+			if err != nil {
+				o.log.Errorf("stream.Ack: %v", err)
+				return err
+			}
+			o.log.Infof("ACK event commit: %v", *event.EventAppeared.Commit)
 		}
 	}
 }
