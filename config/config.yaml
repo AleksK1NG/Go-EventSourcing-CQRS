@@ -38,6 +38,8 @@ eventStoreConfig:
 subscriptions:
   poolSize: 60
   orderPrefix: "order-"
+  mongoProjectionGroupName: "order1"
+  elasticProjectionGroupName: "order-elastic"
 elastic:
   url: "http://localhost:9200"
 elasticIndexes:

@@ -2,8 +2,10 @@ package mongo_projection
 
 import (
 	"context"
+	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
+	"github.com/AleksK1NG/es-microservice/pkg/constants"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
@@ -17,11 +19,12 @@ import (
 type orderProjection struct {
 	log       logger.Logger
 	db        *esdb.Client
+	cfg       *config.Config
 	mongoRepo repository.OrderRepository
 }
 
-func NewOrderProjection(log logger.Logger, db *esdb.Client, mongoRepo repository.OrderRepository) *orderProjection {
-	return &orderProjection{log: log, db: db, mongoRepo: mongoRepo}
+func NewOrderProjection(log logger.Logger, db *esdb.Client, mongoRepo repository.OrderRepository, cfg *config.Config) *orderProjection {
+	return &orderProjection{log: log, db: db, mongoRepo: mongoRepo, cfg: cfg}
 }
 
 type Worker func(ctx context.Context, stream *esdb.PersistentSubscription, workerID int) error
@@ -29,14 +32,14 @@ type Worker func(ctx context.Context, stream *esdb.PersistentSubscription, worke
 func (o *orderProjection) Subscribe(ctx context.Context, prefixes []string, poolSize int, worker Worker) error {
 	o.log.Infof("starting order subscription: %+v", prefixes)
 
-	err := o.db.CreatePersistentSubscriptionAll(ctx, "order1", esdb.PersistentAllSubscriptionOptions{
+	err := o.db.CreatePersistentSubscriptionAll(ctx, o.cfg.Subscriptions.MongoProjectionGroupName, esdb.PersistentAllSubscriptionOptions{
 		Filter: &esdb.SubscriptionFilter{Type: esdb.StreamFilterType, Prefixes: prefixes},
 	})
 	if err != nil {
-		o.log.Errorf("CreatePersistentSubscriptionAll: %v", err)
+		o.log.Warnf("CreatePersistentSubscriptionAll: %v", err)
 	}
 
-	stream, err := o.db.ConnectToPersistentSubscription(ctx, "$all", "order1", esdb.ConnectToPersistentSubscriptionOptions{})
+	stream, err := o.db.ConnectToPersistentSubscription(ctx, constants.EsAll, o.cfg.Subscriptions.MongoProjectionGroupName, esdb.ConnectToPersistentSubscriptionOptions{})
 	if err != nil {
 		return err
 	}
