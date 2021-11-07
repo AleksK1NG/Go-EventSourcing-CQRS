@@ -15,20 +15,20 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type orderProjection struct {
+type mongoProjection struct {
 	log       logger.Logger
 	db        *esdb.Client
 	cfg       *config.Config
 	mongoRepo repository.OrderRepository
 }
 
-func NewOrderProjection(log logger.Logger, db *esdb.Client, mongoRepo repository.OrderRepository, cfg *config.Config) *orderProjection {
-	return &orderProjection{log: log, db: db, mongoRepo: mongoRepo, cfg: cfg}
+func NewOrderProjection(log logger.Logger, db *esdb.Client, mongoRepo repository.OrderRepository, cfg *config.Config) *mongoProjection {
+	return &mongoProjection{log: log, db: db, mongoRepo: mongoRepo, cfg: cfg}
 }
 
 type Worker func(ctx context.Context, stream *esdb.PersistentSubscription, workerID int) error
 
-func (o *orderProjection) Subscribe(ctx context.Context, prefixes []string, poolSize int, worker Worker) error {
+func (o *mongoProjection) Subscribe(ctx context.Context, prefixes []string, poolSize int, worker Worker) error {
 	o.log.Infof("starting order subscription: %+v", prefixes)
 
 	err := o.db.CreatePersistentSubscriptionAll(ctx, o.cfg.Subscriptions.MongoProjectionGroupName, esdb.PersistentAllSubscriptionOptions{
@@ -55,7 +55,7 @@ func (o *orderProjection) Subscribe(ctx context.Context, prefixes []string, pool
 	return g.Wait()
 }
 
-func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.PersistentSubscription, workerID int) error {
+func (o *mongoProjection) ProcessEvents(ctx context.Context, stream *esdb.PersistentSubscription, workerID int) error {
 
 	for {
 		select {
@@ -99,8 +99,8 @@ func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.Persis
 	}
 }
 
-func (o *orderProjection) When(ctx context.Context, evt es.Event) error {
-	ctx, span := tracing.StartProjectionTracerSpan(ctx, "orderProjection.When", evt)
+func (o *mongoProjection) When(ctx context.Context, evt es.Event) error {
+	ctx, span := tracing.StartProjectionTracerSpan(ctx, "mongoProjection.When", evt)
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()), log.String("EventType", evt.GetEventType()))
 

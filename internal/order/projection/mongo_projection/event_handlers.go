@@ -11,8 +11,8 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 )
 
-func (o *orderProjection) handleOrderCreateEvent(ctx context.Context, evt es.Event) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "orderProjection.handleOrderCreateEvent")
+func (o *mongoProjection) handleOrderCreateEvent(ctx context.Context, evt es.Event) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.handleOrderCreateEvent")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
@@ -39,8 +39,8 @@ func (o *orderProjection) handleOrderCreateEvent(ctx context.Context, evt es.Eve
 	return nil
 }
 
-func (o *orderProjection) handleOrderPaidEvent(ctx context.Context, evt es.Event) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "orderProjection.handleOrderPaidEvent")
+func (o *mongoProjection) handleOrderPaidEvent(ctx context.Context, evt es.Event) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.handleOrderPaidEvent")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
@@ -48,8 +48,8 @@ func (o *orderProjection) handleOrderPaidEvent(ctx context.Context, evt es.Event
 	return o.mongoRepo.UpdateOrder(ctx, op)
 }
 
-func (o *orderProjection) handleSubmitEvent(ctx context.Context, evt es.Event) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "orderProjection.handleSubmitEvent")
+func (o *mongoProjection) handleSubmitEvent(ctx context.Context, evt es.Event) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.handleSubmitEvent")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
@@ -57,8 +57,8 @@ func (o *orderProjection) handleSubmitEvent(ctx context.Context, evt es.Event) e
 	return o.mongoRepo.UpdateOrder(ctx, op)
 }
 
-func (o *orderProjection) handleUpdateEvent(ctx context.Context, evt es.Event) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "orderProjection.handleUpdateEvent")
+func (o *mongoProjection) handleUpdateEvent(ctx context.Context, evt es.Event) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.handleUpdateEvent")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
