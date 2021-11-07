@@ -1,4 +1,25 @@
 definitions:
+  dto.CreateOrderDto:
+    properties:
+      accountEmail:
+        type: string
+      shopItems:
+        items:
+          $ref: '#/definitions/models.ShopItem'
+        type: array
+    required:
+    - accountEmail
+    - shopItems
+    type: object
+  dto.UpdateOrderDto:
+    properties:
+      shopItems:
+        items:
+          $ref: '#/definitions/models.ShopItem'
+        type: array
+    required:
+    - shopItems
+    type: object
   models.OrderProjection:
     properties:
       accountEmail:
@@ -109,6 +130,13 @@ paths:
       consumes:
       - application/json
       description: Create new order
+      parameters:
+      - description: create order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateOrderDto'
       produces:
       - application/json
       responses:
@@ -150,6 +178,12 @@ paths:
         name: id
         required: true
         type: string
+      - description: update order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateOrderDto'
       produces:
       - application/json
       responses:

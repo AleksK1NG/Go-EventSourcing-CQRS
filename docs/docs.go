@@ -36,6 +36,17 @@ var doc = `{
                     "Orders"
                 ],
                 "summary": "Create order",
+                "parameters": [
+                    {
+                        "description": "create order",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateOrderDto"
+                        }
+                    }
+                ],
                 "responses": {
                     "201": {
                         "description": "Created",
@@ -203,6 +214,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "update order",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateOrderDto"
+                        }
                     }
                 ],
                 "responses": {
@@ -217,6 +237,38 @@ var doc = `{
         }
     },
     "definitions": {
+        "dto.CreateOrderDto": {
+            "type": "object",
+            "required": [
+                "accountEmail",
+                "shopItems"
+            ],
+            "properties": {
+                "accountEmail": {
+                    "type": "string"
+                },
+                "shopItems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ShopItem"
+                    }
+                }
+            }
+        },
+        "dto.UpdateOrderDto": {
+            "type": "object",
+            "required": [
+                "shopItems"
+            ],
+            "properties": {
+                "shopItems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ShopItem"
+                    }
+                }
+            }
+        },
         "models.OrderProjection": {
             "type": "object",
             "required": [
