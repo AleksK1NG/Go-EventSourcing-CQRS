@@ -100,7 +100,7 @@ func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.Persis
 }
 
 func (o *orderProjection) When(ctx context.Context, evt es.Event) error {
-	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderProjection.When")
+	ctx, span := tracing.StartProjectionTracerSpan(ctx, "orderProjection.When", evt)
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()), log.String("EventType", evt.GetEventType()))
 
