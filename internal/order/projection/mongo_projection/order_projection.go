@@ -24,18 +24,37 @@ func NewOrderProjection(log logger.Logger, db *esdb.Client, mongoRepo repository
 	return &orderProjection{log: log, db: db, mongoRepo: mongoRepo}
 }
 
-type Worker func(ctx context.Context, stream *esdb.Subscription, workerID int) error
+type Worker func(ctx context.Context, stream *esdb.PersistentSubscription, workerID int) error
 
 func (o *orderProjection) Subscribe(ctx context.Context, prefixes []string, poolSize int, worker Worker) error {
 	o.log.Infof("starting order subscription: %+v", prefixes)
 
-	stream, err := o.db.SubscribeToAll(ctx, esdb.SubscribeToAllOptions{
-		Filter: &esdb.SubscriptionFilter{Type: esdb.StreamFilterType, Prefixes: prefixes},
-	})
+	//err := o.db.CreatePersistentSubscription(ctx, "$ce-order", "order", esdb.PersistentStreamSubscriptionOptions{
+	//	Settings:      nil,
+	//})
+	//if err != nil {
+	//	return err
+	//}
+	//err := o.db.CreatePersistentSubscriptionAll(ctx, "order1", esdb.PersistentAllSubscriptionOptions{
+	//	Filter: &esdb.SubscriptionFilter{Type: esdb.StreamFilterType, Prefixes: prefixes},
+	//})
+	//if err != nil {
+	//	return err
+	//}
+
+	stream, err := o.db.ConnectToPersistentSubscription(ctx, "$all", "order1", esdb.ConnectToPersistentSubscriptionOptions{})
 	if err != nil {
 		return err
 	}
 	defer stream.Close()
+
+	//stream, err := o.db.SubscribeToAll(ctx, esdb.SubscribeToAllOptions{
+	//	Filter: &esdb.SubscriptionFilter{Type: esdb.StreamFilterType, Prefixes: prefixes},
+	//})
+	//if err != nil {
+	//	return err
+	//}
+	//defer stream.Close()
 
 	g, ctx := errgroup.WithContext(ctx)
 	for i := 0; i <= poolSize; i++ {
@@ -46,7 +65,7 @@ func (o *orderProjection) Subscribe(ctx context.Context, prefixes []string, pool
 	return g.Wait()
 }
 
-func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.Subscription, workerID int) error {
+func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.PersistentSubscription, workerID int) error {
 
 	for {
 		select {
@@ -68,18 +87,24 @@ func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.Subscr
 		}
 
 		if event.EventAppeared != nil {
-			streamId := event.EventAppeared.OriginalEvent().StreamID
+			streamID := event.EventAppeared.OriginalEvent().StreamID
 			revision := event.EventAppeared.OriginalEvent().EventNumber
-
-			o.log.Infof("received event %v@%v", revision, streamId)
-			//o.log.Infof("subscription event StreamID: %s", event.EventAppeared.Event.StreamID)
-			//o.log.Infof("subscription event Data: %s", string(event.EventAppeared.Event.Data))
-			o.log.Infof("process subscription: %s workerID: %v", stream.Id(), workerID)
+			o.log.Infof("(event): revision: %v, streamID: %v, workerID: %v, EventType: %s", revision, streamID, workerID, event.EventAppeared.Event.EventType)
 
 			err := o.When(ctx, es.NewEventFromRecorded(event.EventAppeared.Event))
 			if err != nil {
 				o.log.Errorf("order projection when: %v", err)
+				if err := stream.Nack(err.Error(), esdb.Nack_Unknown, event.EventAppeared); err != nil {
+					o.log.Errorf("stream.Nack: %v", err)
+					return err
+				}
 			}
+			err = stream.Ack(event.EventAppeared)
+			if err != nil {
+				o.log.Errorf("stream.Ack: %v", err)
+				return err
+			}
+			o.log.Infof("ACK event commit: %v", *event.EventAppeared.Commit)
 		}
 	}
 }
@@ -87,7 +112,7 @@ func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.Subscr
 func (o *orderProjection) When(ctx context.Context, evt es.Event) error {
 	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderProjection.When")
 	defer span.Finish()
-	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
+	span.LogFields(log.String("AggregateID", evt.GetAggregateID()), log.String("EventType", evt.GetEventType()))
 
 	switch evt.GetEventType() {
 
@@ -111,8 +136,10 @@ func (o *orderProjection) When(ctx context.Context, evt es.Event) error {
 
 	case events.OrderUpdated:
 		return o.handleUpdateEvent(ctx, evt)
+
 	default:
-		return es.ErrInvalidEventType
+		o.log.Infof("event type: %s", evt.EventType)
+		return nil
 	}
 }
 
