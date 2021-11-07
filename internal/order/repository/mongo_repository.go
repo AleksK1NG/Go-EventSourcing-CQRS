@@ -73,12 +73,12 @@ func (m *mongoRepository) UpdateOrder(ctx context.Context, order *models.OrderPr
 	ops.SetReturnDocument(options.After)
 	ops.SetUpsert(false)
 
-	res := make(map[string]interface{}, 10)
+	var res models.OrderProjection
 	if err := collection.FindOneAndUpdate(ctx, bson.M{"orderId": order.OrderID}, bson.M{"$set": order}, ops).Decode(&res); err != nil {
 		tracing.TraceErr(span, err)
 		return err
 	}
 
-	m.log.Debugf("update result: %+v", res)
+	m.log.Debugf("update result: %s", res.OrderID)
 	return nil
 }
