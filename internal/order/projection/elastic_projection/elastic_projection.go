@@ -80,7 +80,7 @@ func (o *elasticProjection) ProcessEvents(ctx context.Context, stream *esdb.Pers
 		if event.EventAppeared != nil {
 			streamID := event.EventAppeared.OriginalEvent().StreamID
 			revision := event.EventAppeared.OriginalEvent().EventNumber
-			o.log.Infof("(event): revision: %v, streamID: %v, workerID: %v, EventType: %s", revision, streamID, workerID, event.EventAppeared.Event.EventType)
+			o.log.Infof("(elastic projection event): revision: %v, streamID: %v, workerID: %v, eventType: %s", revision, streamID, workerID, event.EventAppeared.Event.EventType)
 
 			err := o.When(ctx, es.NewEventFromRecorded(event.EventAppeared.Event))
 			if err != nil {
@@ -95,7 +95,7 @@ func (o *elasticProjection) ProcessEvents(ctx context.Context, stream *esdb.Pers
 				o.log.Errorf("stream.Ack: %v", err)
 				return err
 			}
-			o.log.Infof("ACK event commit: %v", *event.EventAppeared.Commit)
+			o.log.Infof("(ACK event commit): %v", *event.EventAppeared.Commit)
 		}
 	}
 }

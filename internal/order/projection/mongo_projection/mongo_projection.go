@@ -80,7 +80,7 @@ func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.Persis
 		if event.EventAppeared != nil {
 			streamID := event.EventAppeared.OriginalEvent().StreamID
 			revision := event.EventAppeared.OriginalEvent().EventNumber
-			o.log.Infof("(event): revision: %v, streamID: %v, workerID: %v, EventType: %s", revision, streamID, workerID, event.EventAppeared.Event.EventType)
+			o.log.Infof("(mongo projection event): revision: %v, streamID: %v, workerID: %v, eventType: %s", revision, streamID, workerID, event.EventAppeared.Event.EventType)
 
 			err := o.When(ctx, es.NewEventFromRecorded(event.EventAppeared.Event))
 			if err != nil {
@@ -95,7 +95,7 @@ func (o *orderProjection) ProcessEvents(ctx context.Context, stream *esdb.Persis
 				o.log.Errorf("stream.Ack: %v", err)
 				return err
 			}
-			o.log.Infof("ACK event commit: %v", *event.EventAppeared.Commit)
+			o.log.Infof("(ACK event commit): %v", *event.EventAppeared.Commit)
 		}
 	}
 }
@@ -129,7 +129,7 @@ func (o *orderProjection) When(ctx context.Context, evt es.Event) error {
 		return o.handleUpdateEvent(ctx, evt)
 
 	default:
-		o.log.Infof("event type: %s", evt.EventType)
+		o.log.Debugf("when eventType: %s", evt.EventType)
 		return nil
 	}
 }
