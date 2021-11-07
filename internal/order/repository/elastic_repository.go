@@ -7,16 +7,23 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/models"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
+	"github.com/AleksK1NG/es-microservice/pkg/utils"
+	orderService "github.com/AleksK1NG/es-microservice/proto/order"
 	v7 "github.com/olivere/elastic/v7"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
+)
+
+const (
+	shopItemTitle       = "shopItems.title"
+	shopItemDescription = "shopItems.description"
 )
 
 type ElasticRepository interface {
 	IndexOrder(ctx context.Context, order *models.OrderProjection) error
 	GetByID(ctx context.Context, orderID string) (*models.OrderProjection, error)
 	UpdateOrder(ctx context.Context, order *models.OrderProjection) error
-	Search(ctx context.Context, text string) ([]*models.OrderProjection, error)
+	Search(ctx context.Context, text string, pq *utils.Pagination) (*orderService.SearchRes, error)
 }
 
 type elasticRepository struct {
@@ -85,27 +92,23 @@ func (e *elasticRepository) UpdateOrder(ctx context.Context, order *models.Order
 	return nil
 }
 
-func (e *elasticRepository) Search(ctx context.Context, text string) ([]*models.OrderProjection, error) {
+func (e *elasticRepository) Search(ctx context.Context, text string, pq *utils.Pagination) (*orderService.SearchRes, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticRepository.Search")
 	defer span.Finish()
 	span.LogFields(log.String("Search", text))
 
 	shouldMatch := v7.NewBoolQuery().
-		Should(
-			v7.NewMatchPhrasePrefixQuery("shopItems.title", text),
-			v7.NewMatchPhrasePrefixQuery("shopItems.description", text),
-		).
+		Should(v7.NewMatchPhrasePrefixQuery(shopItemTitle, text), v7.NewMatchPhrasePrefixQuery(shopItemDescription, text)).
 		MinimumNumberShouldMatch(1)
 
 	searchResult, err := e.elasticClient.Search(e.cfg.ElasticIndexes.Orders).
 		Query(shouldMatch).
-		From(0).
+		From(pq.GetOffset()).
 		Explain(true).
 		FetchSource(true).
 		Version(true).
-		//Sort("price", true).
-		Size(60).     // take documents 0-9
-		Pretty(true). // pretty print request and response JSON
+		Size(pq.GetSize()).
+		Pretty(true).
 		Do(ctx)
 	if err != nil {
 		tracing.TraceErr(span, err)
@@ -127,5 +130,14 @@ func (e *elasticRepository) Search(ctx context.Context, text string) ([]*models.
 		orders = append(orders, &order)
 	}
 
-	return orders, nil
+	return &orderService.SearchRes{
+		Pagination: &orderService.Pagination{
+			TotalCount: searchResult.TotalHits(),
+			TotalPages: int64(pq.GetTotalPages(int(searchResult.TotalHits()))),
+			Page:       int64(pq.GetPage()),
+			Size:       int64(pq.GetSize()),
+			HasMore:    pq.GetHasMore(int(searchResult.TotalHits())),
+		},
+		Orders: models.OrderProjectionsToProto(orders),
+	}, nil
 }
