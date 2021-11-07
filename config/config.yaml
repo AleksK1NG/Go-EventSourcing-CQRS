@@ -2,6 +2,13 @@ serviceName: es_service
 grpc:
   port: :5001
   development: true
+http:
+  port: :5007
+  development: true
+  basePath: /api/v1
+  ordersPath: /api/v1/orders
+  debugErrorsResponse: true
+  ignoreLogUrls: [ "metrics" ]
 probes:
   readinessPath: /ready
   livenessPath: /live

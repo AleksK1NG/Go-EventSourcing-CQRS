@@ -30,10 +30,7 @@ func (a *aggregateStore) Load(ctx context.Context, aggregate es.Aggregate) error
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", aggregate.GetID()))
 
-	stream, err := a.db.ReadStream(ctx, aggregate.GetID(), esdb.ReadStreamOptions{
-		//Direction: esdb.Forwards,
-		//From:      esdb.Revision(1),
-	}, count)
+	stream, err := a.db.ReadStream(ctx, aggregate.GetID(), esdb.ReadStreamOptions{}, count)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return err
