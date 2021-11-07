@@ -97,21 +97,13 @@ func (e *elasticRepository) Search(ctx context.Context, text string) ([]*models.
 		).
 		MinimumNumberShouldMatch(1)
 
-	//boolQuery := v7.NewBoolQuery().Must(
-	//	v7.NewTermQuery("shopItems.title", text),
-	//	v7.NewTermQuery("shopItems.description", text),
-	//)
-
-	//boolQuery := v7.NewBoolQuery().Must(
-	//	v7.NewMatchPhrasePrefixQuery("shopItems.title", text),
-	//	v7.NewMatchPhrasePrefixQuery("shopItems.description", text),
-	//)
-
 	searchResult, err := e.elasticClient.Search(e.cfg.ElasticIndexes.Orders).
 		Query(shouldMatch).
-		//Query(v7.NewMatchPhrasePrefixQuery("shopItems.title", text)).
 		From(0).
-		//Sort("title", true).
+		Explain(true).
+		FetchSource(true).
+		Version(true).
+		//Sort("price", true).
 		Size(60).     // take documents 0-9
 		Pretty(true). // pretty print request and response JSON
 		Do(ctx)
