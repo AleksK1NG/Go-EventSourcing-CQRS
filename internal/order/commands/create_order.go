@@ -38,7 +38,7 @@ func (c *createOrderHandler) Handle(ctx context.Context, command *aggregate.Crea
 		return err
 	}
 
-	if err := order.HandleCommand(command); err != nil {
+	if err := order.HandleCommand(ctx, command); err != nil {
 		tracing.TraceErr(span, err)
 		return err
 	}

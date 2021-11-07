@@ -2,6 +2,7 @@ package tracing
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"google.golang.org/grpc/metadata"
@@ -39,6 +40,27 @@ func InjectTextMapCarrier(spanCtx opentracing.SpanContext) (opentracing.TextMapC
 		return nil, err
 	}
 	return m, nil
+}
+
+func ExtractTextMapCarrier(spanCtx opentracing.SpanContext) opentracing.TextMapCarrier {
+	textMapCarrier, err := InjectTextMapCarrier(spanCtx)
+	if err != nil {
+		return make(opentracing.TextMapCarrier)
+	}
+	return textMapCarrier
+}
+
+func ExtractTextMapCarrierBytes(spanCtx opentracing.SpanContext) []byte {
+	textMapCarrier, err := InjectTextMapCarrier(spanCtx)
+	if err != nil {
+		return []byte("")
+	}
+
+	dataBytes, err := json.Marshal(&textMapCarrier)
+	if err != nil {
+		return []byte("")
+	}
+	return dataBytes
 }
 
 func InjectTextMapCarrierToGrpcMetaData(ctx context.Context, spanCtx opentracing.SpanContext) context.Context {

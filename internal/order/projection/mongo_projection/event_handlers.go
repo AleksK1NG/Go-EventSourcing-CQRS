@@ -21,26 +21,21 @@ func (o *orderProjection) handleOrderCreateEvent(ctx context.Context, evt es.Eve
 		tracing.TraceErr(span, err)
 		return err
 	}
+	span.LogFields(log.String("AccountEmail", eventData.AccountEmail))
 
 	op := &models.OrderProjection{
 		OrderID:      aggregate.GetOrderAggregateID(evt.AggregateID),
 		ShopItems:    eventData.ShopItems,
 		Created:      true,
-		Paid:         false,
-		Submitted:    false,
-		Delivering:   false,
-		Delivered:    false,
-		Canceled:     false,
 		AccountEmail: eventData.AccountEmail,
 		TotalPrice:   aggregate.GetShopItemsTotalPrice(eventData.ShopItems),
 	}
 
-	result, err := o.mongoRepo.Insert(ctx, op)
+	_, err := o.mongoRepo.Insert(ctx, op)
 	if err != nil {
 		return err
 	}
 
-	o.log.Debugf("projection OrderCreated result: %s", result)
 	return nil
 }
 
