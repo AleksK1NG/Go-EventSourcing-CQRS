@@ -3,6 +3,7 @@ package mongo_projection
 import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/internal/models"
+	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
@@ -31,7 +32,7 @@ func (o *orderProjection) handleOrderCreateEvent(ctx context.Context, evt es.Eve
 		Delivered:    false,
 		Canceled:     false,
 		AccountEmail: eventData.AccountEmail,
-		TotalPrice:   GetShopItemsTotalPrice(eventData.ShopItems),
+		TotalPrice:   aggregate.GetShopItemsTotalPrice(eventData.ShopItems),
 	}
 
 	result, err := o.mongoRepo.Insert(ctx, op)
@@ -73,14 +74,6 @@ func (o *orderProjection) handleUpdateEvent(ctx context.Context, evt es.Event) e
 	}
 
 	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), ShopItems: eventData.ShopItems}
-	op.TotalPrice = GetShopItemsTotalPrice(eventData.ShopItems)
+	op.TotalPrice = aggregate.GetShopItemsTotalPrice(eventData.ShopItems)
 	return o.mongoRepo.UpdateOrder(ctx, op)
-}
-
-func GetShopItemsTotalPrice(shopItems []*models.ShopItem) float64 {
-	var totalPrice float64 = 0
-	for _, item := range shopItems {
-		totalPrice += item.Price * float64(item.Quantity)
-	}
-	return totalPrice
 }
