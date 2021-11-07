@@ -69,10 +69,21 @@ message UpdateOrderRes {}
 
 message SearchReq {
   string SearchText = 1;
+  int64 Page = 2;
+  int64 Size = 3;
 }
 
 message SearchRes {
-  repeated Order Orders = 1;
+  Pagination Pagination = 1;
+  repeated Order Orders = 2;
+}
+
+message Pagination {
+  int64 TotalCount = 1;
+  int64 TotalPages = 2;
+  int64 Page = 3;
+  int64 Size = 4;
+  bool HasMore = 5;
 }
 
 service orderService {

@@ -9,6 +9,7 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/service"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
+	"github.com/AleksK1NG/es-microservice/pkg/utils"
 	"github.com/AleksK1NG/es-microservice/proto/order"
 	"github.com/go-playground/validator"
 	"github.com/opentracing/opentracing-go/log"
@@ -129,7 +130,7 @@ func (s *orderGrpcService) Search(ctx context.Context, req *orderService.SearchR
 	defer span.Finish()
 	span.LogFields(log.String("Search req", req.String()))
 
-	query := queries.NewSearchOrdersQuery(req.GetSearchText())
+	query := queries.NewSearchOrdersQuery(req.GetSearchText(), utils.NewPaginationQuery(int(req.GetSize()), int(req.GetPage())))
 	if err := s.v.StructCtx(ctx, query); err != nil {
 		s.log.WarnMsg("validate", err)
 		return nil, s.errResponse(codes.Internal, err)
@@ -141,7 +142,7 @@ func (s *orderGrpcService) Search(ctx context.Context, req *orderService.SearchR
 		return nil, s.errResponse(codes.Internal, err)
 	}
 
-	return &orderService.SearchRes{Orders: models.OrderProjectionsToProto(searchResult)}, nil
+	return searchResult, nil
 }
 
 func (s *orderGrpcService) errResponse(c codes.Code, err error) error {

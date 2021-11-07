@@ -1,5 +1,7 @@
 package queries
 
+import "github.com/AleksK1NG/es-microservice/pkg/utils"
+
 type OrderQueries struct {
 	GetOrderByID GetOrderByIDQueryHandler
 	SearchOrders SearchOrdersQueryHandler
@@ -19,8 +21,9 @@ func NewGetOrderByIDQuery(ID string) *GetOrderByIDQuery {
 
 type SearchOrdersQuery struct {
 	SearchText string `json:"searchText"`
+	Pq         *utils.Pagination
 }
 
-func NewSearchOrdersQuery(searchText string) *SearchOrdersQuery {
-	return &SearchOrdersQuery{SearchText: searchText}
+func NewSearchOrdersQuery(searchText string, pq *utils.Pagination) *SearchOrdersQuery {
+	return &SearchOrdersQuery{SearchText: searchText, Pq: pq}
 }
