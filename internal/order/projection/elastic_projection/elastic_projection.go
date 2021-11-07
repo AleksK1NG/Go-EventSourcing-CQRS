@@ -13,7 +13,6 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
-	"strings"
 )
 
 type Worker func(ctx context.Context, stream *esdb.PersistentSubscription, workerID int) error
@@ -122,8 +121,4 @@ func (o *elasticProjection) When(ctx context.Context, evt es.Event) error {
 	default:
 		return es.ErrInvalidEventType
 	}
-}
-
-func GetOrderAggregateID(eventAggregateID string) string {
-	return strings.ReplaceAll(eventAggregateID, "order-", "")
 }

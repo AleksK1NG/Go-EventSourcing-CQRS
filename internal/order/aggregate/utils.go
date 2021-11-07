@@ -1,6 +1,9 @@
 package aggregate
 
-import "github.com/AleksK1NG/es-microservice/internal/models"
+import (
+	"github.com/AleksK1NG/es-microservice/internal/models"
+	"strings"
+)
 
 func GetShopItemsTotalPrice(shopItems []*models.ShopItem) float64 {
 	var totalPrice float64 = 0
@@ -8,4 +11,8 @@ func GetShopItemsTotalPrice(shopItems []*models.ShopItem) float64 {
 		totalPrice += item.Price * float64(item.Quantity)
 	}
 	return totalPrice
+}
+
+func GetOrderAggregateID(eventAggregateID string) string {
+	return strings.ReplaceAll(eventAggregateID, "order-", "")
 }

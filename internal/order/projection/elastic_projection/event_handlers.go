@@ -23,7 +23,7 @@ func (o *elasticProjection) handleOrderCreateEvent(ctx context.Context, evt es.E
 	}
 
 	op := &models.OrderProjection{
-		OrderID:      GetOrderAggregateID(evt.AggregateID),
+		OrderID:      aggregate.GetOrderAggregateID(evt.AggregateID),
 		ShopItems:    eventData.ShopItems,
 		Created:      true,
 		Paid:         false,
@@ -43,7 +43,7 @@ func (o *elasticProjection) handleOrderPaidEvent(ctx context.Context, evt es.Eve
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), Paid: true}
+	op := &models.OrderProjection{OrderID: aggregate.GetOrderAggregateID(evt.AggregateID), Paid: true}
 	return o.elasticRepository.UpdateOrder(ctx, op)
 }
 
@@ -52,7 +52,7 @@ func (o *elasticProjection) handleSubmitEvent(ctx context.Context, evt es.Event)
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), Submitted: true}
+	op := &models.OrderProjection{OrderID: aggregate.GetOrderAggregateID(evt.AggregateID), Submitted: true}
 	return o.elasticRepository.UpdateOrder(ctx, op)
 }
 
@@ -67,7 +67,7 @@ func (o *elasticProjection) handleUpdateEvent(ctx context.Context, evt es.Event)
 		return err
 	}
 
-	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), ShopItems: eventData.ShopItems}
+	op := &models.OrderProjection{OrderID: aggregate.GetOrderAggregateID(evt.AggregateID), ShopItems: eventData.ShopItems}
 	op.TotalPrice = aggregate.GetShopItemsTotalPrice(eventData.ShopItems)
 	return o.elasticRepository.UpdateOrder(ctx, op)
 }
