@@ -10,4 +10,5 @@ var (
 	ErrAlreadySubmitted          = errors.New("already submitted")
 	ErrAlreadyCreated            = errors.New("already created")
 	ErrOrderNotPaid              = errors.New("order not paid")
+	ErrSubscriptionDropped       = errors.New("Subscription Dropped")
 )

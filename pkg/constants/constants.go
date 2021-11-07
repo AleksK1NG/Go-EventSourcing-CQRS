@@ -55,4 +55,7 @@ const (
 	Token           = "token"
 	Bcrypt          = "bcrypt"
 	SQLState        = "sqlstate"
+
+	MongoProjection   = "(MongoDB Projection)"
+	ElasticProjection = "(Elastic Projection)"
 )

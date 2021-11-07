@@ -68,33 +68,27 @@ func (o *elasticProjection) ProcessEvents(ctx context.Context, stream *esdb.Pers
 		event := stream.Recv()
 
 		if event.SubscriptionDropped != nil {
-			o.log.Error("Subscription Dropped")
-			if event.SubscriptionDropped.Error != nil {
-				o.log.Errorf("SubscriptionDropped error: %s", event.SubscriptionDropped.Error.Error())
-				return event.SubscriptionDropped.Error
-			}
-			return errors.New("Subscription Dropped")
+			o.log.Errorf("SubscriptionDropped error: %v", event.SubscriptionDropped.Error)
+			return errors.Wrap(event.SubscriptionDropped.Error, "Subscription Dropped")
 		}
 
 		if event.EventAppeared != nil {
-			streamID := event.EventAppeared.OriginalEvent().StreamID
-			revision := event.EventAppeared.OriginalEvent().EventNumber
-			o.log.Infof("(elastic projection event): revision: %v, streamID: %v, workerID: %v, eventType: %s", revision, streamID, workerID, event.EventAppeared.Event.EventType)
+			o.log.ProjectionEvent(constants.ElasticProjection, o.cfg.Subscriptions.MongoProjectionGroupName, event.EventAppeared, workerID)
 
 			err := o.When(ctx, es.NewEventFromRecorded(event.EventAppeared.Event))
 			if err != nil {
-				o.log.Errorf("order projection when: %v", err)
-				if err := stream.Nack(err.Error(), esdb.Nack_Unknown, event.EventAppeared); err != nil {
+				o.log.Errorf("elasticProjection.when: %v", err)
+				if err := stream.Nack(err.Error(), esdb.Nack_Retry, event.EventAppeared); err != nil {
 					o.log.Errorf("stream.Nack: %v", err)
-					return err
+					return errors.Wrap(err, "stream.Nack")
 				}
 			}
 			err = stream.Ack(event.EventAppeared)
 			if err != nil {
 				o.log.Errorf("stream.Ack: %v", err)
-				return err
+				return errors.Wrap(err, "stream.Ack")
 			}
-			o.log.Infof("(ACK event commit): %v", *event.EventAppeared.Commit)
+			o.log.Infof("(ACK) event commit: %v", *event.EventAppeared.Commit)
 		}
 	}
 }
@@ -119,6 +113,7 @@ func (o *elasticProjection) When(ctx context.Context, evt es.Event) error {
 		return o.handleUpdateEvent(ctx, evt)
 
 	default:
-		return es.ErrInvalidEventType
+		o.log.Debugf("when eventType: %s", evt.EventType)
+		return nil
 	}
 }

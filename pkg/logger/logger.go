@@ -2,6 +2,7 @@ package logger
 
 import (
 	"github.com/AleksK1NG/es-microservice/pkg/constants"
+	"github.com/EventStore/EventStore-Client-Go/esdb"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
@@ -43,6 +44,7 @@ type Logger interface {
 	GrpcClientInterceptorLogger(method string, req interface{}, reply interface{}, time time.Duration, metaData map[string][]string, err error)
 	KafkaProcessMessage(topic string, partition int, message string, workerID int, offset int64, time time.Time)
 	KafkaLogCommittedMessage(topic string, partition int, offset int64)
+	ProjectionEvent(projectionName string, groupName string, event *esdb.ResolvedEvent, workerID int)
 }
 
 // Application logger
@@ -283,5 +285,19 @@ func (l *appLogger) KafkaLogCommittedMessage(topic string, partition int, offset
 		zap.String(constants.Topic, topic),
 		zap.Int(constants.Partition, partition),
 		zap.Int64(constants.Offset, offset),
+	)
+}
+
+func (l *appLogger) ProjectionEvent(projectionName string, groupName string, event *esdb.ResolvedEvent, workerID int) {
+	l.logger.Debug(
+		projectionName,
+		zap.String("GroupName", groupName),
+		zap.String("StreamID", event.OriginalEvent().StreamID),
+		zap.String("EventID", event.OriginalEvent().EventID.String()),
+		zap.String("EventType", event.OriginalEvent().EventType),
+		zap.Uint64("EventNumber", event.OriginalEvent().EventNumber),
+		zap.Time("CreatedDate", event.OriginalEvent().CreatedDate),
+		zap.String("UserMetadata", string(event.OriginalEvent().UserMetadata)),
+		zap.Int(constants.WorkerID, workerID),
 	)
 }
