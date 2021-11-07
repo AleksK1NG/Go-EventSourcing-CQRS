@@ -2,7 +2,6 @@ package aggregate
 
 import (
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
-	"github.com/AleksK1NG/es-microservice/internal/order/projection/mongo_projection"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 )
 
@@ -15,7 +14,7 @@ func (a *OrderAggregate) handleOrderCreatedEvent(evt es.Event) error {
 	a.Order.AccountEmail = eventData.AccountEmail
 	a.Order.ShopItems = eventData.ShopItems
 	a.Order.Created = true
-	a.Order.TotalPrice = mongo_projection.GetShopItemsTotalPrice(eventData.ShopItems)
+	a.Order.TotalPrice = GetShopItemsTotalPrice(eventData.ShopItems)
 	return nil
 }
 
@@ -52,6 +51,6 @@ func (a *OrderAggregate) handleOrderUpdatedEvent(evt es.Event) error {
 	}
 
 	a.Order.ShopItems = eventData.ShopItems
-	a.Order.TotalPrice = mongo_projection.GetShopItemsTotalPrice(eventData.ShopItems)
+	a.Order.TotalPrice = GetShopItemsTotalPrice(eventData.ShopItems)
 	return nil
 }

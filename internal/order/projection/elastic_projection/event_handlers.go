@@ -3,8 +3,8 @@ package elastic_projection
 import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/internal/models"
+	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
-	"github.com/AleksK1NG/es-microservice/internal/order/projection/mongo_projection"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/opentracing/opentracing-go"
@@ -32,7 +32,7 @@ func (o *elasticProjection) handleOrderCreateEvent(ctx context.Context, evt es.E
 		Delivered:    false,
 		Canceled:     false,
 		AccountEmail: eventData.AccountEmail,
-		TotalPrice:   mongo_projection.GetShopItemsTotalPrice(eventData.ShopItems),
+		TotalPrice:   aggregate.GetShopItemsTotalPrice(eventData.ShopItems),
 	}
 
 	return o.elasticRepository.IndexOrder(ctx, op)
@@ -68,6 +68,6 @@ func (o *elasticProjection) handleUpdateEvent(ctx context.Context, evt es.Event)
 	}
 
 	op := &models.OrderProjection{OrderID: GetOrderAggregateID(evt.AggregateID), ShopItems: eventData.ShopItems}
-	op.TotalPrice = mongo_projection.GetShopItemsTotalPrice(eventData.ShopItems)
+	op.TotalPrice = aggregate.GetShopItemsTotalPrice(eventData.ShopItems)
 	return o.elasticRepository.UpdateOrder(ctx, op)
 }
