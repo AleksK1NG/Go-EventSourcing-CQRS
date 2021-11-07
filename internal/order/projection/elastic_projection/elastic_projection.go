@@ -36,7 +36,9 @@ func (o *elasticProjection) Subscribe(ctx context.Context, prefixes []string, po
 		Filter: &esdb.SubscriptionFilter{Type: esdb.StreamFilterType, Prefixes: prefixes},
 	})
 	if err != nil {
-		o.log.Warnf("CreatePersistentSubscriptionAll: %v", err)
+		if subscriptionError, ok := err.(*esdb.PersistentSubscriptionError); !ok || ok && (subscriptionError.Code != 6) {
+			o.log.Errorf("CreatePersistentSubscriptionAll: %v", subscriptionError.Error())
+		}
 	}
 
 	stream, err := o.db.ConnectToPersistentSubscription(ctx, constants.EsAll, o.cfg.Subscriptions.ElasticProjectionGroupName, esdb.ConnectToPersistentSubscriptionOptions{})
