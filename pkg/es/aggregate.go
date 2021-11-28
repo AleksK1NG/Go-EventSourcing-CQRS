@@ -78,6 +78,8 @@ type AggregateRoot interface {
 	GetType() AggregateType
 	SetAppliedEvents(events []Event)
 	GetAppliedEvents() []Event
+	RaiseEvent(event Event) error
+	String() string
 	Load
 	Apply
 }
@@ -204,8 +206,36 @@ func (a *AggregateBase) Apply(event Event) error {
 	return nil
 }
 
+// RaiseEvent push event to aggregate applied events using When method, used for load directly from eventstore
+func (a *AggregateBase) RaiseEvent(event Event) error {
+	if event.GetAggregateID() != a.GetID() {
+		return ErrInvalidAggregateID
+	}
+
+	event.SetVersion(a.GetVersion())
+	event.SetAggregateType(a.GetType())
+
+	if err := a.when(event); err != nil {
+		return err
+	}
+
+	a.AppliedEvents = append(a.AppliedEvents, event)
+	a.Version++
+	return nil
+}
+
 // ToSnapshot prepare AggregateBase for saving Snapshot.
 func (a *AggregateBase) ToSnapshot() {
 	a.AppliedEvents = append(a.AppliedEvents, a.UncommittedEvents...)
 	a.ClearUncommittedEvents()
+}
+
+func (a *AggregateBase) String() string {
+	return fmt.Sprintf("ID: {%s}, Version: {%v}, Type: {%v}, AppliedEvents: {%v}, UncommittedEvents: {%v},",
+		a.GetID(),
+		a.GetVersion(),
+		a.GetType(),
+		len(a.GetAppliedEvents()),
+		len(a.GetUncommittedEvents()),
+	)
 }
