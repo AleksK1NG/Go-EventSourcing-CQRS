@@ -11,7 +11,7 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 )
 
-func (o *elasticProjection) handleOrderCreateEvent(ctx context.Context, evt es.Event) error {
+func (o *elasticProjection) onOrderCreate(ctx context.Context, evt es.Event) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.handleOrderCreateEvent")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
@@ -33,7 +33,7 @@ func (o *elasticProjection) handleOrderCreateEvent(ctx context.Context, evt es.E
 	return o.elasticRepository.IndexOrder(ctx, op)
 }
 
-func (o *elasticProjection) handleOrderPaidEvent(ctx context.Context, evt es.Event) error {
+func (o *elasticProjection) onOrderPaid(ctx context.Context, evt es.Event) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.handleOrderPaidEvent")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
@@ -42,7 +42,7 @@ func (o *elasticProjection) handleOrderPaidEvent(ctx context.Context, evt es.Eve
 	return o.elasticRepository.UpdateOrder(ctx, op)
 }
 
-func (o *elasticProjection) handleSubmitEvent(ctx context.Context, evt es.Event) error {
+func (o *elasticProjection) onSubmit(ctx context.Context, evt es.Event) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.handleSubmitEvent")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
@@ -51,7 +51,7 @@ func (o *elasticProjection) handleSubmitEvent(ctx context.Context, evt es.Event)
 	return o.elasticRepository.UpdateOrder(ctx, op)
 }
 
-func (o *elasticProjection) handleUpdateEvent(ctx context.Context, evt es.Event) error {
+func (o *elasticProjection) onUpdate(ctx context.Context, evt es.Event) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.handleUpdateEvent")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))

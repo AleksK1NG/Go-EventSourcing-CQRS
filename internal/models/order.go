@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	orderService "github.com/AleksK1NG/es-microservice/proto/order"
 )
 
@@ -15,6 +16,21 @@ type Order struct {
 	Canceled     bool        `json:"canceled" bson:"canceled,omitempty"`
 	TotalPrice   float64     `json:"totalPrice" bson:"totalPrice,omitempty"`
 	AccountEmail string      `json:"accountEmail" bson:"accountEmail,omitempty"`
+}
+
+func (o *Order) String() string {
+	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, Delivering: {%v}, Delivered: {%v}, Canceled: {%v}, TotalPrice: {%v}, AccountEmail: {%s},",
+		o.ID,
+		o.ShopItems,
+		o.Created,
+		o.Paid,
+		o.Submitted,
+		o.Delivering,
+		o.Delivered,
+		o.Canceled,
+		o.TotalPrice,
+		o.AccountEmail,
+	)
 }
 
 func NewOrder() *Order {
@@ -54,6 +70,21 @@ type OrderProjection struct {
 	Canceled     bool        `json:"canceled" bson:"canceled,omitempty"`
 	TotalPrice   float64     `json:"totalPrice" bson:"totalPrice,omitempty"`
 	AccountEmail string      `json:"accountEmail" bson:"accountEmail,omitempty" validate:"required,email"`
+}
+
+func (o *OrderProjection) String() string {
+	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, Delivering: {%v}, Delivered: {%v}, Canceled: {%v}, TotalPrice: {%v}, AccountEmail: {%s},",
+		o.ID,
+		o.ShopItems,
+		o.Created,
+		o.Paid,
+		o.Submitted,
+		o.Delivering,
+		o.Delivered,
+		o.Canceled,
+		o.TotalPrice,
+		o.AccountEmail,
+	)
 }
 
 func OrderProjectionToProto(order *OrderProjection) *orderService.Order {
