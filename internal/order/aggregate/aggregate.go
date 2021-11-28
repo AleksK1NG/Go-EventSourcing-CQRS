@@ -47,25 +47,25 @@ func (a *OrderAggregate) When(evt es.Event) error {
 	switch evt.GetEventType() {
 
 	case events.OrderCreated:
-		return a.handleOrderCreatedEvent(evt)
+		return a.onOrderCreated(evt)
 
 	case events.OrderPaid:
-		return a.handleOrderPainEvent(evt)
+		return a.onOrderPaid(evt)
 
 	case events.OrderSubmitted:
-		return a.handleOrderSubmittedEvent(evt)
+		return a.onOrderSubmitted(evt)
 
 	case events.OrderDelivering:
-		return a.handleOrderDeliveringEvent(evt)
+		return a.onOrderDelivering(evt)
 
 	case events.OrderDelivered:
-		return a.handleOrderDeliveredEvent(evt)
+		return a.onOrderDelivered(evt)
 
 	case events.OrderCanceled:
-		return a.handleOrderCanceledEvent(evt)
+		return a.onOrderCanceled(evt)
 
 	case events.OrderUpdated:
-		return a.handleOrderUpdatedEvent(evt)
+		return a.onOrderUpdated(evt)
 
 	default:
 		return es.ErrInvalidEventType
@@ -80,16 +80,16 @@ func (a *OrderAggregate) HandleCommand(ctx context.Context, command es.Command) 
 	switch c := command.(type) {
 
 	case *CreateOrderCommand:
-		return a.handleCreateOrderCommand(ctx, c)
+		return a.onCreateOrderCommand(ctx, c)
 
 	case *OrderPaidCommand:
-		return a.handleOrderPaidCommand(ctx, c)
+		return a.onOrderPaidCommand(ctx, c)
 
 	case *SubmitOrderCommand:
-		return a.handleSubmitOrderCommand(ctx, c)
+		return a.onSubmitOrderCommand(ctx, c)
 
 	case *OrderUpdatedCommand:
-		return a.handleOrderUpdatedCommand(ctx, c)
+		return a.onOrderUpdatedCommand(ctx, c)
 
 	default:
 		return es.ErrInvalidCommandType
