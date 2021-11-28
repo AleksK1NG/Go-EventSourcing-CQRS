@@ -3,6 +3,7 @@ package aggregate
 import (
 	"context"
 	"encoding/json"
+	"github.com/AleksK1NG/es-microservice/internal/dto"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	serviceErrors "github.com/AleksK1NG/es-microservice/pkg/service_errors"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
@@ -10,8 +11,8 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 )
 
-func (a *OrderAggregate) handleCreateOrderCommand(ctx context.Context, command *CreateOrderCommand) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "OrderAggregate.handleCreateOrderCommand")
+func (a *OrderAggregate) onCreateOrderCommand(ctx context.Context, command *CreateOrderCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onCreateOrderCommand")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
@@ -19,7 +20,7 @@ func (a *OrderAggregate) handleCreateOrderCommand(ctx context.Context, command *
 		return serviceErrors.ErrAlreadyCreatedOrCancelled
 	}
 
-	createdData := &events.OrderCreatedData{ShopItems: command.ShopItems, AccountEmail: command.AccountEmail}
+	createdData := &dto.OrderCreatedData{ShopItems: command.ShopItems, AccountEmail: command.AccountEmail}
 	createdDataBytes, err := json.Marshal(createdData)
 	if err != nil {
 		return err
@@ -33,8 +34,8 @@ func (a *OrderAggregate) handleCreateOrderCommand(ctx context.Context, command *
 	return a.Apply(createOrderEvent)
 }
 
-func (a *OrderAggregate) handleOrderPaidCommand(ctx context.Context, command *OrderPaidCommand) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "OrderAggregate.handleOrderPaidCommand")
+func (a *OrderAggregate) onOrderPaidCommand(ctx context.Context, command *OrderPaidCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onOrderPaidCommand")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
@@ -56,8 +57,8 @@ func (a *OrderAggregate) handleOrderPaidCommand(ctx context.Context, command *Or
 	return a.Apply(payOrderEvent)
 }
 
-func (a *OrderAggregate) handleSubmitOrderCommand(ctx context.Context, command *SubmitOrderCommand) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "OrderAggregate.handleSubmitOrderCommand")
+func (a *OrderAggregate) onSubmitOrderCommand(ctx context.Context, command *SubmitOrderCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onSubmitOrderCommand")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
@@ -79,8 +80,8 @@ func (a *OrderAggregate) handleSubmitOrderCommand(ctx context.Context, command *
 	return a.Apply(submitOrderEvent)
 }
 
-func (a *OrderAggregate) handleOrderUpdatedCommand(ctx context.Context, command *OrderUpdatedCommand) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "OrderAggregate.handleOrderUpdatedCommand")
+func (a *OrderAggregate) onOrderUpdatedCommand(ctx context.Context, command *OrderUpdatedCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onOrderUpdatedCommand")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
@@ -91,7 +92,7 @@ func (a *OrderAggregate) handleOrderUpdatedCommand(ctx context.Context, command 
 		return serviceErrors.ErrAlreadySubmitted
 	}
 
-	eventData := &events.OrderUpdatedData{ShopItems: command.ShopItems}
+	eventData := &dto.OrderUpdatedData{ShopItems: command.ShopItems}
 	eventDataBytes, err := json.Marshal(eventData)
 	if err != nil {
 		return err

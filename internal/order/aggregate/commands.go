@@ -1,53 +1,40 @@
 package aggregate
 
-import "github.com/AleksK1NG/es-microservice/internal/order/events"
+import (
+	"github.com/AleksK1NG/es-microservice/internal/dto"
+	"github.com/AleksK1NG/es-microservice/pkg/es"
+)
 
 type CreateOrderCommand struct {
-	events.OrderCreatedData
-	AggregateID string `json:"aggregateID" validate:"required,gte=0"`
+	dto.OrderCreatedData
+	es.BaseCommand
 }
 
-func NewCreateOrderCommand(orderCreatedData events.OrderCreatedData, aggregateID string) *CreateOrderCommand {
-	return &CreateOrderCommand{OrderCreatedData: orderCreatedData, AggregateID: aggregateID}
-}
-
-func (o *CreateOrderCommand) GetAggregateID() string {
-	return o.AggregateID
+func NewCreateOrderCommand(orderCreatedData dto.OrderCreatedData, aggregateID string) *CreateOrderCommand {
+	return &CreateOrderCommand{OrderCreatedData: orderCreatedData, BaseCommand: es.NewBaseCommand(aggregateID)}
 }
 
 type OrderPaidCommand struct {
-	AggregateID string `json:"aggregateID" validate:"required,gte=0"`
+	es.BaseCommand
 }
 
 func NewOrderPaidCommand(aggregateID string) *OrderPaidCommand {
-	return &OrderPaidCommand{AggregateID: aggregateID}
-}
-
-func (o *OrderPaidCommand) GetAggregateID() string {
-	return o.AggregateID
+	return &OrderPaidCommand{BaseCommand: es.NewBaseCommand(aggregateID)}
 }
 
 type SubmitOrderCommand struct {
-	AggregateID string `json:"aggregateID" validate:"required,gte=0"`
+	es.BaseCommand
 }
 
 func NewSubmitOrderCommand(aggregateID string) *SubmitOrderCommand {
-	return &SubmitOrderCommand{AggregateID: aggregateID}
-}
-
-func (o *SubmitOrderCommand) GetAggregateID() string {
-	return o.AggregateID
+	return &SubmitOrderCommand{BaseCommand: es.NewBaseCommand(aggregateID)}
 }
 
 type OrderUpdatedCommand struct {
-	events.OrderUpdatedData
-	AggregateID string `json:"aggregateID" validate:"required,gte=0"`
+	dto.OrderUpdatedData
+	es.BaseCommand
 }
 
-func NewOrderUpdatedCommand(orderUpdatedData events.OrderUpdatedData, aggregateID string) *OrderUpdatedCommand {
-	return &OrderUpdatedCommand{OrderUpdatedData: orderUpdatedData, AggregateID: aggregateID}
-}
-
-func (o *OrderUpdatedCommand) GetAggregateID() string {
-	return o.AggregateID
+func NewOrderUpdatedCommand(orderUpdatedData dto.OrderUpdatedData, aggregateID string) *OrderUpdatedCommand {
+	return &OrderUpdatedCommand{OrderUpdatedData: orderUpdatedData, BaseCommand: es.NewBaseCommand(aggregateID)}
 }
