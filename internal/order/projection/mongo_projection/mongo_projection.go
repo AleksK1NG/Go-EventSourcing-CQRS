@@ -60,7 +60,7 @@ func (o *mongoProjection) ProcessEvents(ctx context.Context, stream *esdb.Persis
 	for {
 		select {
 		case <-ctx.Done():
-			o.log.Errorf("ctxDone: %v", ctx.Err())
+			o.log.Errorf("ctxDone: {%v}", ctx.Err())
 			return ctx.Err()
 		default:
 		}
@@ -68,7 +68,7 @@ func (o *mongoProjection) ProcessEvents(ctx context.Context, stream *esdb.Persis
 		event := stream.Recv()
 
 		if event.SubscriptionDropped != nil {
-			o.log.Errorf("SubscriptionDropped error: %v", event.SubscriptionDropped.Error)
+			o.log.Errorf("SubscriptionDropped err: {%v}", event.SubscriptionDropped.Error)
 			return errors.Wrap(event.SubscriptionDropped.Error, "Subscription Dropped")
 		}
 
@@ -77,18 +77,18 @@ func (o *mongoProjection) ProcessEvents(ctx context.Context, stream *esdb.Persis
 
 			err := o.When(ctx, es.NewEventFromRecorded(event.EventAppeared.Event))
 			if err != nil {
-				o.log.Errorf("mongoProjection.when: %v", err)
+				o.log.Errorf("mongoProjection.when: {%v}", err)
 				if err := stream.Nack(err.Error(), esdb.Nack_Retry, event.EventAppeared); err != nil {
-					o.log.Errorf("stream.Nack: %v", err)
+					o.log.Errorf("stream.Nack: {%v}", err)
 					return errors.Wrap(err, "stream.Nack")
 				}
 			}
 			err = stream.Ack(event.EventAppeared)
 			if err != nil {
-				o.log.Errorf("stream.Ack: %v", err)
+				o.log.Errorf("stream.Ack: {%v}", err)
 				return errors.Wrap(err, "stream.Ack")
 			}
-			o.log.Infof("(ACK) event commit: %v", *event.EventAppeared.Commit)
+			o.log.Infof("(ACK) event commit: {%v}", *event.EventAppeared.Commit)
 		}
 	}
 }
@@ -101,28 +101,19 @@ func (o *mongoProjection) When(ctx context.Context, evt es.Event) error {
 	switch evt.GetEventType() {
 
 	case events.OrderCreated:
-		return o.handleOrderCreateEvent(ctx, evt)
+		return o.onOrderCreate(ctx, evt)
 
 	case events.OrderPaid:
-		return o.handleOrderPaidEvent(ctx, evt)
+		return o.onOrderPaid(ctx, evt)
 
 	case events.OrderSubmitted:
-		return o.handleSubmitEvent(ctx, evt)
-
-	case events.OrderDelivering:
-		return nil
-
-	case events.OrderDelivered:
-		return nil
-
-	case events.OrderCanceled:
-		return nil
+		return o.onSubmit(ctx, evt)
 
 	case events.OrderUpdated:
-		return o.handleUpdateEvent(ctx, evt)
+		return o.onUpdate(ctx, evt)
 
 	default:
-		o.log.Debugf("when eventType: %s", evt.EventType)
+		o.log.Warnf("(When) eventType: {%s}", evt.EventType)
 		return nil
 	}
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 )
 
-func (o *mongoProjection) handleOrderCreateEvent(ctx context.Context, evt es.Event) error {
+func (o *mongoProjection) onOrderCreate(ctx context.Context, evt es.Event) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.handleOrderCreateEvent")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
@@ -39,7 +39,7 @@ func (o *mongoProjection) handleOrderCreateEvent(ctx context.Context, evt es.Eve
 	return nil
 }
 
-func (o *mongoProjection) handleOrderPaidEvent(ctx context.Context, evt es.Event) error {
+func (o *mongoProjection) onOrderPaid(ctx context.Context, evt es.Event) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.handleOrderPaidEvent")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
@@ -48,7 +48,7 @@ func (o *mongoProjection) handleOrderPaidEvent(ctx context.Context, evt es.Event
 	return o.mongoRepo.UpdateOrder(ctx, op)
 }
 
-func (o *mongoProjection) handleSubmitEvent(ctx context.Context, evt es.Event) error {
+func (o *mongoProjection) onSubmit(ctx context.Context, evt es.Event) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.handleSubmitEvent")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
@@ -57,7 +57,7 @@ func (o *mongoProjection) handleSubmitEvent(ctx context.Context, evt es.Event) e
 	return o.mongoRepo.UpdateOrder(ctx, op)
 }
 
-func (o *mongoProjection) handleUpdateEvent(ctx context.Context, evt es.Event) error {
+func (o *mongoProjection) onUpdate(ctx context.Context, evt es.Event) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.handleUpdateEvent")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
