@@ -31,21 +31,5 @@ func (c *updateOrderCmdHandler) Handle(ctx context.Context, command *aggregate.O
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
 	c.log.Infof("(TEXT MAP CARRIER): %+v", tracing.ExtractTextMapCarrier(span.Context()))
-
-	order := aggregate.NewOrderAggregateWithID(command.AggregateID)
-	err := c.es.Exists(ctx, order.GetID())
-	if err != nil {
-		return err
-	}
-
-	if err := c.es.Load(ctx, order); err != nil {
-		return err
-	}
-
-	if err := order.HandleCommand(ctx, command); err != nil {
-		tracing.TraceErr(span, err)
-		return err
-	}
-
-	return c.es.Save(ctx, order)
+	return aggregate.HandleCommandWithExists(ctx, c.es, command)
 }
