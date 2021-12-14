@@ -47,7 +47,7 @@ func (e *elasticRepository) IndexOrder(ctx context.Context, order *models.OrderP
 		return err
 	}
 
-	e.log.Debugf("IndexOrder result: %s", res.Result)
+	e.log.Debugf("(IndexOrder) result: {%s}", res.Result)
 	return nil
 }
 
@@ -88,7 +88,7 @@ func (e *elasticRepository) UpdateOrder(ctx context.Context, order *models.Order
 		return err
 	}
 
-	e.log.Debugf("UpdateOrder result: %s", res.Result)
+	e.log.Debugf("(UpdateOrder) result: {%s}", res.Result)
 	return nil
 }
 

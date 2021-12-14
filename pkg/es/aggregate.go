@@ -194,7 +194,6 @@ func (a *AggregateBase) Apply(event Event) error {
 		return ErrInvalidAggregateID
 	}
 
-	event.SetVersion(a.GetVersion())
 	event.SetAggregateType(a.GetType())
 
 	if err := a.when(event); err != nil {
@@ -202,6 +201,7 @@ func (a *AggregateBase) Apply(event Event) error {
 	}
 
 	a.UncommittedEvents = append(a.UncommittedEvents, event)
+	event.SetVersion(a.GetVersion())
 	a.Version++
 	return nil
 }
@@ -212,7 +212,7 @@ func (a *AggregateBase) RaiseEvent(event Event) error {
 		return ErrInvalidAggregateID
 	}
 
-	event.SetVersion(a.GetVersion())
+	//event.SetVersion(a.GetVersion())
 	event.SetAggregateType(a.GetType())
 
 	if err := a.when(event); err != nil {
@@ -231,7 +231,7 @@ func (a *AggregateBase) ToSnapshot() {
 }
 
 func (a *AggregateBase) String() string {
-	return fmt.Sprintf("ID: {%s}, Version: {%v}, Type: {%v}, AppliedEvents: {%v}, UncommittedEvents: {%v},",
+	return fmt.Sprintf("ID: {%s}, Version: {%v}, Type: {%v}, AppliedEvents: {%v}, UncommittedEvents: {%v}",
 		a.GetID(),
 		a.GetVersion(),
 		a.GetType(),

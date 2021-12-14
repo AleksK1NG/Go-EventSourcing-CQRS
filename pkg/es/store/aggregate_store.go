@@ -33,7 +33,7 @@ func (a *aggregateStore) Load(ctx context.Context, aggregate es.Aggregate) error
 	stream, err := a.db.ReadStream(ctx, aggregate.GetID(), esdb.ReadStreamOptions{}, count)
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return err
+		return errors.Wrap(err, "db.ReadStream")
 	}
 	defer stream.Close()
 
@@ -47,9 +47,11 @@ func (a *aggregateStore) Load(ctx context.Context, aggregate es.Aggregate) error
 			return errors.Wrap(err, "stream.Recv")
 		}
 
-		if err := aggregate.RaiseEvent(es.NewEventFromRecorded(event.Event)); err != nil {
+		esEvent := es.NewEventFromRecorded(event.Event)
+		if err := aggregate.RaiseEvent(esEvent); err != nil {
 			return errors.Wrap(err, "RaiseEvent")
 		}
+		a.log.Debugf("(Load) esEvent: {%s}", esEvent.String())
 	}
 
 	a.log.Debugf("(Load) aggregate: {%s}", aggregate.String())
@@ -69,15 +71,15 @@ func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error
 	var expectedRevision esdb.ExpectedRevision
 	if aggregate.GetVersion() <= 1 {
 		expectedRevision = esdb.NoStream{}
-		a.log.Infof("(SaveEvents) expectedRevision: %T", expectedRevision)
+		a.log.Infof("(SaveEvents) expectedRevision: {%T}", expectedRevision)
 
 		appendStream, err := a.db.AppendToStream(ctx, aggregate.GetID(), esdb.AppendToStreamOptions{ExpectedRevision: expectedRevision}, eventsData...)
 		if err != nil {
 			tracing.TraceErr(span, err)
-			return err
+			return errors.Wrap(err, "db.AppendToStream")
 		}
 
-		a.log.Infof("(SaveEvents) stream: %+v", appendStream)
+		a.log.Infof("(SaveEvents) stream: {%+v}", appendStream)
 		return nil
 	}
 
@@ -85,26 +87,26 @@ func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error
 	stream, err := a.db.ReadStream(context.Background(), aggregate.GetID(), ropts, 1)
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return err
+		return errors.Wrap(err, "db.ReadStream")
 	}
 	defer stream.Close()
 
 	lastEvent, err := stream.Recv()
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return err
+		return errors.Wrap(err, "stream.Recv")
 	}
 
 	expectedRevision = esdb.Revision(lastEvent.OriginalEvent().EventNumber)
-	a.log.Infof("(Save) expectedRevision: %T", expectedRevision)
+	a.log.Infof("(Save) expectedRevision: {%T}", expectedRevision)
 
 	appendStream, err := a.db.AppendToStream(ctx, aggregate.GetID(), esdb.AppendToStreamOptions{ExpectedRevision: expectedRevision}, eventsData...)
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return err
+		return errors.Wrap(err, "db.AppendToStream")
 	}
 
-	a.log.Infof("(Save) stream: %+v", appendStream)
+	a.log.Infof("(Save) stream: {%+v}", appendStream)
 	return nil
 }
 

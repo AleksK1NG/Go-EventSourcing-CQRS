@@ -79,6 +79,6 @@ func (m *mongoRepository) UpdateOrder(ctx context.Context, order *models.OrderPr
 		return err
 	}
 
-	m.log.Debugf("update result: %s", res.OrderID)
+	m.log.Debugf("(UpdateOrder) result OrderID: {%s}", res.OrderID)
 	return nil
 }

@@ -29,14 +29,14 @@ func NewElasticProjection(log logger.Logger, db *esdb.Client, elasticRepository 
 }
 
 func (o *elasticProjection) Subscribe(ctx context.Context, prefixes []string, poolSize int, worker Worker) error {
-	o.log.Infof("starting elastic subscription: %+v", prefixes)
+	o.log.Infof("(starting elastic subscription) prefixes: {%+v}", prefixes)
 
 	err := o.db.CreatePersistentSubscriptionAll(ctx, o.cfg.Subscriptions.ElasticProjectionGroupName, esdb.PersistentAllSubscriptionOptions{
 		Filter: &esdb.SubscriptionFilter{Type: esdb.StreamFilterType, Prefixes: prefixes},
 	})
 	if err != nil {
 		if subscriptionError, ok := err.(*esdb.PersistentSubscriptionError); !ok || ok && (subscriptionError.Code != 6) {
-			o.log.Errorf("CreatePersistentSubscriptionAll: %v", subscriptionError.Error())
+			o.log.Errorf("(CreatePersistentSubscriptionAll) err: {%v}", subscriptionError.Error())
 		}
 	}
 
@@ -68,7 +68,7 @@ func (o *elasticProjection) ProcessEvents(ctx context.Context, stream *esdb.Pers
 		event := stream.Recv()
 
 		if event.SubscriptionDropped != nil {
-			o.log.Errorf("SubscriptionDropped err: {%v}", event.SubscriptionDropped.Error)
+			o.log.Errorf("(SubscriptionDropped) err: {%v}", event.SubscriptionDropped.Error)
 			return errors.Wrap(event.SubscriptionDropped.Error, "Subscription Dropped")
 		}
 
@@ -85,7 +85,7 @@ func (o *elasticProjection) ProcessEvents(ctx context.Context, stream *esdb.Pers
 			}
 			err = stream.Ack(event.EventAppeared)
 			if err != nil {
-				o.log.Errorf("stream.Ack: {%v}", err)
+				o.log.Errorf("(stream.Ack) err: {%v}", err)
 				return errors.Wrap(err, "stream.Ack")
 			}
 			o.log.Infof("(ACK) event commit: {%v}", *event.EventAppeared.Commit)

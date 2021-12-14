@@ -34,16 +34,16 @@ func (s *orderGrpcService) CreateOrder(ctx context.Context, req *orderService.Cr
 	orderCreatedData := dto.OrderCreatedData{ShopItems: models.ShopItemsFromProto(req.GetShopItems()), AccountEmail: req.GetAccountEmail()}
 	command := aggregate.NewCreateOrderCommand(orderCreatedData, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
-		s.log.WarnMsg("validate", err)
+		s.log.Errorf("(validate) err: {%v}", err)
 		return nil, s.errResponse(err)
 	}
 
 	if err := s.os.Commands.CreateOrder.Handle(ctx, command); err != nil {
-		s.log.Errorf("CreateOrder.Handle orderID: %s, err: %v", req.GetAggregateID(), err)
+		s.log.Errorf("(CreateOrder.Handle) orderID: {%s}, err: {%v}", req.GetAggregateID(), err)
 		return nil, s.errResponse(err)
 	}
 
-	s.log.Infof("(created order): orderID: %s", req.GetAggregateID())
+	s.log.Infof("(created order): orderID: {%s}", req.GetAggregateID())
 	return &orderService.CreateOrderRes{AggregateID: req.GetAggregateID()}, nil
 }
 
@@ -54,16 +54,16 @@ func (s *orderGrpcService) PayOrder(ctx context.Context, req *orderService.PayOr
 
 	command := aggregate.NewOrderPaidCommand(req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
-		s.log.WarnMsg("validate", err)
+		s.log.Errorf("(validate) err: {%v}", err)
 		return nil, s.errResponse(err)
 	}
 
 	if err := s.os.Commands.OrderPaid.Handle(ctx, command); err != nil {
-		s.log.Errorf("OrderPaid.Handle orderID: %s, err: %v", req.GetAggregateID(), err)
+		s.log.Errorf("(OrderPaid.Handle) orderID: {%s}, err: {%v}", req.GetAggregateID(), err)
 		return nil, s.errResponse(err)
 	}
 
-	s.log.Infof("(payed order): orderID: %s", req.GetAggregateID())
+	s.log.Infof("(PayOrder): orderID: {%s}", req.GetAggregateID())
 	return &orderService.PayOrderRes{AggregateID: req.GetAggregateID()}, nil
 }
 
@@ -74,16 +74,16 @@ func (s *orderGrpcService) SubmitOrder(ctx context.Context, req *orderService.Su
 
 	command := aggregate.NewSubmitOrderCommand(req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
-		s.log.WarnMsg("validate", err)
+		s.log.Errorf("(validate) err: {%v}", err)
 		return nil, s.errResponse(err)
 	}
 
 	if err := s.os.Commands.SubmitOrder.Handle(ctx, command); err != nil {
-		s.log.Errorf("SubmitOrder.Handle orderID: %s, err: %v", req.GetAggregateID(), err)
+		s.log.Errorf("(SubmitOrder.Handle) orderID: {%s}, err: {%v}", req.GetAggregateID(), err)
 		return nil, s.errResponse(err)
 	}
 
-	s.log.Infof("(submitted order): orderID: %s", req.GetAggregateID())
+	s.log.Infof("(SubmitOrder): orderID: {%s}", req.GetAggregateID())
 	return &orderService.SubmitOrderRes{AggregateID: req.GetAggregateID()}, nil
 }
 
@@ -94,17 +94,17 @@ func (s *orderGrpcService) GetOrderByID(ctx context.Context, req *orderService.G
 
 	query := queries.NewGetOrderByIDQuery(req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, query); err != nil {
-		s.log.WarnMsg("validate", err)
+		s.log.Errorf("(validate) err: {%v}", err)
 		return nil, s.errResponse(err)
 	}
 
 	orderProjection, err := s.os.Queries.GetOrderByID.Handle(ctx, query)
 	if err != nil {
-		s.log.Errorf("GetOrderByID.Handle orderID: %s, err: %v", req.GetAggregateID(), err)
+		s.log.Errorf("(GetOrderByID.Handle) orderID: {%s}, err: {%v}", req.GetAggregateID(), err)
 		return nil, s.errResponse(err)
 	}
 
-	s.log.Infof("(get order by id): orderID: %s", req.GetAggregateID())
+	s.log.Infof("(GetOrderByID) AggregateID: {%s}", req.GetAggregateID())
 	return &orderService.GetOrderByIDRes{Order: models.OrderProjectionToProto(orderProjection)}, nil
 }
 
@@ -115,16 +115,16 @@ func (s *orderGrpcService) UpdateOrder(ctx context.Context, req *orderService.Up
 
 	command := aggregate.NewOrderUpdatedCommand(dto.OrderUpdatedData{ShopItems: models.ShopItemsFromProto(req.GetShopItems())}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
-		s.log.WarnMsg("validate", err)
+		s.log.Errorf("(validate) err: {%v}", err)
 		return nil, s.errResponse(err)
 	}
 
 	if err := s.os.Commands.UpdateOrder.Handle(ctx, command); err != nil {
-		s.log.Errorf("UpdateOrder.Handle orderID: %s, err: %v", req.GetAggregateID(), err)
+		s.log.Errorf("(UpdateOrder.Handle) orderID: {%s}, err: {%v}", req.GetAggregateID(), err)
 		return nil, s.errResponse(err)
 	}
 
-	s.log.Infof("(order updated): orderID: %s", req.GetAggregateID())
+	s.log.Infof("(UpdateOrder): AggregateID: {%s}", req.GetAggregateID())
 	return &orderService.UpdateOrderRes{}, nil
 }
 
@@ -135,17 +135,17 @@ func (s *orderGrpcService) Search(ctx context.Context, req *orderService.SearchR
 
 	query := queries.NewSearchOrdersQuery(req.GetSearchText(), utils.NewPaginationQuery(int(req.GetSize()), int(req.GetPage())))
 	if err := s.v.StructCtx(ctx, query); err != nil {
-		s.log.WarnMsg("validate", err)
+		s.log.Errorf("(validate) err: {%v}", err)
 		return nil, s.errResponse(err)
 	}
 
 	searchResult, err := s.os.Queries.SearchOrders.Handle(ctx, query)
 	if err != nil {
-		s.log.Errorf("SearchOrders.Handle text: %s, err: %v", req.GetSearchText(), err)
+		s.log.Errorf("(SearchOrders.Handle) text: {%s}, err: {%v}", req.GetSearchText(), err)
 		return nil, s.errResponse(err)
 	}
 
-	s.log.Infof("(search result): searchText: %s, pagination: %s", req.GetSearchText(), searchResult.GetPagination().String())
+	s.log.Infof("(Search result): searchText: {%s}, pagination: {%s}", req.GetSearchText(), searchResult.GetPagination().String())
 	return searchResult, nil
 }
 
