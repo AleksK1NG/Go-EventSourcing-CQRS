@@ -172,3 +172,14 @@ func (e *Event) GetJsonMetadata(metaData interface{}) error {
 func (e *Event) GetString() string {
 	return fmt.Sprintf("event: %+v", e)
 }
+
+func (e *Event) String() string {
+	return fmt.Sprintf("(Event): AggregateID: {%s}, Version: {%d}, EventType: {%s}, AggregateType: {%s}, Metadata: {%s}, TimeStamp: {%s}",
+		e.AggregateID,
+		e.Version,
+		e.EventType,
+		e.AggregateType,
+		string(e.Metadata),
+		e.Timestamp.UTC().String(),
+	)
+}
