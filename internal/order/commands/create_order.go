@@ -43,5 +43,6 @@ func (c *createOrderHandler) Handle(ctx context.Context, command *aggregate.Crea
 		return err
 	}
 
+	span.LogFields(log.String("order", order.String()))
 	return c.es.Save(ctx, order)
 }

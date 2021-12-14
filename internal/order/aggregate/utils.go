@@ -20,6 +20,7 @@ func GetShopItemsTotalPrice(shopItems []*models.ShopItem) float64 {
 	return totalPrice
 }
 
+// GetOrderAggregateID get order aggregate id for eventstoredb
 func GetOrderAggregateID(eventAggregateID string) string {
 	return strings.ReplaceAll(eventAggregateID, "order-", "")
 }

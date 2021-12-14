@@ -12,8 +12,6 @@ import (
 // @contact.url https://github.com/AleksK1NG
 // @contact.email alexander.bryksin@yandex.ru
 func main() {
-	log.Println("Starting es microservice")
-
 	flag.Parse()
 
 	cfg, err := config.InitConfig()
@@ -23,9 +21,6 @@ func main() {
 
 	appLogger := logger.NewAppLogger(cfg.Logger)
 	appLogger.InitLogger()
-	appLogger.WithName("EventSourcingService")
-
-	appLogger.Infof("CFG: %+v", cfg)
-	appLogger.Info("Success =D")
+	appLogger.WithName("(EventSourcingService)")
 	appLogger.Fatal(server.NewServer(cfg, appLogger).Run())
 }
