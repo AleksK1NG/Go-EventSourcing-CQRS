@@ -71,7 +71,7 @@ func (s *server) Run() error {
 	}
 	s.mongoClient = mongoDBConn
 	defer mongoDBConn.Disconnect(ctx) // nolint: errcheck
-	s.log.Infof("Mongo connected: %v", mongoDBConn.NumberSessionsInProgress())
+	s.log.Infof("(Mongo connected) SessionsInProgress: {%v}", mongoDBConn.NumberSessionsInProgress())
 
 	elasticClient, err := elasticsearch.NewElasticClient(s.cfg.Elastic)
 	if err != nil {
@@ -96,7 +96,7 @@ func (s *server) Run() error {
 	go func() {
 		err := mongoProjection.Subscribe(ctx, []string{s.cfg.Subscriptions.OrderPrefix}, s.cfg.Subscriptions.PoolSize, mongoProjection.ProcessEvents)
 		if err != nil {
-			s.log.Errorf("orderProjection.Subscribe: %v", err)
+			s.log.Errorf("(orderProjection.Subscribe) err: {%v}", err)
 			cancel()
 		}
 	}()
@@ -104,7 +104,7 @@ func (s *server) Run() error {
 	go func() {
 		err := elasticProjection.Subscribe(ctx, []string{s.cfg.Subscriptions.OrderPrefix}, s.cfg.Subscriptions.PoolSize, elasticProjection.ProcessEvents)
 		if err != nil {
-			s.log.Errorf("elasticProjection.Subscribe: %v", err)
+			s.log.Errorf("(elasticProjection.Subscribe) err: {%v}", err)
 			cancel()
 		}
 	}()
@@ -114,11 +114,11 @@ func (s *server) Run() error {
 
 	go func() {
 		if err := s.runHttpServer(); err != nil {
-			s.log.Errorf(" s.runHttpServer: %v", err)
+			s.log.Errorf("(s.runHttpServer) err: {%v}", err)
 			cancel()
 		}
 	}()
-	s.log.Infof("API Gateway is listening on PORT: %s", s.cfg.Http.Port)
+	s.log.Infof("(EventSourcingService) is listening on PORT: {%s}", s.cfg.Http.Port)
 
 	closeGrpcServer, grpcServer, err := s.newOrderGrpcServer()
 	if err != nil {
@@ -129,6 +129,6 @@ func (s *server) Run() error {
 
 	<-ctx.Done()
 	grpcServer.GracefulStop()
-	s.log.Info("Order server exited properly")
+	s.log.Info("server exited properly")
 	return nil
 }

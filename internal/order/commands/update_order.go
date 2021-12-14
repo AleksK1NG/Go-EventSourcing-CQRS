@@ -6,7 +6,6 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
-	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
 )
@@ -30,6 +29,5 @@ func (c *updateOrderCmdHandler) Handle(ctx context.Context, command *aggregate.O
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
-	c.log.Infof("(TEXT MAP CARRIER): %+v", tracing.ExtractTextMapCarrier(span.Context()))
 	return aggregate.HandleCommandWithExists(ctx, c.es, command)
 }

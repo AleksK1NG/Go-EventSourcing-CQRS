@@ -3,12 +3,13 @@ package aggregate
 import (
 	"github.com/AleksK1NG/es-microservice/internal/dto"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
+	"github.com/pkg/errors"
 )
 
 func (a *OrderAggregate) onOrderCreated(evt es.Event) error {
 	var eventData dto.OrderCreatedData
 	if err := evt.GetJsonData(&eventData); err != nil {
-		return err
+		return errors.Wrap(err, "GetJsonData")
 	}
 
 	a.Order.AccountEmail = eventData.AccountEmail
@@ -47,7 +48,7 @@ func (a *OrderAggregate) onOrderCanceled(evt es.Event) error {
 func (a *OrderAggregate) onOrderUpdated(evt es.Event) error {
 	var eventData dto.OrderUpdatedData
 	if err := evt.GetJsonData(&eventData); err != nil {
-		return err
+		return errors.Wrap(err, "GetJsonData")
 	}
 
 	a.Order.ShopItems = eventData.ShopItems

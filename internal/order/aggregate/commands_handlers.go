@@ -9,6 +9,7 @@ import (
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
+	"github.com/pkg/errors"
 )
 
 func (a *OrderAggregate) onCreateOrderCommand(ctx context.Context, command *CreateOrderCommand) error {
@@ -23,12 +24,14 @@ func (a *OrderAggregate) onCreateOrderCommand(ctx context.Context, command *Crea
 	createdData := &dto.OrderCreatedData{ShopItems: command.ShopItems, AccountEmail: command.AccountEmail}
 	createdDataBytes, err := json.Marshal(createdData)
 	if err != nil {
-		return err
+		tracing.TraceErr(span, err)
+		return errors.Wrap(err, "json.Marshal")
 	}
 
 	createOrderEvent := events.NewCreateOrderEvent(a, createdDataBytes)
 	if err := createOrderEvent.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
-		return err
+		tracing.TraceErr(span, err)
+		return errors.Wrap(err, "SetMetadata")
 	}
 
 	return a.Apply(createOrderEvent)
@@ -51,7 +54,8 @@ func (a *OrderAggregate) onOrderPaidCommand(ctx context.Context, command *OrderP
 
 	payOrderEvent := events.NewPayOrderEvent(a, nil)
 	if err := payOrderEvent.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
-		return err
+		tracing.TraceErr(span, err)
+		return errors.Wrap(err, "SetMetadata")
 	}
 
 	return a.Apply(payOrderEvent)
@@ -74,7 +78,8 @@ func (a *OrderAggregate) onSubmitOrderCommand(ctx context.Context, command *Subm
 
 	submitOrderEvent := events.NewSubmitOrderEvent(a)
 	if err := submitOrderEvent.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
-		return err
+		tracing.TraceErr(span, err)
+		return errors.Wrap(err, "SetMetadata")
 	}
 
 	return a.Apply(submitOrderEvent)
@@ -95,12 +100,14 @@ func (a *OrderAggregate) onOrderUpdatedCommand(ctx context.Context, command *Ord
 	eventData := &dto.OrderUpdatedData{ShopItems: command.ShopItems}
 	eventDataBytes, err := json.Marshal(eventData)
 	if err != nil {
-		return err
+		tracing.TraceErr(span, err)
+		return errors.Wrap(err, "json.Marshal")
 	}
 
 	orderUpdatedEvent := events.NewOrderUpdatedEvent(a, eventDataBytes)
 	if err := orderUpdatedEvent.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
-		return err
+		tracing.TraceErr(span, err)
+		return errors.Wrap(err, "SetMetadata")
 	}
 
 	return a.Apply(orderUpdatedEvent)

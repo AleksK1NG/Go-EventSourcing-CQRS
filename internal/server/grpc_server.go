@@ -2,6 +2,7 @@ package server
 
 import (
 	grpc2 "github.com/AleksK1NG/es-microservice/internal/order/delivery/grpc"
+	"github.com/AleksK1NG/es-microservice/pkg/constants"
 	orderService "github.com/AleksK1NG/es-microservice/proto/order"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -24,7 +25,7 @@ const (
 )
 
 func (s *server) newOrderGrpcServer() (func() error, *grpc.Server, error) {
-	l, err := net.Listen("tcp", s.cfg.GRPC.Port)
+	l, err := net.Listen(constants.Tcp, s.cfg.GRPC.Port)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "net.Listen")
 	}
@@ -54,7 +55,7 @@ func (s *server) newOrderGrpcServer() (func() error, *grpc.Server, error) {
 	}
 
 	go func() {
-		s.log.Infof("Order gRPC server is listening on port: %s", s.cfg.GRPC.Port)
+		s.log.Infof("EventSourcingService gRPC server is listening on port: {%s}", s.cfg.GRPC.Port)
 		s.log.Fatal(grpcServer.Serve(l))
 	}()
 

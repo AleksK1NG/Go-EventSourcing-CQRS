@@ -64,13 +64,13 @@ func (h *orderHandlers) CreateOrder() echo.HandlerFunc {
 
 		createDto := &dto.CreateOrderDto{}
 		if err := c.Bind(createDto); err != nil {
-			h.log.WarnMsg("Bind", err)
+			h.log.Errorf("(Bind) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
 		if err := h.v.StructCtx(ctx, createDto); err != nil {
-			h.log.WarnMsg("validate", err)
+			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
@@ -79,12 +79,12 @@ func (h *orderHandlers) CreateOrder() echo.HandlerFunc {
 		command := aggregate.NewCreateOrderCommand(createDto.OrderCreatedData, id)
 		err := h.os.Commands.CreateOrder.Handle(ctx, command)
 		if err != nil {
-			h.log.Errorf("CreateOrder.Handle: id: %s, err: %v", id, err)
+			h.log.Errorf("(CreateOrder.Handle) id: {%s}, err: {%v}", id, err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		h.log.Infof("order created id: %s", id)
+		h.log.Infof("(order created) id: {%s}", id)
 		return c.JSON(http.StatusCreated, id)
 	}
 }
@@ -105,26 +105,26 @@ func (h *orderHandlers) PayOrder() echo.HandlerFunc {
 
 		orderID, err := uuid.FromString(c.Param(constants.ID))
 		if err != nil {
-			h.log.WarnMsg("uuid.FromString", err)
+			h.log.Errorf("(uuid.FromString) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
 		command := aggregate.NewOrderPaidCommand(orderID.String())
 		if err := h.v.StructCtx(ctx, command); err != nil {
-			h.log.WarnMsg("validate", err)
+			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
 		err = h.os.Commands.OrderPaid.Handle(ctx, command)
 		if err != nil {
-			h.log.Errorf("OrderPaid.Handle: id: %s, err: %v", orderID.String(), err)
+			h.log.Errorf("(OrderPaid.Handle) id: {%s}, err: {%v}", orderID.String(), err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		h.log.Infof("order paid id: %s", orderID.String())
+		h.log.Infof("(order paid) id: {%s}", orderID.String())
 		return c.JSON(http.StatusOK, orderID.String())
 	}
 }
@@ -145,26 +145,26 @@ func (h *orderHandlers) SubmitOrder() echo.HandlerFunc {
 
 		orderID, err := uuid.FromString(c.Param(constants.ID))
 		if err != nil {
-			h.log.WarnMsg("uuid.FromString", err)
+			h.log.Errorf("(uuid.FromString) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
 		command := aggregate.NewSubmitOrderCommand(orderID.String())
 		if err := h.v.StructCtx(ctx, command); err != nil {
-			h.log.WarnMsg("validate", err)
+			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
 		err = h.os.Commands.SubmitOrder.Handle(ctx, command)
 		if err != nil {
-			h.log.Errorf("SubmitOrder.Handle: id: %s, err: %v", orderID.String(), err)
+			h.log.Errorf("(SubmitOrder.Handle) id: {%s}, err: {%v}", orderID.String(), err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		h.log.Infof("order submitted id: %s", orderID.String())
+		h.log.Infof("(order submitted) id: {%s}", orderID.String())
 		return c.JSON(http.StatusOK, orderID.String())
 	}
 }
@@ -186,20 +186,20 @@ func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
 
 		orderID, err := uuid.FromString(c.Param(constants.ID))
 		if err != nil {
-			h.log.WarnMsg("uuid.FromString", err)
+			h.log.Errorf("(uuid.FromString) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
 		updateDto := &dto.UpdateOrderDto{}
 		if err := c.Bind(updateDto); err != nil {
-			h.log.WarnMsg("Bind", err)
+			h.log.Errorf("(Bind) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
 		if err := h.v.StructCtx(ctx, updateDto); err != nil {
-			h.log.WarnMsg("validate", err)
+			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
@@ -207,12 +207,12 @@ func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
 		command := aggregate.NewOrderUpdatedCommand(updateDto.OrderUpdatedData, orderID.String())
 		err = h.os.Commands.UpdateOrder.Handle(ctx, command)
 		if err != nil {
-			h.log.Errorf("UpdateOrder.Handle: id: %s, err: %v", orderID.String(), err)
+			h.log.Errorf("(UpdateOrder.Handle) id: {%s}, err: {%v}", orderID.String(), err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		h.log.Infof("order updated id: %s", orderID.String())
+		h.log.Infof("(order updated) id: {%s}", orderID.String())
 		return c.JSON(http.StatusOK, orderID.String())
 	}
 }
@@ -233,26 +233,26 @@ func (h *orderHandlers) GetOrderByID() echo.HandlerFunc {
 
 		orderID, err := uuid.FromString(c.Param(constants.ID))
 		if err != nil {
-			h.log.WarnMsg("uuid.FromString", err)
+			h.log.Errorf("(uuid.FromString) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
 		query := queries.NewGetOrderByIDQuery(orderID.String())
 		if err := h.v.StructCtx(ctx, query); err != nil {
-			h.log.WarnMsg("validate", err)
+			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
 		orderProjection, err := h.os.Queries.GetOrderByID.Handle(ctx, query)
 		if err != nil {
-			h.log.Errorf("GetOrderByID.Handle: id: %s, err: %v", orderID.String(), err)
+			h.log.Errorf("(GetOrderByID.Handle) id: {%s}, err: {%v}", orderID.String(), err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		h.log.Infof("get order by id: %s", orderID.String())
+		h.log.Infof("(get order by id) orderID: {%s}", orderID.String())
 		return c.JSON(http.StatusOK, orderProjection)
 	}
 }
@@ -277,19 +277,19 @@ func (h *orderHandlers) Search() echo.HandlerFunc {
 
 		query := queries.NewSearchOrdersQuery(c.QueryParam(constants.Search), pq)
 		if err := h.v.StructCtx(ctx, query); err != nil {
-			h.log.WarnMsg("validate", err)
+			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
 		searchRes, err := h.os.Queries.SearchOrders.Handle(ctx, query)
 		if err != nil {
-			h.log.Errorf("SearchOrders.Handle: Search: %s, err: %v", c.QueryParam(constants.Search), err)
+			h.log.Errorf("(SearchOrders.Handle): Search: {%s}, err: {%v}", c.QueryParam(constants.Search), err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		h.log.Infof("search result: %s", searchRes.GetPagination().String())
+		h.log.Infof("(search) result: {%s}", searchRes.GetPagination().String())
 		return c.JSON(http.StatusOK, searchRes)
 	}
 }
