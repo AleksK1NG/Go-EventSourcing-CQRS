@@ -16,7 +16,6 @@ import (
 	"github.com/AleksK1NG/es-microservice/pkg/middlewares"
 	"github.com/AleksK1NG/es-microservice/pkg/mongodb"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
-	"github.com/EventStore/EventStore-Client-Go/esdb"
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	v7 "github.com/olivere/elastic/v7"
@@ -31,7 +30,6 @@ import (
 type server struct {
 	cfg           *config.Config
 	log           logger.Logger
-	db            *esdb.Client
 	im            interceptors.InterceptorManager
 	mw            middlewares.MiddlewareManager
 	os            *service.OrderService
