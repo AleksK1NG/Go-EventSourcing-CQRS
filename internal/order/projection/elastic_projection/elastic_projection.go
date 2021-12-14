@@ -48,11 +48,15 @@ func (o *elasticProjection) Subscribe(ctx context.Context, prefixes []string, po
 
 	g, ctx := errgroup.WithContext(ctx)
 	for i := 0; i <= poolSize; i++ {
-		g.Go(func() error {
-			return worker(ctx, stream, i)
-		})
+		g.Go(o.runWorker(ctx, worker, stream, i))
 	}
 	return g.Wait()
+}
+
+func (o *elasticProjection) runWorker(ctx context.Context, worker Worker, stream *esdb.PersistentSubscription, i int) func() error {
+	return func() error {
+		return worker(ctx, stream, i)
+	}
 }
 
 func (o *elasticProjection) ProcessEvents(ctx context.Context, stream *esdb.PersistentSubscription, workerID int) error {
