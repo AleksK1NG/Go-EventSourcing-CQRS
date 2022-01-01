@@ -53,6 +53,27 @@ func TestOrderGrpcService_UpdateOrder(t *testing.T) {
 	client := orderService.NewOrderServiceClient(orderServiceConn)
 	aggregateID := "22699160-548f-4422-9d70-6484e2a612a8"
 
+	res, err := client.CreateOrder(context.Background(), &orderService.CreateOrderReq{
+		AccountEmail: "alexander.bryksin@yandex.ru",
+		ShopItems: []*orderService.ShopItem{
+			{
+				ID:          uuid.NewV4().String(),
+				Title:       "MacBook Pro 16 M1 Max 64GB",
+				Description: "Apple M1 Max chip 10-core CPU with 8 performance cores and 2 efficiency cores 32-core GPU 16-core Neural Engine 400GB/s memory bandwidth",
+				Quantity:    1,
+				Price:       5200,
+			},
+		},
+	})
+	if err != nil {
+		appLogger.Errorf("(client.CreateOrder) err: {%v}", err)
+	}
+	require.NoError(t, err)
+	require.NotNil(t, res)
+	appLogger.Infof("result: %s", res.String())
+
+	aggregateID = res.GetAggregateID()
+
 	wg := &sync.WaitGroup{}
 	for i := 0; i <= 60; i++ {
 		wg.Add(1)

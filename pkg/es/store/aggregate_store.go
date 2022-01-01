@@ -78,10 +78,11 @@ func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error
 		eventsData = append(eventsData, event.ToEventData())
 	}
 
+	// check aggregate.GetVersion() <= 1 or len(aggregate.GetAppliedEvents()) == 0 means new aggregate
 	var expectedRevision esdb.ExpectedRevision
-	if aggregate.GetVersion() <= 1 {
+	if len(aggregate.GetAppliedEvents()) == 0 {
 		expectedRevision = esdb.NoStream{}
-		a.log.Infof("(SaveEvents) expectedRevision: {%T}", expectedRevision)
+		a.log.Infof("(Save) expectedRevision: {%T}", expectedRevision)
 
 		appendStream, err := a.db.AppendToStream(
 			ctx,
@@ -94,7 +95,7 @@ func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error
 			return errors.Wrap(err, "db.AppendToStream")
 		}
 
-		a.log.Infof("(SaveEvents) stream: {%+v}", appendStream)
+		a.log.Infof("(Save) stream: {%+v}", appendStream)
 		return nil
 	}
 
