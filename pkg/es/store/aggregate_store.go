@@ -10,10 +10,11 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 	"github.com/pkg/errors"
 	"io"
+	"math"
 )
 
 const (
-	count = 500000
+	count = math.MaxInt64
 )
 
 type aggregateStore struct {
@@ -78,7 +79,7 @@ func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error
 		eventsData = append(eventsData, event.ToEventData())
 	}
 
-	// check aggregate.GetVersion() == 0 or len(aggregate.GetAppliedEvents()) == 0 means new aggregate
+	// check for aggregate.GetVersion() == 0 or len(aggregate.GetAppliedEvents()) == 0 means new aggregate
 	var expectedRevision esdb.ExpectedRevision
 	if len(aggregate.GetAppliedEvents()) == 0 {
 		expectedRevision = esdb.NoStream{}

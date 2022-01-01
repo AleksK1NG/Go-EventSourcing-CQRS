@@ -1,7 +1,6 @@
 package events
 
 import (
-	"github.com/AleksK1NG/es-microservice/internal/models"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 )
 
@@ -14,15 +13,6 @@ const (
 	OrderCanceled   = "ORDER_CANCELED"
 	OrderUpdated    = "ORDER_UPDATED"
 )
-
-type OrderCreatedData struct {
-	ShopItems    []*models.ShopItem `json:"shopItems" bson:"shopItems,omitempty" validate:"required"`
-	AccountEmail string             `json:"accountEmail" bson:"accountEmail,omitempty" validate:"required,email"`
-}
-
-type OrderUpdatedData struct {
-	ShopItems []*models.ShopItem `json:"shopItems" bson:"shopItems,omitempty" validate:"required"`
-}
 
 func NewCreateOrderEvent(aggregate es.Aggregate, data []byte) es.Event {
 	createOrderEvent := es.NewBaseEvent(aggregate, OrderCreated)
