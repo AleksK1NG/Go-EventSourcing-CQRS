@@ -2,9 +2,9 @@ package mongo_projection
 
 import (
 	"context"
+	"github.com/AleksK1NG/es-microservice/internal/dto"
 	"github.com/AleksK1NG/es-microservice/internal/models"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
-	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/opentracing/opentracing-go"
@@ -17,7 +17,7 @@ func (o *mongoProjection) onOrderCreate(ctx context.Context, evt es.Event) error
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData events.OrderCreatedData
+	var eventData dto.OrderCreatedData
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")
@@ -63,7 +63,7 @@ func (o *mongoProjection) onUpdate(ctx context.Context, evt es.Event) error {
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData events.OrderUpdatedData
+	var eventData dto.OrderUpdatedData
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")

@@ -66,28 +66,6 @@ pprof_allocs:
 	go tool pprof -http :8006 http://localhost:6060/debug/pprof/allocs?seconds=10
 
 
-
-# ==============================================================================
-# Go migrate postgresql https://github.com/golang-migrate/migrate
-
-DB_NAME = products
-DB_HOST = localhost
-DB_PORT = 5432
-SSL_MODE = disable
-
-force_db:
-	migrate -database postgres://postgres:postgres@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(SSL_MODE) -path migrations force 1
-
-version_db:
-	migrate -database postgres://postgres:postgres@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(SSL_MODE) -path migrations version
-
-migrate_up:
-	migrate -database postgres://postgres:postgres@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(SSL_MODE) -path migrations up 1
-
-migrate_down:
-	migrate -database postgres://postgres:postgres@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(SSL_MODE) -path migrations down 1
-
-
 # ==============================================================================
 # Usage:
 # install local https://github.com/protocolbuffers/protobuf
