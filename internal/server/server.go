@@ -110,6 +110,8 @@ func (s *server) Run() error {
 	orderHandlers := http.NewOrderHandlers(s.echo.Group(s.cfg.Http.OrdersPath), s.log, s.mw, s.cfg, s.v, s.os)
 	orderHandlers.MapRoutes()
 
+	s.initMongoDBCollections(ctx)
+
 	go func() {
 		if err := s.runHttpServer(); err != nil {
 			s.log.Errorf("(s.runHttpServer) err: {%v}", err)
