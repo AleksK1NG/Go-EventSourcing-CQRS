@@ -158,7 +158,7 @@ func (a *AggregateBase) GetVersion() int64 {
 
 // ClearUncommittedEvents clear AggregateBase uncommitted Event's
 func (a *AggregateBase) ClearUncommittedEvents() {
-	a.UncommittedEvents = make([]Event, 0)
+	a.UncommittedEvents = make([]Event, 0, aggregateUncommittedEventsInitialCap)
 }
 
 // GetAppliedEvents get AggregateBase applied Event's
@@ -222,7 +222,6 @@ func (a *AggregateBase) RaiseEvent(event Event) error {
 		return errors.New("a.GetVersion() > event.GetVersion()")
 	}
 
-	//event.SetVersion(a.GetVersion())
 	event.SetAggregateType(a.GetType())
 
 	if err := a.when(event); err != nil {

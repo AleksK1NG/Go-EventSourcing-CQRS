@@ -62,14 +62,13 @@ func (o *elasticProjection) runWorker(ctx context.Context, worker Worker, stream
 func (o *elasticProjection) ProcessEvents(ctx context.Context, stream *esdb.PersistentSubscription, workerID int) error {
 
 	for {
+		event := stream.Recv()
 		select {
 		case <-ctx.Done():
 			o.log.Errorf("ctxDone: {%v}", ctx.Err())
 			return ctx.Err()
 		default:
 		}
-
-		event := stream.Recv()
 
 		if event.SubscriptionDropped != nil {
 			o.log.Errorf("(SubscriptionDropped) err: {%v}", event.SubscriptionDropped.Error)
@@ -81,9 +80,9 @@ func (o *elasticProjection) ProcessEvents(ctx context.Context, stream *esdb.Pers
 
 			err := o.When(ctx, es.NewEventFromRecorded(event.EventAppeared.Event))
 			if err != nil {
-				o.log.Errorf("elasticProjection.when: {%v}", err)
+				o.log.Errorf("(elasticProjection.when) err: {%v}", err)
 				if err := stream.Nack(err.Error(), esdb.Nack_Retry, event.EventAppeared); err != nil {
-					o.log.Errorf("stream.Nack: {%v}", err)
+					o.log.Errorf("(stream.Nack) err: {%v}", err)
 					return errors.Wrap(err, "stream.Nack")
 				}
 			}
@@ -117,7 +116,7 @@ func (o *elasticProjection) When(ctx context.Context, evt es.Event) error {
 		return o.onUpdate(ctx, evt)
 
 	default:
-		o.log.Warnf("(When) eventType: {%s}", evt.EventType)
+		o.log.Warnf("(elasticProjection) [When unknown EventType] eventType: {%s}", evt.EventType)
 		return nil
 	}
 }
