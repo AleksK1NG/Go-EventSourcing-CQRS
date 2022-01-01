@@ -14,6 +14,7 @@ import (
 	"github.com/AleksK1NG/es-microservice/proto/order"
 	"github.com/go-playground/validator"
 	"github.com/opentracing/opentracing-go/log"
+	uuid "github.com/satori/go.uuid"
 )
 
 type orderGrpcService struct {
@@ -29,32 +30,39 @@ func NewOrderGrpcService(log logger.Logger, os *service.OrderService, v *validat
 func (s *orderGrpcService) CreateOrder(ctx context.Context, req *orderService.CreateOrderReq) (*orderService.CreateOrderRes, error) {
 	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.CreateOrder")
 	defer span.Finish()
-	span.LogFields(log.String("CreateOrder req", req.String()))
+	span.LogFields(log.String("req", req.String()))
+
+	aggregateID := req.GetAggregateID()
+	if aggregateID == "" {
+		aggregateID = uuid.NewV4().String()
+	}
 
 	orderCreatedData := dto.OrderCreatedData{ShopItems: models.ShopItemsFromProto(req.GetShopItems()), AccountEmail: req.GetAccountEmail()}
-	command := aggregate.NewCreateOrderCommand(orderCreatedData, req.GetAggregateID())
+	command := aggregate.NewCreateOrderCommand(orderCreatedData, aggregateID)
 	if err := s.v.StructCtx(ctx, command); err != nil {
-		s.log.Errorf("(validate) err: {%v}", err)
+		s.log.Errorf("(validate) aggregateID: {%s}, err: {%v}", aggregateID, err)
+		tracing.TraceErr(span, err)
 		return nil, s.errResponse(err)
 	}
 
 	if err := s.os.Commands.CreateOrder.Handle(ctx, command); err != nil {
-		s.log.Errorf("(CreateOrder.Handle) orderID: {%s}, err: {%v}", req.GetAggregateID(), err)
+		s.log.Errorf("(CreateOrder.Handle) orderID: {%s}, err: {%v}", aggregateID, err)
 		return nil, s.errResponse(err)
 	}
 
-	s.log.Infof("(created order): orderID: {%s}", req.GetAggregateID())
-	return &orderService.CreateOrderRes{AggregateID: req.GetAggregateID()}, nil
+	s.log.Infof("(created order): orderID: {%s}", aggregateID)
+	return &orderService.CreateOrderRes{AggregateID: aggregateID}, nil
 }
 
 func (s *orderGrpcService) PayOrder(ctx context.Context, req *orderService.PayOrderReq) (*orderService.PayOrderRes, error) {
 	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.PayOrder")
 	defer span.Finish()
-	span.LogFields(log.String("PayOrder req", req.String()))
+	span.LogFields(log.String("req", req.String()))
 
 	command := aggregate.NewOrderPaidCommand(req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
+		tracing.TraceErr(span, err)
 		return nil, s.errResponse(err)
 	}
 
@@ -70,11 +78,12 @@ func (s *orderGrpcService) PayOrder(ctx context.Context, req *orderService.PayOr
 func (s *orderGrpcService) SubmitOrder(ctx context.Context, req *orderService.SubmitOrderReq) (*orderService.SubmitOrderRes, error) {
 	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.SubmitOrder")
 	defer span.Finish()
-	span.LogFields(log.String("SubmitOrder req", req.String()))
+	span.LogFields(log.String("req", req.String()))
 
 	command := aggregate.NewSubmitOrderCommand(req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
+		tracing.TraceErr(span, err)
 		return nil, s.errResponse(err)
 	}
 
@@ -90,11 +99,12 @@ func (s *orderGrpcService) SubmitOrder(ctx context.Context, req *orderService.Su
 func (s *orderGrpcService) GetOrderByID(ctx context.Context, req *orderService.GetOrderByIDReq) (*orderService.GetOrderByIDRes, error) {
 	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.GetOrderByID")
 	defer span.Finish()
-	span.LogFields(log.String("GetOrderByID req", req.String()))
+	span.LogFields(log.String("req", req.String()))
 
 	query := queries.NewGetOrderByIDQuery(req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, query); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
+		tracing.TraceErr(span, err)
 		return nil, s.errResponse(err)
 	}
 
@@ -116,6 +126,7 @@ func (s *orderGrpcService) UpdateOrder(ctx context.Context, req *orderService.Up
 	command := aggregate.NewOrderUpdatedCommand(dto.OrderUpdatedData{ShopItems: models.ShopItemsFromProto(req.GetShopItems())}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
+		tracing.TraceErr(span, err)
 		return nil, s.errResponse(err)
 	}
 
@@ -136,6 +147,7 @@ func (s *orderGrpcService) Search(ctx context.Context, req *orderService.SearchR
 	query := queries.NewSearchOrdersQuery(req.GetSearchText(), utils.NewPaginationQuery(int(req.GetSize()), int(req.GetPage())))
 	if err := s.v.StructCtx(ctx, query); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
+		tracing.TraceErr(span, err)
 		return nil, s.errResponse(err)
 	}
 
