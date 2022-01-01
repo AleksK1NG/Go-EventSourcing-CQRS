@@ -27,9 +27,8 @@ message Order {
 }
 
 message CreateOrderReq {
-  string AggregateID = 1;
+  string AccountEmail = 1;
   repeated ShopItem ShopItems = 2;
-  string AccountEmail = 3;
 }
 
 message CreateOrderRes {
