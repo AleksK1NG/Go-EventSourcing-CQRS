@@ -22,6 +22,6 @@ func NewSnapshotFromAggregate(aggregate Aggregate) (*Snapshot, error) {
 		ID:      aggregate.GetID(),
 		Type:    aggregate.GetType(),
 		State:   aggregateBytes,
-		Version: aggregate.GetVersion(),
+		Version: uint64(aggregate.GetVersion()),
 	}, nil
 }

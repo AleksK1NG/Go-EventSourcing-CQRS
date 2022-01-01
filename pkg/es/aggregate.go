@@ -3,6 +3,13 @@ package es
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
+)
+
+const (
+	aggregateStartVersion                = -1 // used for EventstoreDB
+	aggregateAppliedEventsInitialCap     = 10
+	aggregateUncommittedEventsInitialCap = 10
 )
 
 // HandleCommand Aggregate commands' handler method
@@ -71,7 +78,7 @@ type AggregateRoot interface {
 	GetUncommittedEvents() []Event
 	GetID() string
 	SetID(id string) *AggregateBase
-	GetVersion() uint64
+	GetVersion() int64
 	ClearUncommittedEvents()
 	ToSnapshot()
 	SetType(aggregateType AggregateType)
@@ -90,7 +97,7 @@ type AggregateType string
 // AggregateBase base aggregate contains all main necessary fields
 type AggregateBase struct {
 	ID                string
-	Version           uint64
+	Version           int64
 	AppliedEvents     []Event
 	UncommittedEvents []Event
 	Type              AggregateType
@@ -116,9 +123,9 @@ func NewAggregateBase(when when) *AggregateBase {
 	}
 
 	return &AggregateBase{
-		Version:           0,
-		AppliedEvents:     make([]Event, 0, 10),
-		UncommittedEvents: make([]Event, 0, 10),
+		Version:           aggregateStartVersion,
+		AppliedEvents:     make([]Event, 0, aggregateAppliedEventsInitialCap),
+		UncommittedEvents: make([]Event, 0, aggregateUncommittedEventsInitialCap),
 		when:              when,
 	}
 }
@@ -145,7 +152,7 @@ func (a *AggregateBase) GetType() AggregateType {
 }
 
 // GetVersion get AggregateBase version
-func (a *AggregateBase) GetVersion() uint64 {
+func (a *AggregateBase) GetVersion() int64 {
 	return a.Version
 }
 
@@ -200,9 +207,9 @@ func (a *AggregateBase) Apply(event Event) error {
 		return err
 	}
 
-	a.UncommittedEvents = append(a.UncommittedEvents, event)
-	event.SetVersion(a.GetVersion())
 	a.Version++
+	event.SetVersion(a.GetVersion())
+	a.UncommittedEvents = append(a.UncommittedEvents, event)
 	return nil
 }
 
@@ -210,6 +217,9 @@ func (a *AggregateBase) Apply(event Event) error {
 func (a *AggregateBase) RaiseEvent(event Event) error {
 	if event.GetAggregateID() != a.GetID() {
 		return ErrInvalidAggregateID
+	}
+	if a.GetVersion() >= event.GetVersion() {
+		return errors.New("a.GetVersion() > event.GetVersion()")
 	}
 
 	//event.SetVersion(a.GetVersion())
@@ -220,7 +230,7 @@ func (a *AggregateBase) RaiseEvent(event Event) error {
 	}
 
 	a.AppliedEvents = append(a.AppliedEvents, event)
-	a.Version++
+	a.Version = event.GetVersion()
 	return nil
 }
 

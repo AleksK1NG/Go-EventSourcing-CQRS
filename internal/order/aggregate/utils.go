@@ -26,7 +26,7 @@ func GetOrderAggregateID(eventAggregateID string) string {
 }
 
 func IsAggregateNotFound(aggregate es.Aggregate) bool {
-	return len(aggregate.GetAppliedEvents()) == 0 || aggregate.GetVersion() == 0
+	return len(aggregate.GetAppliedEvents()) == 0
 }
 
 // HandleCommand check exists, Load es.Aggregate, HandleCommand and Save to event store
