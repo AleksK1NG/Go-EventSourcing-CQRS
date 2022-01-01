@@ -4,6 +4,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	ErrMsgMongoCollectionAlreadyExists = "Collection already exists"
+)
+
 var (
 	ErrAlreadyCreatedOrCancelled = errors.New("order created or cancelled")
 	ErrAlreadyPaid               = errors.New("already paid")

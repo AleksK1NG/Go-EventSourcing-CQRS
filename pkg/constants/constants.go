@@ -59,4 +59,6 @@ const (
 
 	MongoProjection   = "(MongoDB Projection)"
 	ElasticProjection = "(Elastic Projection)"
+
+	OrderIdIndex = "orderId"
 )
