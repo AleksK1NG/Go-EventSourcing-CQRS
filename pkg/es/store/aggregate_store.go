@@ -78,7 +78,7 @@ func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error
 		eventsData = append(eventsData, event.ToEventData())
 	}
 
-	// check aggregate.GetVersion() <= 1 or len(aggregate.GetAppliedEvents()) == 0 means new aggregate
+	// check aggregate.GetVersion() == 0 or len(aggregate.GetAppliedEvents()) == 0 means new aggregate
 	var expectedRevision esdb.ExpectedRevision
 	if len(aggregate.GetAppliedEvents()) == 0 {
 		expectedRevision = esdb.NoStream{}
@@ -99,8 +99,8 @@ func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error
 		return nil
 	}
 
-	ropts := esdb.ReadStreamOptions{Direction: esdb.Backwards, From: esdb.End{}}
-	stream, err := a.db.ReadStream(context.Background(), aggregate.GetID(), ropts, 1)
+	readOps := esdb.ReadStreamOptions{Direction: esdb.Backwards, From: esdb.End{}}
+	stream, err := a.db.ReadStream(context.Background(), aggregate.GetID(), readOps, 1)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "db.ReadStream")

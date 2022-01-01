@@ -9,6 +9,7 @@ import (
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
+	"github.com/pkg/errors"
 )
 
 func (o *mongoProjection) onOrderCreate(ctx context.Context, evt es.Event) error {
@@ -19,7 +20,7 @@ func (o *mongoProjection) onOrderCreate(ctx context.Context, evt es.Event) error
 	var eventData events.OrderCreatedData
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
-		return err
+		return errors.Wrap(err, "evt.GetJsonData")
 	}
 	span.LogFields(log.String("AccountEmail", eventData.AccountEmail))
 
@@ -65,7 +66,7 @@ func (o *mongoProjection) onUpdate(ctx context.Context, evt es.Event) error {
 	var eventData events.OrderUpdatedData
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
-		return err
+		return errors.Wrap(err, "evt.GetJsonData")
 	}
 
 	op := &models.OrderProjection{OrderID: aggregate.GetOrderAggregateID(evt.AggregateID), ShopItems: eventData.ShopItems}
