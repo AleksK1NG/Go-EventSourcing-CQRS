@@ -21,7 +21,7 @@ type Event struct {
 	Timestamp     time.Time
 	AggregateType AggregateType
 	AggregateID   string
-	Version       uint64
+	Version       int64
 	Metadata      []byte
 }
 
@@ -44,7 +44,7 @@ func NewEventFromRecorded(event *esdb.RecordedEvent) Event {
 		Data:        event.Data,
 		Timestamp:   event.CreatedDate,
 		AggregateID: event.StreamID,
-		Version:     event.EventNumber,
+		Version:     int64(event.EventNumber),
 		Metadata:    event.UserMetadata,
 	}
 }
@@ -65,7 +65,7 @@ func EventFromEventData(recordedEvent esdb.RecordedEvent) (Event, error) {
 		Data:        recordedEvent.Data,
 		Timestamp:   recordedEvent.CreatedDate,
 		AggregateID: recordedEvent.StreamID,
-		Version:     recordedEvent.Position.Commit,
+		Version:     int64(recordedEvent.Position.Commit),
 		Metadata:    nil,
 	}, nil
 }
@@ -137,12 +137,12 @@ func (e *Event) GetAggregateID() string {
 }
 
 // GetVersion is the version of the Aggregate after the Event has been applied.
-func (e *Event) GetVersion() uint64 {
+func (e *Event) GetVersion() int64 {
 	return e.Version
 }
 
 // SetVersion set the version of the Aggregate.
-func (e *Event) SetVersion(aggregateVersion uint64) {
+func (e *Event) SetVersion(aggregateVersion int64) {
 	e.Version = aggregateVersion
 }
 

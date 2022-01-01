@@ -17,7 +17,7 @@ func (a *OrderAggregate) onCreateOrderCommand(ctx context.Context, command *Crea
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
-	if a.Order.Created || a.Version != 0 || command.OrderCreatedData.ShopItems == nil {
+	if a.Order.Created || command.OrderCreatedData.ShopItems == nil {
 		return serviceErrors.ErrAlreadyCreatedOrCancelled
 	}
 

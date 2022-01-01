@@ -148,7 +148,7 @@ func TestOrderGrpcService_UpdateOrder(t *testing.T) {
 					},
 				})
 				if err != nil {
-					appLogger.WarnMsg("client.UpdateOrder", err)
+					appLogger.Errorf("client.UpdateOrder: {%v}", err)
 				}
 				require.NoError(t, err)
 				require.NotNil(t, result)
@@ -190,12 +190,11 @@ func TestOrderGrpcService_UpdateOrder(t *testing.T) {
 				},
 			})
 			if err != nil {
-				appLogger.WarnMsg("client.UpdateOrder", err)
+				appLogger.Errorf("client.UpdateOrder: {%v}", err)
 			}
 			require.NoError(t, err)
 			require.NotNil(t, result)
 			appLogger.Infof("result: %s", result.String())
-
 		}(wg)
 	}
 	wg.Wait()

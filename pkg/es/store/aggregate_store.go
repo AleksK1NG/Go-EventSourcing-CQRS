@@ -128,6 +128,7 @@ func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error
 	}
 
 	a.log.Infof("(Save) stream: {%+v}", appendStream)
+	aggregate.ClearUncommittedEvents()
 	return nil
 }
 
