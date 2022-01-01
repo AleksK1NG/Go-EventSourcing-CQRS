@@ -32,11 +32,7 @@ func (s *orderGrpcService) CreateOrder(ctx context.Context, req *orderService.Cr
 	defer span.Finish()
 	span.LogFields(log.String("req", req.String()))
 
-	aggregateID := req.GetAggregateID()
-	if aggregateID == "" {
-		aggregateID = uuid.NewV4().String()
-	}
-
+	aggregateID := uuid.NewV4().String()
 	orderCreatedData := dto.OrderCreatedData{ShopItems: models.ShopItemsFromProto(req.GetShopItems()), AccountEmail: req.GetAccountEmail()}
 	command := aggregate.NewCreateOrderCommand(orderCreatedData, aggregateID)
 	if err := s.v.StructCtx(ctx, command); err != nil {

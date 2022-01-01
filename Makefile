@@ -89,20 +89,6 @@ migrate_down:
 
 
 # ==============================================================================
-# MongoDB
-
-mongo:
-	cd ./scripts && mongo admin -u admin -p admin < init.js
-
-
-# ==============================================================================
-# Swagger
-
-swagger:
-	@echo Starting swagger generating
-	swag init -g **/**/*.go
-
-# ==============================================================================
 # Usage:
 # install local https://github.com/protocolbuffers/protobuf
 # go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
