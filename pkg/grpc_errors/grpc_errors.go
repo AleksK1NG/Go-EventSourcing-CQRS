@@ -4,10 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"github.com/AleksK1NG/es-microservice/pkg/constants"
+	"github.com/AleksK1NG/es-microservice/pkg/utils"
+	"github.com/EventStore/EventStore-Client-Go/esdb"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"strings"
 )
 
 var (
@@ -50,10 +51,12 @@ func GetErrStatusCode(err error) codes.Code {
 		return codes.Unauthenticated
 	case CheckErrMessage(err, constants.Bcrypt):
 		return codes.InvalidArgument
+	case CheckErrMessage(err, errors.Cause(esdb.ErrStreamNotFound).Error()):
+		return codes.NotFound
 	}
 	return codes.Internal
 }
 
 func CheckErrMessage(err error, msg string) bool {
-	return strings.Contains(strings.ToLower(err.Error()), msg)
+	return utils.CheckErrMessages(err, msg)
 }
