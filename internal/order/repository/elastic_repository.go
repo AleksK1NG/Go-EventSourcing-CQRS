@@ -12,6 +12,7 @@ import (
 	v7 "github.com/olivere/elastic/v7"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -44,7 +45,7 @@ func (e *elasticRepository) IndexOrder(ctx context.Context, order *models.OrderP
 	res, err := e.elasticClient.Index().Index(e.cfg.ElasticIndexes.Orders).BodyJson(order).Id(order.OrderID).Do(ctx)
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return err
+		return errors.Wrap(err, "elasticClient.Index")
 	}
 
 	e.log.Debugf("(IndexOrder) result: {%s}", res.Result)
@@ -59,19 +60,19 @@ func (e *elasticRepository) GetByID(ctx context.Context, orderID string) (*model
 	result, err := e.elasticClient.Get().Index(e.cfg.ElasticIndexes.Orders).Id(orderID).FetchSource(true).Do(ctx)
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return nil, err
+		return nil, errors.Wrap(err, "elasticClient.Get")
 	}
 
 	jsonData, err := result.Source.MarshalJSON()
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return nil, err
+		return nil, errors.Wrap(err, "Source.MarshalJSON")
 	}
 
 	var order models.OrderProjection
 	if err := json.Unmarshal(jsonData, &order); err != nil {
 		tracing.TraceErr(span, err)
-		return nil, err
+		return nil, errors.Wrap(err, "json.Unmarshal")
 	}
 
 	return &order, nil
@@ -85,7 +86,7 @@ func (e *elasticRepository) UpdateOrder(ctx context.Context, order *models.Order
 	res, err := e.elasticClient.Update().Index(e.cfg.ElasticIndexes.Orders).Id(order.OrderID).Doc(order).FetchSource(true).Do(ctx)
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return err
+		return errors.Wrap(err, "elasticClient.Update")
 	}
 
 	e.log.Debugf("(UpdateOrder) result: {%s}", res.Result)
@@ -104,15 +105,15 @@ func (e *elasticRepository) Search(ctx context.Context, text string, pq *utils.P
 	searchResult, err := e.elasticClient.Search(e.cfg.ElasticIndexes.Orders).
 		Query(shouldMatch).
 		From(pq.GetOffset()).
-		Explain(true).
-		FetchSource(true).
-		Version(true).
+		Explain(e.cfg.Elastic.Explain).
+		FetchSource(e.cfg.Elastic.FetchSource).
+		Version(e.cfg.Elastic.Version).
 		Size(pq.GetSize()).
-		Pretty(true).
+		Pretty(e.cfg.Elastic.Pretty).
 		Do(ctx)
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return nil, err
+		return nil, errors.Wrap(err, "elasticClient.Search")
 	}
 
 	orders := make([]*models.OrderProjection, 0, len(searchResult.Hits.Hits))
@@ -120,12 +121,12 @@ func (e *elasticRepository) Search(ctx context.Context, text string, pq *utils.P
 		jsonBytes, err := hit.Source.MarshalJSON()
 		if err != nil {
 			tracing.TraceErr(span, err)
-			return nil, err
+			return nil, errors.Wrap(err, "Source.MarshalJSON")
 		}
 		var order models.OrderProjection
 		if err := json.Unmarshal(jsonBytes, &order); err != nil {
 			tracing.TraceErr(span, err)
-			return nil, err
+			return nil, errors.Wrap(err, "json.Unmarshal")
 		}
 		orders = append(orders, &order)
 	}

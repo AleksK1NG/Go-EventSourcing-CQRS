@@ -3,8 +3,10 @@ package server
 import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/pkg/constants"
+	"github.com/AleksK1NG/es-microservice/pkg/elasticsearch"
 	serviceErrors "github.com/AleksK1NG/es-microservice/pkg/service_errors"
 	"github.com/AleksK1NG/es-microservice/pkg/utils"
+	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -23,7 +25,7 @@ func (s *server) initMongoDBCollections(ctx context.Context) {
 		Keys:    bson.D{{Key: constants.OrderIdIndex, Value: 1}},
 		Options: indexOptions,
 	})
-	if err != nil {
+	if err != nil && !utils.CheckErrMessages(err, serviceErrors.ErrMsgAlreadyExists) {
 		s.log.Warnf("(CreateOne) err: {%v}", err)
 	}
 	s.log.Infof("(CreatedIndex) index: {%s}", index)
@@ -46,4 +48,26 @@ func (s *server) initMongoDBCollections(ctx context.Context) {
 		s.log.Warnf("(ListCollections) err: {%v}", err)
 	}
 	s.log.Infof("(Collections) created collections: {%v}", collections)
+}
+
+func (s *server) initElasticClient(ctx context.Context) error {
+	elasticClient, err := elasticsearch.NewElasticClient(ctx, s.cfg.Elastic)
+	if err != nil {
+		return err
+	}
+	s.elasticClient = elasticClient
+
+	info, code, err := s.elasticClient.Ping(s.cfg.Elastic.URL).Do(ctx)
+	if err != nil {
+		return errors.Wrap(err, "client.Ping")
+	}
+	s.log.Infof("Elasticsearch returned with code {%d} and version {%s}", code, info.Version.Number)
+
+	esVersion, err := s.elasticClient.ElasticsearchVersion(s.cfg.Elastic.URL)
+	if err != nil {
+		return errors.Wrap(err, "client.ElasticsearchVersion")
+	}
+	s.log.Infof("Elasticsearch version {%s}", esVersion)
+
+	return nil
 }

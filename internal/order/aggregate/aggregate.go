@@ -13,12 +13,6 @@ const (
 	OrderAggregateType es.AggregateType = "order"
 )
 
-type OrderAggregateInterface interface {
-	HandleCreateEvent(createEvent es.Event) error
-	HandlePaidEvent(payEvent es.Event) error
-	HandleSubmitEvent(submitEvent es.Event) error
-}
-
 type OrderAggregate struct {
 	*es.AggregateBase
 	Order *models.Order
