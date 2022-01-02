@@ -49,5 +49,11 @@ subscriptions:
   elasticProjectionGroupName: "order-elastic"
 elastic:
   url: "http://localhost:9200"
+  sniff: false
+  gzip: true
+  explain: true
+  fetchSource: true
+  version: true
+  pretty: true
 elasticIndexes:
   orders: "orders"

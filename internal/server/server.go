@@ -8,7 +8,6 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/projection/mongo_projection"
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
 	"github.com/AleksK1NG/es-microservice/internal/order/service"
-	"github.com/AleksK1NG/es-microservice/pkg/elasticsearch"
 	"github.com/AleksK1NG/es-microservice/pkg/es/store"
 	"github.com/AleksK1NG/es-microservice/pkg/eventstroredb"
 	"github.com/AleksK1NG/es-microservice/pkg/interceptors"
@@ -71,11 +70,10 @@ func (s *server) Run() error {
 	defer mongoDBConn.Disconnect(ctx) // nolint: errcheck
 	s.log.Infof("(Mongo connected) SessionsInProgress: {%v}", mongoDBConn.NumberSessionsInProgress())
 
-	elasticClient, err := elasticsearch.NewElasticClient(s.cfg.Elastic)
-	if err != nil {
+	if err := s.initElasticClient(ctx); err != nil {
+		s.log.Errorf("(initElasticClient) err: {%v}", err)
 		return err
 	}
-	s.elasticClient = elasticClient
 
 	mongoRepository := repository.NewMongoRepository(s.log, s.cfg, s.mongoClient)
 	elasticRepository := repository.NewElasticRepository(s.log, s.cfg, s.elasticClient)
