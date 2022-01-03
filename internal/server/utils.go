@@ -6,7 +6,10 @@ import (
 	"github.com/AleksK1NG/es-microservice/pkg/elasticsearch"
 	serviceErrors "github.com/AleksK1NG/es-microservice/pkg/service_errors"
 	"github.com/AleksK1NG/es-microservice/pkg/utils"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -70,4 +73,41 @@ func (s *server) initElasticClient(ctx context.Context) error {
 	s.log.Infof("Elasticsearch version {%s}", esVersion)
 
 	return nil
+}
+
+func (s *server) runMetrics(cancel context.CancelFunc) {
+	metricsServer := echo.New()
+	go func() {
+		metricsServer.Use(middleware.RecoverWithConfig(middleware.RecoverConfig{
+			StackSize:         stackSize,
+			DisablePrintStack: true,
+			DisableStackAll:   true,
+		}))
+		metricsServer.GET(s.cfg.Probes.PrometheusPath, echo.WrapHandler(promhttp.Handler()))
+		s.log.Infof("Metrics server is running on port: {%s}", s.cfg.Probes.PrometheusPort)
+		if err := metricsServer.Start(s.cfg.Probes.PrometheusPort); err != nil {
+			s.log.Errorf("metricsServer.Start: {%v}", err)
+			cancel()
+		}
+	}()
+}
+
+func (s *server) getHttpMetricsCb() func(err error) {
+	return func(err error) {
+		if err != nil {
+			s.metrics.ErrorHttpRequests.Inc()
+		} else {
+			s.metrics.SuccessHttpRequests.Inc()
+		}
+	}
+}
+
+func (s *server) getGrpcMetricsCb() func(err error) {
+	return func(err error) {
+		if err != nil {
+			s.metrics.ErrorGrpcRequests.Inc()
+		} else {
+			s.metrics.SuccessGrpcRequests.Inc()
+		}
+	}
 }

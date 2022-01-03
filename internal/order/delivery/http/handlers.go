@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/dto"
+	"github.com/AleksK1NG/es-microservice/internal/metrics"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
 	"github.com/AleksK1NG/es-microservice/internal/order/queries"
 	"github.com/AleksK1NG/es-microservice/internal/order/service"
@@ -29,12 +30,13 @@ type OrderHandlers interface {
 }
 
 type orderHandlers struct {
-	group *echo.Group
-	log   logger.Logger
-	mw    middlewares.MiddlewareManager
-	cfg   *config.Config
-	v     *validator.Validate
-	os    *service.OrderService
+	group   *echo.Group
+	log     logger.Logger
+	mw      middlewares.MiddlewareManager
+	cfg     *config.Config
+	v       *validator.Validate
+	os      *service.OrderService
+	metrics *metrics.ESMicroserviceMetrics
 }
 
 func NewOrderHandlers(
@@ -44,8 +46,9 @@ func NewOrderHandlers(
 	cfg *config.Config,
 	v *validator.Validate,
 	os *service.OrderService,
+	metrics *metrics.ESMicroserviceMetrics,
 ) *orderHandlers {
-	return &orderHandlers{group: group, log: log, mw: mw, cfg: cfg, v: v, os: os}
+	return &orderHandlers{group: group, log: log, mw: mw, cfg: cfg, v: v, os: os, metrics: metrics}
 }
 
 // CreateOrder
@@ -61,6 +64,7 @@ func (h *orderHandlers) CreateOrder() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.CreateOrder")
 		defer span.Finish()
+		h.metrics.CreateOrderHttpRequests.Inc()
 
 		createDto := &dto.CreateOrderDto{}
 		if err := c.Bind(createDto); err != nil {
@@ -102,6 +106,7 @@ func (h *orderHandlers) PayOrder() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.PayOrder")
 		defer span.Finish()
+		h.metrics.PayOrderHttpRequests.Inc()
 
 		orderID, err := uuid.FromString(c.Param(constants.ID))
 		if err != nil {
@@ -142,6 +147,7 @@ func (h *orderHandlers) SubmitOrder() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.SubmitOrder")
 		defer span.Finish()
+		h.metrics.SubmitOrderHttpRequests.Inc()
 
 		orderID, err := uuid.FromString(c.Param(constants.ID))
 		if err != nil {
@@ -183,6 +189,7 @@ func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.UpdateOrder")
 		defer span.Finish()
+		h.metrics.UpdateOrderHttpRequests.Inc()
 
 		orderID, err := uuid.FromString(c.Param(constants.ID))
 		if err != nil {
@@ -230,6 +237,7 @@ func (h *orderHandlers) GetOrderByID() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.GetOrderByID")
 		defer span.Finish()
+		h.metrics.GetOrderByIdHttpRequests.Inc()
 
 		orderID, err := uuid.FromString(c.Param(constants.ID))
 		if err != nil {
@@ -272,6 +280,7 @@ func (h *orderHandlers) Search() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.Search")
 		defer span.Finish()
+		h.metrics.SearchOrderHttpRequests.Inc()
 
 		pq := utils.NewPaginationFromQueryParams(c.QueryParam(constants.Size), c.QueryParam(constants.Page))
 
