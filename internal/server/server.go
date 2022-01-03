@@ -108,7 +108,7 @@ func (s *server) Run() error {
 		}
 	}()
 
-	orderHandlers := http.NewOrderHandlers(s.echo.Group(s.cfg.Http.OrdersPath), s.log, s.mw, s.cfg, s.v, s.os)
+	orderHandlers := http.NewOrderHandlers(s.echo.Group(s.cfg.Http.OrdersPath), s.log, s.mw, s.cfg, s.v, s.os, s.metrics)
 	orderHandlers.MapRoutes()
 
 	s.initMongoDBCollections(ctx)
