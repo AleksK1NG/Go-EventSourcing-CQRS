@@ -55,12 +55,13 @@ func HandleCommandWithExists(ctx context.Context, eventStore es.AggregateStore, 
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
-	err := eventStore.Exists(ctx, command.GetAggregateID())
+	order := NewOrderAggregateWithID(command.GetAggregateID())
+
+	err := eventStore.Exists(ctx, order.GetID())
 	if err != nil && !errors.Is(err, esdb.ErrStreamNotFound) {
 		return err
 	}
 
-	order := NewOrderAggregateWithID(command.GetAggregateID())
 	if err := eventStore.Load(ctx, order); err != nil {
 		return err
 	}

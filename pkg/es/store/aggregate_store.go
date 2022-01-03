@@ -142,7 +142,6 @@ func (a *aggregateStore) Exists(ctx context.Context, streamID string) error {
 
 	stream, err := a.db.ReadStream(ctx, streamID, readStreamOptions, 1)
 	if err != nil {
-		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "db.ReadStream")
 	}
 	defer stream.Close()
