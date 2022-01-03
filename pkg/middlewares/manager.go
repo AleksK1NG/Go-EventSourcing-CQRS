@@ -8,17 +8,20 @@ import (
 	"time"
 )
 
+type MiddlewareMetricsCb func(err error)
+
 type MiddlewareManager interface {
 	RequestLoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 }
 
 type middlewareManager struct {
-	log logger.Logger
-	cfg *config.Config
+	log       logger.Logger
+	cfg       *config.Config
+	metricsCb MiddlewareMetricsCb
 }
 
-func NewMiddlewareManager(log logger.Logger, cfg *config.Config) *middlewareManager {
-	return &middlewareManager{log: log, cfg: cfg}
+func NewMiddlewareManager(log logger.Logger, cfg *config.Config, metricsCb MiddlewareMetricsCb) *middlewareManager {
+	return &middlewareManager{log: log, cfg: cfg, metricsCb: metricsCb}
 }
 
 func (mw *middlewareManager) RequestLoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -37,6 +40,7 @@ func (mw *middlewareManager) RequestLoggerMiddleware(next echo.HandlerFunc) echo
 			mw.log.HttpMiddlewareAccessLogger(req.Method, req.URL.String(), status, size, s)
 		}
 
+		mw.metricsCb(err)
 		return err
 	}
 }

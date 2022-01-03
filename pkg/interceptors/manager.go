@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+type GrpcMetricsCb func(err error)
+
 type InterceptorManager interface {
 	Logger(
 		ctx context.Context,
@@ -28,12 +30,13 @@ type InterceptorManager interface {
 
 // InterceptorManager struct
 type interceptorManager struct {
-	log logger.Logger
+	log       logger.Logger
+	metricsCb GrpcMetricsCb
 }
 
 // NewInterceptorManager InterceptorManager constructor
-func NewInterceptorManager(logger logger.Logger) *interceptorManager {
-	return &interceptorManager{log: logger}
+func NewInterceptorManager(logger logger.Logger, metricsCb GrpcMetricsCb) *interceptorManager {
+	return &interceptorManager{log: logger, metricsCb: metricsCb}
 }
 
 // Logger Interceptor
@@ -47,6 +50,7 @@ func (im *interceptorManager) Logger(
 	md, _ := metadata.FromIncomingContext(ctx)
 	reply, err := handler(ctx, req)
 	im.log.GrpcMiddlewareAccessLogger(info.FullMethod, time.Since(start), md, err)
+	im.metricsCb(err)
 	return reply, err
 }
 

@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/config"
+	"github.com/AleksK1NG/es-microservice/internal/metrics"
 	"github.com/AleksK1NG/es-microservice/internal/order/delivery/http"
 	"github.com/AleksK1NG/es-microservice/internal/order/projection/elastic_projection"
 	"github.com/AleksK1NG/es-microservice/internal/order/projection/mongo_projection"
@@ -36,6 +37,7 @@ type server struct {
 	mongoClient   *mongo.Client
 	elasticClient *v7.Client
 	echo          *echo.Echo
+	metrics       *metrics.ESMicroserviceMetrics
 }
 
 func NewServer(cfg *config.Config, log logger.Logger) *server {
@@ -59,8 +61,9 @@ func (s *server) Run() error {
 		opentracing.SetGlobalTracer(tracer)
 	}
 
-	s.im = interceptors.NewInterceptorManager(s.log)
-	s.mw = middlewares.NewMiddlewareManager(s.log, s.cfg)
+	s.metrics = metrics.NewESMicroserviceMetrics(s.cfg)
+	s.im = interceptors.NewInterceptorManager(s.log, s.getGrpcMetricsCb())
+	s.mw = middlewares.NewMiddlewareManager(s.log, s.cfg, s.getHttpMetricsCb())
 
 	mongoDBConn, err := mongodb.NewMongoDBConn(ctx, s.cfg.Mongo)
 	if err != nil {
@@ -109,6 +112,7 @@ func (s *server) Run() error {
 	orderHandlers.MapRoutes()
 
 	s.initMongoDBCollections(ctx)
+	s.runMetrics(cancel)
 
 	go func() {
 		if err := s.runHttpServer(); err != nil {
