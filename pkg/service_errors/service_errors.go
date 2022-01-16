@@ -15,4 +15,6 @@ var (
 	ErrAlreadySubmitted          = errors.New("already submitted")
 	ErrOrderNotPaid              = errors.New("order not paid")
 	ErrOrderNotFound             = errors.New("order not found")
+	ErrAlreadyCreated            = errors.New("order with given id already created")
+	ErrOrderItemsIsRequired      = errors.New("order items is required")
 )
