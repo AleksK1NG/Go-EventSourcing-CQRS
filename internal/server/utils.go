@@ -35,7 +35,7 @@ func (s *server) initMongoDBCollections(ctx context.Context) {
 
 	list, err := s.mongoClient.Database(s.cfg.Mongo.Db).Collection(s.cfg.MongoCollections.Orders).Indexes().List(ctx)
 	if err != nil {
-		s.log.Warnf("(List) err: {%v}", err)
+		s.log.Warnf("(initMongoDBCollections) [List] err: {%v}", err)
 	}
 
 	if list != nil {
@@ -54,7 +54,7 @@ func (s *server) initMongoDBCollections(ctx context.Context) {
 }
 
 func (s *server) initElasticClient(ctx context.Context) error {
-	elasticClient, err := elasticsearch.NewElasticClient(ctx, s.cfg.Elastic)
+	elasticClient, err := elasticsearch.NewElasticClient(s.cfg.Elastic)
 	if err != nil {
 		return err
 	}

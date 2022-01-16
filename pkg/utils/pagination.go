@@ -110,7 +110,6 @@ func (q *Pagination) GetQueryString() string {
 
 // GetTotalPages Get total pages int
 func (q *Pagination) GetTotalPages(totalCount int) int {
-	// d := float64(totalCount) / float64(pageSize)
 	d := float64(totalCount) / float64(q.GetSize())
 	return int(math.Ceil(d))
 }

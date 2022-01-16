@@ -1,6 +1,6 @@
 .PHONY:
 
-run_api_gateway:
+run_es:
 	go run cmd/main.go -config=./config/config.yaml
 
 
@@ -74,7 +74,7 @@ pprof_allocs:
 # PROTO use your_file_name.proto
 
 proto_order:
-	@echo Generating order microservice gRPC proto
+	@echo Generating es microservice order gRPC proto
 	cd proto/order && protoc --go_out=. --go-grpc_opt=require_unimplemented_servers=false --go-grpc_out=. order.proto
 
 # ==============================================================================
