@@ -41,7 +41,7 @@ http://localhost:5601/app/home#/
 For local development 🙌👨‍💻🚀:
 
 ```
-make mongo // run mongo init scripts
+make local // for run docker compose files
 make swagger // generate swagger documentation
-make local or docker_dev // for run docker compose files
+make run_es // run microservice
 ```

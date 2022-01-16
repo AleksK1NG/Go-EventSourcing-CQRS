@@ -50,7 +50,10 @@ func (im *interceptorManager) Logger(
 	md, _ := metadata.FromIncomingContext(ctx)
 	reply, err := handler(ctx, req)
 	im.log.GrpcMiddlewareAccessLogger(info.FullMethod, time.Since(start), md, err)
-	im.metricsCb(err)
+	if im.metricsCb != nil {
+		im.metricsCb(err)
+
+	}
 	return reply, err
 }
 

@@ -3,11 +3,10 @@ package es
 import (
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
 )
 
 const (
-	aggregateStartVersion                = -1 // used for EventstoreDB
+	aggregateStartVersion                = -1 // used for EventStoreDB
 	aggregateAppliedEventsInitialCap     = 10
 	aggregateUncommittedEventsInitialCap = 10
 )
@@ -219,7 +218,7 @@ func (a *AggregateBase) RaiseEvent(event Event) error {
 		return ErrInvalidAggregateID
 	}
 	if a.GetVersion() >= event.GetVersion() {
-		return errors.New("a.GetVersion() > event.GetVersion()")
+		return ErrInvalidEventVersion
 	}
 
 	event.SetAggregateType(a.GetType())

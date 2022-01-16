@@ -15,10 +15,6 @@ type Config struct {
 	Encoder  string `mapstructure:"encoder"`
 }
 
-func NewLoggerConfig(logLevel string, devMode bool, encoder string) *Config {
-	return &Config{LogLevel: logLevel, DevMode: devMode, Encoder: encoder}
-}
-
 // Logger methods interface
 type Logger interface {
 	InitLogger()
@@ -294,13 +290,13 @@ func (l *appLogger) KafkaLogCommittedMessage(topic string, partition int, offset
 func (l *appLogger) ProjectionEvent(projectionName string, groupName string, event *esdb.ResolvedEvent, workerID int) {
 	l.logger.Debug(
 		projectionName,
-		zap.String("GroupName", groupName),
-		zap.String("StreamID", event.OriginalEvent().StreamID),
-		zap.String("EventID", event.OriginalEvent().EventID.String()),
-		zap.String("EventType", event.OriginalEvent().EventType),
-		zap.Uint64("EventNumber", event.OriginalEvent().EventNumber),
-		zap.Time("CreatedDate", event.OriginalEvent().CreatedDate),
-		zap.String("UserMetadata", string(event.OriginalEvent().UserMetadata)),
+		zap.String(constants.GroupName, groupName),
+		zap.String(constants.StreamID, event.OriginalEvent().StreamID),
+		zap.String(constants.EventID, event.OriginalEvent().EventID.String()),
+		zap.String(constants.EventType, event.OriginalEvent().EventType),
+		zap.Uint64(constants.EventNumber, event.OriginalEvent().EventNumber),
+		zap.Time(constants.CreatedDate, event.OriginalEvent().CreatedDate),
+		zap.String(constants.UserMetadata, string(event.OriginalEvent().UserMetadata)),
 		zap.Int(constants.WorkerID, workerID),
 	)
 }
