@@ -31,27 +31,7 @@ func IsAggregateNotFound(aggregate es.Aggregate) bool {
 
 // HandleCommand check exists, Load es.Aggregate, HandleCommand and Save to event store
 func HandleCommand(ctx context.Context, eventStore es.AggregateStore, command es.Command) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "HandleCommandWithExists")
-	defer span.Finish()
-	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
-
-	order := NewOrderAggregateWithID(command.GetAggregateID())
-	if err := eventStore.Load(ctx, order); err != nil {
-		return err
-	}
-
-	if err := order.HandleCommand(ctx, command); err != nil {
-		tracing.TraceErr(span, err)
-		return err
-	}
-
-	span.LogFields(log.String("order", order.Order.String()))
-	return eventStore.Save(ctx, order)
-}
-
-// HandleCommandWithExists check exists, Load es.Aggregate, HandleCommand and Save to event store
-func HandleCommandWithExists(ctx context.Context, eventStore es.AggregateStore, command es.Command) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "HandleCommandWithExists")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "HandleCommand")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 

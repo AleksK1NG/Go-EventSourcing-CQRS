@@ -17,8 +17,12 @@ func (a *OrderAggregate) onCreateOrderCommand(ctx context.Context, command *Crea
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
-	if a.Order.Created || command.OrderCreatedData.ShopItems == nil {
-		return serviceErrors.ErrAlreadyCreatedOrCancelled
+	if a.Order.Created {
+		return serviceErrors.ErrAlreadyCreated
+	}
+
+	if command.OrderCreatedData.ShopItems == nil {
+		return serviceErrors.ErrOrderItemsIsRequired
 	}
 
 	createdData := &dto.OrderCreatedData{ShopItems: command.ShopItems, AccountEmail: command.AccountEmail}

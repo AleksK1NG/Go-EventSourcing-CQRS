@@ -29,5 +29,5 @@ func (c *updateOrderCmdHandler) Handle(ctx context.Context, command *aggregate.O
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
-	return aggregate.HandleCommandWithExists(ctx, c.es, command)
+	return aggregate.HandleCommand(ctx, c.es, command)
 }
