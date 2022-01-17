@@ -117,6 +117,6 @@ func (o *mongoProjection) When(ctx context.Context, evt es.Event) error {
 
 	default:
 		o.log.Warnf("(mongoProjection) [When unknown EventType] eventType: {%s}", evt.EventType)
-		return nil
+		return es.ErrInvalidEventType
 	}
 }

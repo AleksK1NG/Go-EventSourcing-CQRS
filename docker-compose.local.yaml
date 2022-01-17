@@ -51,14 +51,6 @@ services:
       - '3005:3000'
     networks: [ "microservices" ]
 
-  redis:
-    image: redis:6-alpine
-    restart: always
-    container_name: microservices_redis
-    ports:
-      - "6379:6379"
-    networks: [ "microservices" ]
-
   mongodb:
     image: mongo:latest
     restart: always
