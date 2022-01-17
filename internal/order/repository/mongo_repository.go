@@ -35,9 +35,7 @@ func (m *mongoRepository) Insert(ctx context.Context, order *models.OrderProject
 	defer span.Finish()
 	span.LogFields(log.String("OrderID", order.OrderID))
 
-	collection := m.db.Database(m.cfg.Mongo.Db).Collection(m.cfg.MongoCollections.Orders)
-
-	_, err := collection.InsertOne(ctx, order, &options.InsertOneOptions{})
+	_, err := m.getOrdersCollection().InsertOne(ctx, order, &options.InsertOneOptions{})
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return "", err
@@ -51,10 +49,8 @@ func (m *mongoRepository) GetByID(ctx context.Context, orderID string) (*models.
 	defer span.Finish()
 	span.LogFields(log.String("OrderID", orderID))
 
-	collection := m.db.Database(m.cfg.Mongo.Db).Collection(m.cfg.MongoCollections.Orders)
-
 	var orderProjection models.OrderProjection
-	if err := collection.FindOne(ctx, bson.M{"orderId": orderID}).Decode(&orderProjection); err != nil {
+	if err := m.getOrdersCollection().FindOne(ctx, bson.M{"orderId": orderID}).Decode(&orderProjection); err != nil {
 		tracing.TraceErr(span, err)
 		return nil, err
 	}
@@ -67,18 +63,20 @@ func (m *mongoRepository) UpdateOrder(ctx context.Context, order *models.OrderPr
 	defer span.Finish()
 	span.LogFields(log.String("OrderID", order.OrderID))
 
-	collection := m.db.Database(m.cfg.Mongo.Db).Collection(m.cfg.MongoCollections.Orders)
-
 	ops := options.FindOneAndUpdate()
 	ops.SetReturnDocument(options.After)
 	ops.SetUpsert(false)
 
 	var res models.OrderProjection
-	if err := collection.FindOneAndUpdate(ctx, bson.M{"orderId": order.OrderID}, bson.M{"$set": order}, ops).Decode(&res); err != nil {
+	if err := m.getOrdersCollection().FindOneAndUpdate(ctx, bson.M{"orderId": order.OrderID}, bson.M{"$set": order}, ops).Decode(&res); err != nil {
 		tracing.TraceErr(span, err)
 		return err
 	}
 
 	m.log.Debugf("(UpdateOrder) result OrderID: {%s}", res.OrderID)
 	return nil
+}
+
+func (m *mongoRepository) getOrdersCollection() *mongo.Collection {
+	return m.db.Database(m.cfg.Mongo.Db).Collection(m.cfg.MongoCollections.Orders)
 }
