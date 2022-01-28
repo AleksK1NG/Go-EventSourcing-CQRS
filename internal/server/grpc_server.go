@@ -56,7 +56,7 @@ func (s *server) newOrderGrpcServer() (func() error, *grpc.Server, error) {
 
 	go func() {
 		s.log.Infof("EventSourcingService gRPC server is listening on port: {%s}", s.cfg.GRPC.Port)
-		s.log.Fatal(grpcServer.Serve(l))
+		s.log.Error(grpcServer.Serve(l))
 	}()
 
 	return l.Close, grpcServer, nil

@@ -40,10 +40,11 @@ type server struct {
 	echo          *echo.Echo
 	metrics       *metrics.ESMicroserviceMetrics
 	ps            *http.Server
+	doneCh        chan struct{}
 }
 
 func NewServer(cfg *config.Config, log logger.Logger) *server {
-	return &server{cfg: cfg, log: log, v: validator.New(), echo: echo.New()}
+	return &server{cfg: cfg, log: log, v: validator.New(), echo: echo.New(), doneCh: make(chan struct{})}
 }
 
 func (s *server) Run() error {
@@ -124,7 +125,7 @@ func (s *server) Run() error {
 			cancel()
 		}
 	}()
-	s.log.Infof("(EventSourcingService) is listening on PORT: {%s}", s.cfg.Http.Port)
+	s.log.Infof("%s is listening on PORT: {%s}", GetMicroserviceName(s.cfg), s.cfg.Http.Port)
 
 	closeGrpcServer, grpcServer, err := s.newOrderGrpcServer()
 	if err != nil {
@@ -134,11 +135,17 @@ func (s *server) Run() error {
 	defer closeGrpcServer() // nolint: errcheck
 
 	<-ctx.Done()
+	s.waitShootDown(waitShotDownDuration)
+
 	grpcServer.GracefulStop()
 	if err := s.shutDownHealthCheckServer(ctx); err != nil {
 		s.log.Warnf("(shutDownHealthCheckServer) err: {%v}", err)
 	}
+	if err := s.echo.Shutdown(ctx); err != nil {
+		s.log.Warnf("(Shutdown) err: {%v}", err)
+	}
 
-	s.log.Info("server exited properly")
+	<-s.doneCh
+	s.log.Infof("%s server exited properly", GetMicroserviceName(s.cfg))
 	return nil
 }
