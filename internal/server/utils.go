@@ -2,6 +2,8 @@ package server
 
 import (
 	"context"
+	"fmt"
+	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/pkg/constants"
 	"github.com/AleksK1NG/es-microservice/pkg/elasticsearch"
 	serviceErrors "github.com/AleksK1NG/es-microservice/pkg/service_errors"
@@ -13,6 +15,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"strings"
+	"time"
+)
+
+const (
+	waitShotDownDuration = 3 * time.Second
 )
 
 func (s *server) initMongoDBCollections(ctx context.Context) {
@@ -110,4 +118,15 @@ func (s *server) getGrpcMetricsCb() func(err error) {
 			s.metrics.SuccessGrpcRequests.Inc()
 		}
 	}
+}
+
+func (s *server) waitShootDown(duration time.Duration) {
+	go func() {
+		time.Sleep(duration)
+		s.doneCh <- struct{}{}
+	}()
+}
+
+func GetMicroserviceName(cfg *config.Config) string {
+	return fmt.Sprintf("(%s)", strings.ToUpper(cfg.ServiceName))
 }
