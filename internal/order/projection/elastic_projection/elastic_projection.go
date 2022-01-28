@@ -65,7 +65,6 @@ func (o *elasticProjection) ProcessEvents(ctx context.Context, stream *esdb.Pers
 		event := stream.Recv()
 		select {
 		case <-ctx.Done():
-			o.log.Errorf("ctxDone: {%v}", ctx.Err())
 			return ctx.Err()
 		default:
 		}

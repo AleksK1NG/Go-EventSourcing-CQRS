@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/metrics"
-	"github.com/AleksK1NG/es-microservice/internal/order/delivery/http"
+	orderHttp "github.com/AleksK1NG/es-microservice/internal/order/delivery/http"
 	"github.com/AleksK1NG/es-microservice/internal/order/projection/elastic_projection"
 	"github.com/AleksK1NG/es-microservice/internal/order/projection/mongo_projection"
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
@@ -22,6 +22,7 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -38,6 +39,7 @@ type server struct {
 	elasticClient *v7.Client
 	echo          *echo.Echo
 	metrics       *metrics.ESMicroserviceMetrics
+	ps            *http.Server
 }
 
 func NewServer(cfg *config.Config, log logger.Logger) *server {
@@ -85,6 +87,7 @@ func (s *server) Run() error {
 	if err != nil {
 		return err
 	}
+	defer db.Close() // nolint: errcheck
 
 	aggregateStore := store.NewAggregateStore(s.log, db)
 	s.os = service.NewOrderService(s.log, s.cfg, aggregateStore, mongoRepository, elasticRepository)
@@ -108,11 +111,12 @@ func (s *server) Run() error {
 		}
 	}()
 
-	orderHandlers := http.NewOrderHandlers(s.echo.Group(s.cfg.Http.OrdersPath), s.log, s.mw, s.cfg, s.v, s.os, s.metrics)
+	orderHandlers := orderHttp.NewOrderHandlers(s.echo.Group(s.cfg.Http.OrdersPath), s.log, s.mw, s.cfg, s.v, s.os, s.metrics)
 	orderHandlers.MapRoutes()
 
 	s.initMongoDBCollections(ctx)
 	s.runMetrics(cancel)
+	s.runHealthCheck(ctx)
 
 	go func() {
 		if err := s.runHttpServer(); err != nil {
@@ -131,6 +135,10 @@ func (s *server) Run() error {
 
 	<-ctx.Done()
 	grpcServer.GracefulStop()
+	if err := s.shutDownHealthCheckServer(ctx); err != nil {
+		s.log.Warnf("(shutDownHealthCheckServer) err: {%v}", err)
+	}
+
 	s.log.Info("server exited properly")
 	return nil
 }

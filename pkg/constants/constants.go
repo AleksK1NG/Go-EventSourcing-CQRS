@@ -13,12 +13,13 @@ const (
 
 	ReaderServicePort = "READER_SERVICE"
 
-	Yaml     = "yaml"
-	Tcp      = "tcp"
-	Redis    = "redis"
-	Kafka    = "kafka"
-	Postgres = "postgres"
-	MongoDB  = "mongo"
+	Yaml          = "yaml"
+	Tcp           = "tcp"
+	Redis         = "redis"
+	Kafka         = "kafka"
+	Postgres      = "postgres"
+	MongoDB       = "mongo"
+	ElasticSearch = "elasticSearch"
 
 	GRPC     = "GRPC"
 	SIZE     = "SIZE"
