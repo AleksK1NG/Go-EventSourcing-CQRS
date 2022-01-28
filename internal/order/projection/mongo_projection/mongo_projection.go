@@ -65,7 +65,6 @@ func (o *mongoProjection) ProcessEvents(ctx context.Context, stream *esdb.Persis
 		event := stream.Recv()
 		select {
 		case <-ctx.Done():
-			o.log.Errorf("ctxDone: {%v}", ctx.Err())
 			return ctx.Err()
 		default:
 		}
