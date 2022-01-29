@@ -19,10 +19,10 @@ type searchOrdersHandler struct {
 	log               logger.Logger
 	cfg               *config.Config
 	es                es.AggregateStore
-	elasticRepository repository.ElasticRepository
+	elasticRepository repository.ElasticOrderRepository
 }
 
-func NewSearchOrdersHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore, elasticRepository repository.ElasticRepository) *searchOrdersHandler {
+func NewSearchOrdersHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore, elasticRepository repository.ElasticOrderRepository) *searchOrdersHandler {
 	return &searchOrdersHandler{log: log, cfg: cfg, es: es, elasticRepository: elasticRepository}
 }
 

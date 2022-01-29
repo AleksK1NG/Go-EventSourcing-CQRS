@@ -14,12 +14,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type OrderRepository interface {
-	Insert(ctx context.Context, order *models.OrderProjection) (string, error)
-	GetByID(ctx context.Context, orderID string) (*models.OrderProjection, error)
-	UpdateOrder(ctx context.Context, order *models.OrderProjection) error
-}
-
 type mongoRepository struct {
 	log logger.Logger
 	cfg *config.Config

@@ -21,10 +21,10 @@ type elasticProjection struct {
 	log               logger.Logger
 	db                *esdb.Client
 	cfg               *config.Config
-	elasticRepository repository.ElasticRepository
+	elasticRepository repository.ElasticOrderRepository
 }
 
-func NewElasticProjection(log logger.Logger, db *esdb.Client, elasticRepository repository.ElasticRepository, cfg *config.Config) *elasticProjection {
+func NewElasticProjection(log logger.Logger, db *esdb.Client, elasticRepository repository.ElasticOrderRepository, cfg *config.Config) *elasticProjection {
 	return &elasticProjection{log: log, db: db, elasticRepository: elasticRepository, cfg: cfg}
 }
 

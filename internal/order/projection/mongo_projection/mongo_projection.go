@@ -19,10 +19,10 @@ type mongoProjection struct {
 	log       logger.Logger
 	db        *esdb.Client
 	cfg       *config.Config
-	mongoRepo repository.OrderRepository
+	mongoRepo repository.OrderMongoRepository
 }
 
-func NewOrderProjection(log logger.Logger, db *esdb.Client, mongoRepo repository.OrderRepository, cfg *config.Config) *mongoProjection {
+func NewOrderProjection(log logger.Logger, db *esdb.Client, mongoRepo repository.OrderMongoRepository, cfg *config.Config) *mongoProjection {
 	return &mongoProjection{log: log, db: db, mongoRepo: mongoRepo, cfg: cfg}
 }
 

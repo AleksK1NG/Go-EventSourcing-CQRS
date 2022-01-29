@@ -24,10 +24,10 @@ type getOrderByIDHandler struct {
 	log       logger.Logger
 	cfg       *config.Config
 	es        es.AggregateStore
-	mongoRepo repository.OrderRepository
+	mongoRepo repository.OrderMongoRepository
 }
 
-func NewGetOrderByIDHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore, mongoRepo repository.OrderRepository) *getOrderByIDHandler {
+func NewGetOrderByIDHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore, mongoRepo repository.OrderMongoRepository) *getOrderByIDHandler {
 	return &getOrderByIDHandler{log: log, cfg: cfg, es: es, mongoRepo: mongoRepo}
 }
 

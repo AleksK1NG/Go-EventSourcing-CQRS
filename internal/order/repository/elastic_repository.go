@@ -20,13 +20,6 @@ const (
 	shopItemDescription = "shopItems.description"
 )
 
-type ElasticRepository interface {
-	IndexOrder(ctx context.Context, order *models.OrderProjection) error
-	GetByID(ctx context.Context, orderID string) (*models.OrderProjection, error)
-	UpdateOrder(ctx context.Context, order *models.OrderProjection) error
-	Search(ctx context.Context, text string, pq *utils.Pagination) (*orderService.SearchRes, error)
-}
-
 type elasticRepository struct {
 	log           logger.Logger
 	cfg           *config.Config

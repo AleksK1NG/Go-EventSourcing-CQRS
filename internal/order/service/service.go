@@ -18,8 +18,8 @@ func NewOrderService(
 	log logger.Logger,
 	cfg *config.Config,
 	es es.AggregateStore,
-	mongoRepo repository.OrderRepository,
-	elasticRepository repository.ElasticRepository,
+	mongoRepo repository.OrderMongoRepository,
+	elasticRepository repository.ElasticOrderRepository,
 ) *OrderService {
 
 	createOrderHandler := commands.NewCreateOrderHandler(log, cfg, es)
