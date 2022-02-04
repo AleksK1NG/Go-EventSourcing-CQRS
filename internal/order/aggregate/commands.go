@@ -1,17 +1,17 @@
 package aggregate
 
 import (
-	"github.com/AleksK1NG/es-microservice/internal/dto"
+	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 )
 
 type CreateOrderCommand struct {
-	dto.OrderCreatedData
+	events.OrderCreatedEventData
 	es.BaseCommand
 }
 
-func NewCreateOrderCommand(orderCreatedData dto.OrderCreatedData, aggregateID string) *CreateOrderCommand {
-	return &CreateOrderCommand{OrderCreatedData: orderCreatedData, BaseCommand: es.NewBaseCommand(aggregateID)}
+func NewCreateOrderCommand(orderCreatedData events.OrderCreatedEventData, aggregateID string) *CreateOrderCommand {
+	return &CreateOrderCommand{OrderCreatedEventData: orderCreatedData, BaseCommand: es.NewBaseCommand(aggregateID)}
 }
 
 type OrderPaidCommand struct {
@@ -31,10 +31,28 @@ func NewSubmitOrderCommand(aggregateID string) *SubmitOrderCommand {
 }
 
 type OrderUpdatedCommand struct {
-	dto.OrderUpdatedData
+	events.OrderUpdatedEventData
 	es.BaseCommand
 }
 
-func NewOrderUpdatedCommand(orderUpdatedData dto.OrderUpdatedData, aggregateID string) *OrderUpdatedCommand {
-	return &OrderUpdatedCommand{OrderUpdatedData: orderUpdatedData, BaseCommand: es.NewBaseCommand(aggregateID)}
+func NewOrderUpdatedCommand(orderUpdatedData events.OrderUpdatedEventData, aggregateID string) *OrderUpdatedCommand {
+	return &OrderUpdatedCommand{OrderUpdatedEventData: orderUpdatedData, BaseCommand: es.NewBaseCommand(aggregateID)}
+}
+
+type OrderCanceledCommand struct {
+	events.OrderCanceledEventData
+	es.BaseCommand
+}
+
+func NewOrderCanceledCommand(orderCanceledEventData events.OrderCanceledEventData, aggregateID string) *OrderCanceledCommand {
+	return &OrderCanceledCommand{OrderCanceledEventData: orderCanceledEventData, BaseCommand: es.NewBaseCommand(aggregateID)}
+}
+
+type OrderDeliveredCommand struct {
+	events.OrderDeliveredEventData
+	es.BaseCommand
+}
+
+func NewOrderDeliveredCommand(orderDeliveredEventData events.OrderDeliveredEventData, aggregateID string) *OrderDeliveredCommand {
+	return &OrderDeliveredCommand{OrderDeliveredEventData: orderDeliveredEventData, BaseCommand: es.NewBaseCommand(aggregateID)}
 }

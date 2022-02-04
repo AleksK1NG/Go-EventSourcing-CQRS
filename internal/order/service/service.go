@@ -26,11 +26,20 @@ func NewOrderService(
 	orderPaidHandler := commands.NewOrderPaidHandler(log, cfg, es)
 	submitOrderHandler := commands.NewSubmitOrderHandler(log, cfg, es)
 	updateOrderCmdHandler := commands.NewUpdateOrderCmdHandler(log, cfg, es)
+	cancelOrderCommandHandler := commands.NewCancelOrderCommandHandler(log, cfg, es)
+	deliveryOrderCommandHandler := commands.NewDeliveryOrderCommandHandler(log, cfg, es)
 
 	getOrderByIDHandler := queries.NewGetOrderByIDHandler(log, cfg, es, mongoRepo)
 	searchOrdersHandler := queries.NewSearchOrdersHandler(log, cfg, es, elasticRepository)
 
-	orderCommands := commands.NewOrderCommands(createOrderHandler, orderPaidHandler, submitOrderHandler, updateOrderCmdHandler)
+	orderCommands := commands.NewOrderCommands(
+		createOrderHandler,
+		orderPaidHandler,
+		submitOrderHandler,
+		updateOrderCmdHandler,
+		cancelOrderCommandHandler,
+		deliveryOrderCommandHandler,
+	)
 	orderQueries := queries.NewOrderQueries(getOrderByIDHandler, searchOrdersHandler)
 
 	return &OrderService{Commands: orderCommands, Queries: orderQueries}

@@ -49,9 +49,6 @@ func (a *OrderAggregate) When(evt es.Event) error {
 	case events.OrderSubmitted:
 		return a.onOrderSubmitted(evt)
 
-	case events.OrderDelivering:
-		return a.onOrderDelivering(evt)
-
 	case events.OrderDelivered:
 		return a.onOrderDelivered(evt)
 
@@ -84,6 +81,12 @@ func (a *OrderAggregate) HandleCommand(ctx context.Context, command es.Command) 
 
 	case *OrderUpdatedCommand:
 		return a.onOrderUpdatedCommand(ctx, c)
+
+	case *OrderCanceledCommand:
+		return a.onOrderCanceledCommand(ctx, c)
+
+	case *OrderDeliveredCommand:
+		return a.onOrderDeliveredCommand(ctx, c)
 
 	default:
 		return es.ErrInvalidCommandType

@@ -2,9 +2,9 @@ package http
 
 import (
 	"github.com/AleksK1NG/es-microservice/config"
-	"github.com/AleksK1NG/es-microservice/internal/dto"
 	"github.com/AleksK1NG/es-microservice/internal/metrics"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
+	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/internal/order/queries"
 	"github.com/AleksK1NG/es-microservice/internal/order/service"
 	"github.com/AleksK1NG/es-microservice/pkg/constants"
@@ -55,7 +55,7 @@ func NewOrderHandlers(
 // @Tags Orders
 // @Summary Create order
 // @Description Create new order
-// @Param order body dto.CreateOrderDto true "create order"
+// @Param order body dto.OrderCreatedEventData true "create order"
 // @Accept json
 // @Produce json
 // @Success 201 {string} id ""
@@ -66,21 +66,21 @@ func (h *orderHandlers) CreateOrder() echo.HandlerFunc {
 		defer span.Finish()
 		h.metrics.CreateOrderHttpRequests.Inc()
 
-		createDto := &dto.CreateOrderDto{}
-		if err := c.Bind(createDto); err != nil {
+		eventData := events.OrderCreatedEventData{}
+		if err := c.Bind(&eventData); err != nil {
 			h.log.Errorf("(Bind) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		if err := h.v.StructCtx(ctx, createDto); err != nil {
+		if err := h.v.StructCtx(ctx, eventData); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
 		id := uuid.NewV4().String()
-		command := aggregate.NewCreateOrderCommand(createDto.OrderCreatedData, id)
+		command := aggregate.NewCreateOrderCommand(eventData, id)
 		err := h.os.Commands.CreateOrder.Handle(ctx, command)
 		if err != nil {
 			h.log.Errorf("(CreateOrder.Handle) id: {%s}, err: {%v}", id, err)
@@ -182,7 +182,7 @@ func (h *orderHandlers) SubmitOrder() echo.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
-// @Param order body dto.UpdateOrderDto true "update order"
+// @Param order body dto.OrderUpdatedEventData true "update order"
 // @Success 200 {string} id ""
 // @Router /orders/{id} [put]
 func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
@@ -198,20 +198,20 @@ func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		updateDto := &dto.UpdateOrderDto{}
-		if err := c.Bind(updateDto); err != nil {
+		eventData := events.OrderUpdatedEventData{}
+		if err := c.Bind(&eventData); err != nil {
 			h.log.Errorf("(Bind) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		if err := h.v.StructCtx(ctx, updateDto); err != nil {
+		if err := h.v.StructCtx(ctx, eventData); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := aggregate.NewOrderUpdatedCommand(updateDto.OrderUpdatedData, orderID.String())
+		command := aggregate.NewOrderUpdatedCommand(eventData, orderID.String())
 		err = h.os.Commands.UpdateOrder.Handle(ctx, command)
 		if err != nil {
 			h.log.Errorf("(UpdateOrder.Handle) id: {%s}, err: {%v}", orderID.String(), err)
