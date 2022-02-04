@@ -89,3 +89,8 @@ mongo:
 swagger:
 	@echo Starting swagger generating
 	swag init -g **/**/*.go
+
+
+#docker run --name esdb-node -it -p 2113:2113 -p 1113:1113 \
+#    ghcr.io/eventstore/eventstore:20.6.1-alpha.0.69-arm64v8 --insecure --run-projections=All \
+#    --enable-external-tcp --enable-atom-pub-over-http

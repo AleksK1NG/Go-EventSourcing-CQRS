@@ -81,7 +81,7 @@ func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error
 
 	// check for aggregate.GetVersion() == 0 or len(aggregate.GetAppliedEvents()) == 0 means new aggregate
 	var expectedRevision esdb.ExpectedRevision
-	if len(aggregate.GetAppliedEvents()) == 0 {
+	if aggregate.GetVersion() == 0 {
 		expectedRevision = esdb.NoStream{}
 		a.log.Debugf("(Save) expectedRevision: {%T}", expectedRevision)
 
