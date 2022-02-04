@@ -100,6 +100,7 @@ type AggregateBase struct {
 	AppliedEvents     []Event
 	UncommittedEvents []Event
 	Type              AggregateType
+	withAppliedEvents bool
 	when              when
 }
 
@@ -126,6 +127,7 @@ func NewAggregateBase(when when) *AggregateBase {
 		AppliedEvents:     make([]Event, 0, aggregateAppliedEventsInitialCap),
 		UncommittedEvents: make([]Event, 0, aggregateUncommittedEventsInitialCap),
 		when:              when,
+		withAppliedEvents: false,
 	}
 }
 
@@ -187,7 +189,9 @@ func (a *AggregateBase) Load(events []Event) error {
 			return err
 		}
 
-		a.AppliedEvents = append(a.AppliedEvents, evt)
+		if a.withAppliedEvents {
+			a.AppliedEvents = append(a.AppliedEvents, evt)
+		}
 		a.Version++
 	}
 
@@ -227,14 +231,19 @@ func (a *AggregateBase) RaiseEvent(event Event) error {
 		return err
 	}
 
-	a.AppliedEvents = append(a.AppliedEvents, event)
+	if a.withAppliedEvents {
+		a.AppliedEvents = append(a.AppliedEvents, event)
+	}
+
 	a.Version = event.GetVersion()
 	return nil
 }
 
 // ToSnapshot prepare AggregateBase for saving Snapshot.
 func (a *AggregateBase) ToSnapshot() {
-	a.AppliedEvents = append(a.AppliedEvents, a.UncommittedEvents...)
+	if a.withAppliedEvents {
+		a.AppliedEvents = append(a.AppliedEvents, a.UncommittedEvents...)
+	}
 	a.ClearUncommittedEvents()
 }
 

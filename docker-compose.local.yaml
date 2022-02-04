@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   eventstore.db:
-    image: eventstore/eventstore:21.6.0-buster-slim
+    image: ghcr.io/eventstore/eventstore@sha256:ab30bf2a2629e2c8710f8f7fdcb74df5466c6b3b2200c8e9ad8a797ed138012a
     environment:
       - EVENTSTORE_CLUSTER_SIZE=1
       - EVENTSTORE_RUN_PROJECTIONS=All
