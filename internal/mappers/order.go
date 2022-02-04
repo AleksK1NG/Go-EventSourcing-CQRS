@@ -7,15 +7,18 @@ import (
 
 func OrderProjectionFromAggregate(orderAggregate *aggregate.OrderAggregate) *models.OrderProjection {
 	return &models.OrderProjection{
-		OrderID:      aggregate.GetOrderAggregateID(orderAggregate.GetID()),
-		ShopItems:    orderAggregate.Order.ShopItems,
-		Created:      orderAggregate.Order.Created,
-		Paid:         orderAggregate.Order.Paid,
-		Submitted:    orderAggregate.Order.Submitted,
-		Delivering:   orderAggregate.Order.Delivering,
-		Delivered:    orderAggregate.Order.Delivered,
-		Canceled:     orderAggregate.Order.Canceled,
-		AccountEmail: orderAggregate.Order.AccountEmail,
-		TotalPrice:   orderAggregate.Order.TotalPrice,
+		OrderID:         aggregate.GetOrderAggregateID(orderAggregate.GetID()),
+		ShopItems:       orderAggregate.Order.ShopItems,
+		Created:         orderAggregate.Order.Created,
+		Paid:            orderAggregate.Order.Paid,
+		Submitted:       orderAggregate.Order.Submitted,
+		Delivering:      orderAggregate.Order.Delivering,
+		Delivered:       orderAggregate.Order.Delivered,
+		Canceled:        orderAggregate.Order.Canceled,
+		AccountEmail:    orderAggregate.Order.AccountEmail,
+		TotalPrice:      orderAggregate.Order.TotalPrice,
+		DeliveredTime:   orderAggregate.Order.DeliveredTime,
+		CancelReason:    orderAggregate.Order.CancelReason,
+		DeliveryAddress: orderAggregate.Order.DeliveryAddress,
 	}
 }

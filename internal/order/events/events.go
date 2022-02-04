@@ -5,13 +5,14 @@ import (
 )
 
 const (
-	OrderCreated    = "ORDER_CREATED"
-	OrderPaid       = "ORDER_PAID"
-	OrderSubmitted  = "ORDER_SUBMITTED"
-	OrderDelivering = "ORDER_DELIVERING"
-	OrderDelivered  = "ORDER_DELIVERED"
-	OrderCanceled   = "ORDER_CANCELED"
-	OrderUpdated    = "ORDER_UPDATED"
+	OrderCreated                = "V1_ORDER_CREATED"
+	OrderPaid                   = "V1_ORDER_PAID"
+	OrderSubmitted              = "V1_ORDER_SUBMITTED"
+	OrderDelivering             = "V1_ORDER_DELIVERING"
+	OrderDelivered              = "V1_ORDER_DELIVERED"
+	OrderCanceled               = "V1_ORDER_CANCELED"
+	OrderUpdated                = "V1_ORDER_UPDATED"
+	OrderDeliveryAddressUpdated = "V1_ORDER_DELIVERY_ADDRESS_UPDATED"
 )
 
 func NewCreateOrderEvent(aggregate es.Aggregate, data []byte) es.Event {
@@ -32,6 +33,24 @@ func NewSubmitOrderEvent(aggregate es.Aggregate) es.Event {
 
 func NewOrderUpdatedEvent(aggregate es.Aggregate, data []byte) es.Event {
 	orderUpdatedEvent := es.NewBaseEvent(aggregate, OrderUpdated)
+	orderUpdatedEvent.SetData(data)
+	return orderUpdatedEvent
+}
+
+func NewOrderDeliveryAddressUpdatedEvent(aggregate es.Aggregate, data []byte) es.Event {
+	orderUpdatedEvent := es.NewBaseEvent(aggregate, OrderDeliveryAddressUpdated)
+	orderUpdatedEvent.SetData(data)
+	return orderUpdatedEvent
+}
+
+func NewOrderCanceledEvent(aggregate es.Aggregate, data []byte) es.Event {
+	orderUpdatedEvent := es.NewBaseEvent(aggregate, OrderCanceled)
+	orderUpdatedEvent.SetData(data)
+	return orderUpdatedEvent
+}
+
+func NewOrderDeliveredEvent(aggregate es.Aggregate, data []byte) es.Event {
+	orderUpdatedEvent := es.NewBaseEvent(aggregate, OrderDelivered)
 	orderUpdatedEvent.SetData(data)
 	return orderUpdatedEvent
 }

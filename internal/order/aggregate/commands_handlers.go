@@ -3,7 +3,6 @@ package aggregate
 import (
 	"context"
 	"encoding/json"
-	"github.com/AleksK1NG/es-microservice/internal/dto"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	serviceErrors "github.com/AleksK1NG/es-microservice/pkg/service_errors"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
@@ -21,11 +20,11 @@ func (a *OrderAggregate) onCreateOrderCommand(ctx context.Context, command *Crea
 		return serviceErrors.ErrAlreadyCreated
 	}
 
-	if command.OrderCreatedData.ShopItems == nil {
+	if command.OrderCreatedEventData.ShopItems == nil {
 		return serviceErrors.ErrOrderItemsIsRequired
 	}
 
-	createdData := &dto.OrderCreatedData{ShopItems: command.ShopItems, AccountEmail: command.AccountEmail}
+	createdData := &events.OrderCreatedEventData{ShopItems: command.ShopItems, AccountEmail: command.AccountEmail}
 	createdDataBytes, err := json.Marshal(createdData)
 	if err != nil {
 		tracing.TraceErr(span, err)
@@ -101,7 +100,7 @@ func (a *OrderAggregate) onOrderUpdatedCommand(ctx context.Context, command *Ord
 		return serviceErrors.ErrAlreadySubmitted
 	}
 
-	eventData := &dto.OrderUpdatedData{ShopItems: command.ShopItems}
+	eventData := &events.OrderUpdatedEventData{ShopItems: command.ShopItems}
 	eventDataBytes, err := json.Marshal(eventData)
 	if err != nil {
 		tracing.TraceErr(span, err)
@@ -115,4 +114,46 @@ func (a *OrderAggregate) onOrderUpdatedCommand(ctx context.Context, command *Ord
 	}
 
 	return a.Apply(orderUpdatedEvent)
+}
+
+func (a *OrderAggregate) onOrderCanceledCommand(ctx context.Context, command *OrderCanceledCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onOrderCanceledCommand")
+	defer span.Finish()
+	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
+
+	eventData := &events.OrderCanceledEventData{CancelReason: command.CancelReason}
+	eventDataBytes, err := json.Marshal(eventData)
+	if err != nil {
+		tracing.TraceErr(span, err)
+		return errors.Wrap(err, "json.Marshal")
+	}
+
+	event := events.NewOrderCanceledEvent(a, eventDataBytes)
+	if err := event.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
+		tracing.TraceErr(span, err)
+		return errors.Wrap(err, "SetMetadata")
+	}
+
+	return a.Apply(event)
+}
+
+func (a *OrderAggregate) onOrderDeliveredCommand(ctx context.Context, command *OrderDeliveredCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onOrderDeliveredCommand")
+	defer span.Finish()
+	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
+
+	eventData := &events.OrderDeliveredEventData{DeliveryTimestamp: command.DeliveryTimestamp}
+	eventDataBytes, err := json.Marshal(eventData)
+	if err != nil {
+		tracing.TraceErr(span, err)
+		return errors.Wrap(err, "json.Marshal")
+	}
+
+	event := events.NewOrderDeliveredEvent(a, eventDataBytes)
+	if err := event.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
+		tracing.TraceErr(span, err)
+		return errors.Wrap(err, "SetMetadata")
+	}
+
+	return a.Apply(event)
 }

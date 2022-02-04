@@ -6,10 +6,11 @@ import (
 	"time"
 )
 
-type Order struct {
+type OrderProjection struct {
 	ID              string      `json:"id" bson:"_id,omitempty"`
+	OrderID         string      `json:"orderId" bson:"orderId,omitempty"`
 	ShopItems       []*ShopItem `json:"shopItems" bson:"shopItems,omitempty"`
-	AccountEmail    string      `json:"accountEmail" bson:"accountEmail,omitempty"`
+	AccountEmail    string      `json:"accountEmail" bson:"accountEmail,omitempty" validate:"required,email"`
 	DeliveryAddress string      `json:"deliveryAddress" bson:"deliveryAddress,omitempty"`
 	CancelReason    string      `json:"cancelReason" bson:"cancelReason,omitempty"`
 	TotalPrice      float64     `json:"totalPrice" bson:"totalPrice,omitempty"`
@@ -22,7 +23,7 @@ type Order struct {
 	Canceled        bool        `json:"canceled" bson:"canceled,omitempty"`
 }
 
-func (o *Order) String() string {
+func (o *OrderProjection) String() string {
 	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, Delivering: {%v}, Delivered: {%v}, Canceled: {%v}, TotalPrice: {%v}, AccountEmail: {%s},",
 		o.ID,
 		o.ShopItems,
@@ -37,27 +38,25 @@ func (o *Order) String() string {
 	)
 }
 
-func NewOrder() *Order {
-	return &Order{
-		ShopItems:  make([]*ShopItem, 0),
-		Created:    false,
-		Paid:       false,
-		Submitted:  false,
-		Delivering: false,
-		Delivered:  false,
-		Canceled:   false,
+func OrderProjectionToProto(order *OrderProjection) *orderService.Order {
+	return &orderService.Order{
+		ID:           order.OrderID,
+		ShopItems:    ShopItemsToProto(order.ShopItems),
+		Created:      order.Created,
+		Paid:         order.Paid,
+		Submitted:    order.Submitted,
+		Delivering:   order.Delivering,
+		Delivered:    order.Delivered,
+		Canceled:     order.Canceled,
+		TotalPrice:   order.TotalPrice,
+		AccountEmail: order.AccountEmail,
 	}
 }
 
-func OrderToProto(order *Order, id string) *orderService.Order {
-	return &orderService.Order{
-		ID:         id,
-		ShopItems:  ShopItemsToProto(order.ShopItems),
-		Created:    order.Created,
-		Paid:       order.Paid,
-		Submitted:  order.Submitted,
-		Delivering: order.Delivering,
-		Delivered:  order.Delivered,
-		Canceled:   order.Canceled,
+func OrderProjectionsToProto(orderProjections []*OrderProjection) []*orderService.Order {
+	orders := make([]*orderService.Order, 0, len(orderProjections))
+	for _, projection := range orderProjections {
+		orders = append(orders, OrderProjectionToProto(projection))
 	}
+	return orders
 }

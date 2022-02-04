@@ -2,10 +2,10 @@ package grpc
 
 import (
 	"context"
-	"github.com/AleksK1NG/es-microservice/internal/dto"
 	"github.com/AleksK1NG/es-microservice/internal/metrics"
 	"github.com/AleksK1NG/es-microservice/internal/models"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
+	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/internal/order/queries"
 	"github.com/AleksK1NG/es-microservice/internal/order/service"
 	grpcErrors "github.com/AleksK1NG/es-microservice/pkg/grpc_errors"
@@ -36,7 +36,7 @@ func (s *orderGrpcService) CreateOrder(ctx context.Context, req *orderService.Cr
 	s.metrics.CreateOrderGrpcRequests.Inc()
 
 	aggregateID := uuid.NewV4().String()
-	orderCreatedData := dto.OrderCreatedData{ShopItems: models.ShopItemsFromProto(req.GetShopItems()), AccountEmail: req.GetAccountEmail()}
+	orderCreatedData := events.OrderCreatedEventData{ShopItems: models.ShopItemsFromProto(req.GetShopItems()), AccountEmail: req.GetAccountEmail()}
 	command := aggregate.NewCreateOrderCommand(orderCreatedData, aggregateID)
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) aggregateID: {%s}, err: {%v}", aggregateID, err)
@@ -126,7 +126,7 @@ func (s *orderGrpcService) UpdateOrder(ctx context.Context, req *orderService.Up
 	span.LogFields(log.String("UpdateOrder req", req.String()))
 	s.metrics.UpdateOrderGrpcRequests.Inc()
 
-	command := aggregate.NewOrderUpdatedCommand(dto.OrderUpdatedData{ShopItems: models.ShopItemsFromProto(req.GetShopItems())}, req.GetAggregateID())
+	command := aggregate.NewOrderUpdatedCommand(events.OrderUpdatedEventData{ShopItems: models.ShopItemsFromProto(req.GetShopItems())}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
