@@ -69,7 +69,6 @@ type Load interface {
 type Aggregate interface {
 	When
 	AggregateRoot
-	HandleCommand
 }
 
 // AggregateRoot contains all methods of AggregateBase

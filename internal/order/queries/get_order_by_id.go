@@ -9,7 +9,6 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
-	serviceErrors "github.com/AleksK1NG/es-microservice/pkg/service_errors"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
 	"github.com/pkg/errors"
@@ -50,7 +49,7 @@ func (q *getOrderByIDHandler) Handle(ctx context.Context, query *GetOrderByIDQue
 	}
 
 	if aggregate.IsAggregateNotFound(order) {
-		return nil, serviceErrors.ErrOrderNotFound
+		return nil, aggregate.ErrOrderNotFound
 	}
 
 	orderProjection = mappers.OrderProjectionFromAggregate(order)
