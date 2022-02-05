@@ -1,12 +1,9 @@
 package aggregate
 
 import (
-	"context"
 	"github.com/AleksK1NG/es-microservice/internal/models"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
-	"github.com/opentracing/opentracing-go"
-	"github.com/opentracing/opentracing-go/log"
 )
 
 const (
@@ -66,35 +63,35 @@ func (a *OrderAggregate) When(evt es.Event) error {
 	}
 }
 
-func (a *OrderAggregate) HandleCommand(ctx context.Context, command es.Command) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "OrderAggregate.HandleCommand")
-	defer span.Finish()
-	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
-
-	switch c := command.(type) {
-
-	case *CreateOrderCommand:
-		return a.CreateOrder(ctx, c)
-
-	case *OrderPaidCommand:
-		return a.PayOrder(ctx, c)
-
-	case *SubmitOrderCommand:
-		return a.SubmitOrder(ctx, c)
-
-	case *OrderUpdatedCommand:
-		return a.UpdateOrder(ctx, c)
-
-	case *OrderCanceledCommand:
-		return a.CancelOrder(ctx, c)
-
-	case *OrderDeliveredCommand:
-		return a.DeliverOrder(ctx, c)
-
-	case *OrderChangeDeliveryAddressCommand:
-		return a.ChangeDeliveryAddress(ctx, c)
-
-	default:
-		return es.ErrInvalidCommandType
-	}
-}
+//func (a *OrderAggregate) HandleCommand(ctx context.Context, command es.Command) error {
+//	span, ctx := opentracing.StartSpanFromContext(ctx, "OrderAggregate.HandleCommand")
+//	defer span.Finish()
+//	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
+//
+//	switch c := command.(type) {
+//
+//	case *CreateOrderCommand:
+//		return a.CreateOrder(ctx, c)
+//
+//	case *OrderPaidCommand:
+//		return a.PayOrder(ctx, c)
+//
+//	case *SubmitOrderCommand:
+//		return a.SubmitOrder(ctx, c)
+//
+//	case *OrderUpdatedCommand:
+//		return a.UpdateOrder(ctx, c)
+//
+//	case *OrderCanceledCommand:
+//		return a.CancelOrder(ctx, c)
+//
+//	case *OrderDeliveredCommand:
+//		return a.DeliverOrder(ctx, c)
+//
+//	case *OrderChangeDeliveryAddressCommand:
+//		return a.ChangeDeliveryAddress(ctx, c)
+//
+//	default:
+//		return es.ErrInvalidCommandType
+//	}
+//}
