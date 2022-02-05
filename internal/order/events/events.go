@@ -8,7 +8,6 @@ const (
 	OrderCreated                = "V1_ORDER_CREATED"
 	OrderPaid                   = "V1_ORDER_PAID"
 	OrderSubmitted              = "V1_ORDER_SUBMITTED"
-	OrderDelivering             = "V1_ORDER_DELIVERING"
 	OrderDelivered              = "V1_ORDER_DELIVERED"
 	OrderCanceled               = "V1_ORDER_CANCELED"
 	OrderUpdated                = "V1_ORDER_UPDATED"

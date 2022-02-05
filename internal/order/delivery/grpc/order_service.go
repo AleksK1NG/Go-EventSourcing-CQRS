@@ -36,7 +36,11 @@ func (s *orderGrpcService) CreateOrder(ctx context.Context, req *orderService.Cr
 	s.metrics.CreateOrderGrpcRequests.Inc()
 
 	aggregateID := uuid.NewV4().String()
-	orderCreatedData := events.OrderCreatedEventData{ShopItems: models.ShopItemsFromProto(req.GetShopItems()), AccountEmail: req.GetAccountEmail()}
+	orderCreatedData := events.OrderCreatedEventData{
+		ShopItems:       models.ShopItemsFromProto(req.GetShopItems()),
+		DeliveryAddress: req.GetDeliveryAddress(),
+		AccountEmail:    req.GetAccountEmail(),
+	}
 	command := aggregate.NewCreateOrderCommand(orderCreatedData, aggregateID)
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) aggregateID: {%s}, err: {%v}", aggregateID, err)
@@ -140,6 +144,72 @@ func (s *orderGrpcService) UpdateOrder(ctx context.Context, req *orderService.Up
 
 	s.log.Infof("(UpdateOrder): AggregateID: {%s}", req.GetAggregateID())
 	return &orderService.UpdateOrderRes{}, nil
+}
+
+func (s *orderGrpcService) CancelOrder(ctx context.Context, req *orderService.CancelOrderReq) (*orderService.CancelOrderRes, error) {
+	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.CancelOrder")
+	defer span.Finish()
+	span.LogFields(log.String("CancelOrder req", req.String()))
+	//s.metrics.UpdateOrderGrpcRequests.Inc()
+
+	command := aggregate.NewOrderCanceledCommand(events.OrderCanceledEventData{CancelReason: req.GetCancelReason()}, req.GetAggregateID())
+	if err := s.v.StructCtx(ctx, command); err != nil {
+		s.log.Errorf("(validate) err: {%v}", err)
+		tracing.TraceErr(span, err)
+		return nil, s.errResponse(err)
+	}
+
+	if err := s.os.Commands.CancelOrder.Handle(ctx, command); err != nil {
+		s.log.Errorf("(CancelOrder.Handle) orderID: {%s}, err: {%v}", req.GetAggregateID(), err)
+		return nil, s.errResponse(err)
+	}
+
+	s.log.Infof("(CancelOrder): AggregateID: {%s}", req.GetAggregateID())
+	return &orderService.CancelOrderRes{}, nil
+}
+
+func (s *orderGrpcService) DeliveryOrder(ctx context.Context, req *orderService.DeliveryOrderReq) (*orderService.DeliveryOrderRes, error) {
+	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.DeliveryOrder")
+	defer span.Finish()
+	span.LogFields(log.String("DeliveryOrder req", req.String()))
+	//s.metrics.UpdateOrderGrpcRequests.Inc()
+
+	command := aggregate.NewOrderDeliveredCommand(events.OrderDeliveredEventData{DeliveryTimestamp: req.GetDeliveryTimestamp().AsTime()}, req.GetAggregateID())
+	if err := s.v.StructCtx(ctx, command); err != nil {
+		s.log.Errorf("(validate) err: {%v}", err)
+		tracing.TraceErr(span, err)
+		return nil, s.errResponse(err)
+	}
+
+	if err := s.os.Commands.DeliveryOrder.Handle(ctx, command); err != nil {
+		s.log.Errorf("(DeliveryOrder.Handle) orderID: {%s}, err: {%v}", req.GetAggregateID(), err)
+		return nil, s.errResponse(err)
+	}
+
+	s.log.Infof("(DeliveryOrder): AggregateID: {%s}", req.GetAggregateID())
+	return &orderService.DeliveryOrderRes{}, nil
+}
+
+func (s *orderGrpcService) ChangeDeliveryAddress(ctx context.Context, req *orderService.ChangeDeliveryAddressReq) (*orderService.ChangeDeliveryAddressRes, error) {
+	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.ChangeDeliveryAddress")
+	defer span.Finish()
+	span.LogFields(log.String("ChangeDeliveryAddress req", req.String()))
+	//s.metrics.UpdateOrderGrpcRequests.Inc()
+
+	command := aggregate.NewOrderChangeDeliveryAddressCommand(events.OrderChangeDeliveryAddress{DeliveryAddress: req.GetDeliveryAddress()}, req.GetAggregateID())
+	if err := s.v.StructCtx(ctx, command); err != nil {
+		s.log.Errorf("(validate) err: {%v}", err)
+		tracing.TraceErr(span, err)
+		return nil, s.errResponse(err)
+	}
+
+	if err := s.os.Commands.ChangeOrderDeliveryAddress.Handle(ctx, command); err != nil {
+		s.log.Errorf("(ChangeOrderDeliveryAddress.Handle) orderID: {%s}, err: {%v}", req.GetAggregateID(), err)
+		return nil, s.errResponse(err)
+	}
+
+	s.log.Infof("(ChangeDeliveryAddress): AggregateID: {%s}", req.GetAggregateID())
+	return &orderService.ChangeDeliveryAddressRes{}, nil
 }
 
 func (s *orderGrpcService) Search(ctx context.Context, req *orderService.SearchReq) (*orderService.SearchRes, error) {

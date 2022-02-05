@@ -56,3 +56,12 @@ type OrderDeliveredCommand struct {
 func NewOrderDeliveredCommand(orderDeliveredEventData events.OrderDeliveredEventData, aggregateID string) *OrderDeliveredCommand {
 	return &OrderDeliveredCommand{OrderDeliveredEventData: orderDeliveredEventData, BaseCommand: es.NewBaseCommand(aggregateID)}
 }
+
+type OrderChangeDeliveryAddressCommand struct {
+	events.OrderChangeDeliveryAddress
+	es.BaseCommand
+}
+
+func NewOrderChangeDeliveryAddressCommand(orderChangeDeliveryAddress events.OrderChangeDeliveryAddress, aggregateID string) *OrderChangeDeliveryAddressCommand {
+	return &OrderChangeDeliveryAddressCommand{OrderChangeDeliveryAddress: orderChangeDeliveryAddress, BaseCommand: es.NewBaseCommand(aggregateID)}
+}

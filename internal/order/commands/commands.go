@@ -1,12 +1,13 @@
 package commands
 
 type OrderCommands struct {
-	CreateOrder   CreateOrderCommandHandler
-	OrderPaid     OrderPaidCommandHandler
-	SubmitOrder   SubmitOrderCommandHandler
-	UpdateOrder   UpdateOrderCommandHandler
-	CancelOrder   CancelOrderCommandHandler
-	DeliveryOrder DeliveryOrderCommandHandler
+	CreateOrder                CreateOrderCommandHandler
+	OrderPaid                  OrderPaidCommandHandler
+	SubmitOrder                SubmitOrderCommandHandler
+	UpdateOrder                UpdateOrderCommandHandler
+	CancelOrder                CancelOrderCommandHandler
+	DeliveryOrder              DeliveryOrderCommandHandler
+	ChangeOrderDeliveryAddress ChangeOrderDeliveryAddressCommandHandler
 }
 
 func NewOrderCommands(
@@ -16,13 +17,15 @@ func NewOrderCommands(
 	updateOrder UpdateOrderCommandHandler,
 	cancelOrder CancelOrderCommandHandler,
 	deliveryOrder DeliveryOrderCommandHandler,
+	changeOrderDeliveryAddress ChangeOrderDeliveryAddressCommandHandler,
 ) *OrderCommands {
 	return &OrderCommands{
-		CreateOrder:   createOrder,
-		OrderPaid:     orderPaid,
-		SubmitOrder:   submitOrder,
-		UpdateOrder:   updateOrder,
-		CancelOrder:   cancelOrder,
-		DeliveryOrder: deliveryOrder,
+		CreateOrder:                createOrder,
+		OrderPaid:                  orderPaid,
+		SubmitOrder:                submitOrder,
+		UpdateOrder:                updateOrder,
+		CancelOrder:                cancelOrder,
+		DeliveryOrder:              deliveryOrder,
+		ChangeOrderDeliveryAddress: changeOrderDeliveryAddress,
 	}
 }

@@ -24,7 +24,7 @@ func (a *OrderAggregate) onCreateOrderCommand(ctx context.Context, command *Crea
 		return serviceErrors.ErrOrderItemsIsRequired
 	}
 
-	createdData := &events.OrderCreatedEventData{ShopItems: command.ShopItems, AccountEmail: command.AccountEmail}
+	createdData := &events.OrderCreatedEventData{ShopItems: command.ShopItems, AccountEmail: command.AccountEmail, DeliveryAddress: command.DeliveryAddress}
 	createdDataBytes, err := json.Marshal(createdData)
 	if err != nil {
 		tracing.TraceErr(span, err)
@@ -150,6 +150,31 @@ func (a *OrderAggregate) onOrderDeliveredCommand(ctx context.Context, command *O
 	}
 
 	event := events.NewOrderDeliveredEvent(a, eventDataBytes)
+	if err := event.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
+		tracing.TraceErr(span, err)
+		return errors.Wrap(err, "SetMetadata")
+	}
+
+	return a.Apply(event)
+}
+
+func (a *OrderAggregate) onOrderChangeDeliveryAddressCommand(ctx context.Context, command *OrderChangeDeliveryAddressCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onOrderChangeDeliveryAddressCommand")
+	defer span.Finish()
+	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
+
+	if a.Order.Delivered {
+		return errors.New("Order already delivered")
+	}
+
+	eventData := &events.OrderChangeDeliveryAddress{DeliveryAddress: command.DeliveryAddress}
+	eventDataBytes, err := json.Marshal(eventData)
+	if err != nil {
+		tracing.TraceErr(span, err)
+		return errors.Wrap(err, "json.Marshal")
+	}
+
+	event := events.NewOrderDeliveryAddressUpdatedEvent(a, eventDataBytes)
 	if err := event.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "SetMetadata")
