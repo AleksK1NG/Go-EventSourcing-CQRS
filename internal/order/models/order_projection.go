@@ -21,10 +21,12 @@ type OrderProjection struct {
 	Submitted       bool        `json:"submitted" bson:"submitted,omitempty"`
 	Delivered       bool        `json:"delivered" bson:"delivered,omitempty"`
 	Canceled        bool        `json:"canceled" bson:"canceled,omitempty"`
+	Payment         Payment     `json:"payment" bson:"payment,omitempty"`
 }
 
 func (o *OrderProjection) String() string {
-	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, Delivered: {%v}, Canceled: {%v}, TotalPrice: {%v}, AccountEmail: {%s},",
+	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, "+
+		"Delivered: {%v}, Canceled: {%v}, TotalPrice: {%v}, AccountEmail: {%s}, Payment: {%s}",
 		o.ID,
 		o.ShopItems,
 		o.Created,
@@ -34,6 +36,7 @@ func (o *OrderProjection) String() string {
 		o.Canceled,
 		o.TotalPrice,
 		o.AccountEmail,
+		o.Payment.String(),
 	)
 }
 
@@ -51,6 +54,7 @@ func OrderProjectionToProto(order *OrderProjection) *orderService.Order {
 		CancelReason:      order.CancelReason,
 		DeliveryTimestamp: timestamppb.New(order.DeliveredTime),
 		DeliveryAddress:   order.DeliveryAddress,
+		Payment:           PaymentToProto(order.Payment),
 	}
 }
 
@@ -60,4 +64,18 @@ func OrderProjectionsToProto(orderProjections []*OrderProjection) []*orderServic
 		orders = append(orders, OrderProjectionToProto(projection))
 	}
 	return orders
+}
+
+func PaymentToProto(payment Payment) *orderService.Payment {
+	return &orderService.Payment{
+		ID:        payment.PaymentID,
+		Timestamp: timestamppb.New(payment.Timestamp),
+	}
+}
+
+func PaymentFromProto(payment *orderService.Payment) Payment {
+	return Payment{
+		PaymentID: payment.GetID(),
+		Timestamp: payment.GetTimestamp().AsTime(),
+	}
 }

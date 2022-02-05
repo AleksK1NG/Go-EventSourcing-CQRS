@@ -20,10 +20,12 @@ type Order struct {
 	Submitted       bool        `json:"submitted" bson:"submitted,omitempty"`
 	Delivered       bool        `json:"delivered" bson:"delivered,omitempty"`
 	Canceled        bool        `json:"canceled" bson:"canceled,omitempty"`
+	Payment         Payment     `json:"payment" bson:"payment,omitempty"`
 }
 
 func (o *Order) String() string {
-	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, Delivered: {%v}, Canceled: {%v}, TotalPrice: {%v}, AccountEmail: {%s},",
+	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, "+
+		"Delivered: {%v}, Canceled: {%v}, TotalPrice: {%v}, AccountEmail: {%s}, Payment: {%s}",
 		o.ID,
 		o.ShopItems,
 		o.Created,
@@ -33,6 +35,7 @@ func (o *Order) String() string {
 		o.Canceled,
 		o.TotalPrice,
 		o.AccountEmail,
+		o.Payment.String(),
 	)
 }
 
@@ -61,5 +64,6 @@ func OrderToProto(order *Order, id string) *orderService.Order {
 		DeliveryAddress:   order.DeliveryAddress,
 		AccountEmail:      order.AccountEmail,
 		TotalPrice:        order.TotalPrice,
+		Payment:           PaymentToProto(order.Payment),
 	}
 }

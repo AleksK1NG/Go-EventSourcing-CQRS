@@ -2,6 +2,7 @@ package aggregate
 
 import (
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
+	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 )
 
@@ -15,11 +16,12 @@ func NewCreateOrderCommand(orderCreatedData events.OrderCreatedEventData, aggreg
 }
 
 type OrderPaidCommand struct {
+	models.Payment
 	es.BaseCommand
 }
 
-func NewOrderPaidCommand(aggregateID string) *OrderPaidCommand {
-	return &OrderPaidCommand{BaseCommand: es.NewBaseCommand(aggregateID)}
+func NewOrderPaidCommand(payment models.Payment, aggregateID string) *OrderPaidCommand {
+	return &OrderPaidCommand{Payment: payment, BaseCommand: es.NewBaseCommand(aggregateID)}
 }
 
 type SubmitOrderCommand struct {

@@ -2,6 +2,7 @@ package aggregate
 
 import (
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
+	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/pkg/errors"
 )
@@ -21,7 +22,13 @@ func (a *OrderAggregate) onOrderCreated(evt es.Event) error {
 }
 
 func (a *OrderAggregate) onOrderPaid(evt es.Event) error {
+	var payment models.Payment
+	if err := evt.GetJsonData(&payment); err != nil {
+		return errors.Wrap(err, "GetJsonData")
+	}
+
 	a.Order.Paid = true
+	a.Order.Payment = payment
 	return nil
 }
 

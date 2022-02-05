@@ -11,6 +11,12 @@ type OrderMongoRepository interface {
 	Insert(ctx context.Context, order *models.OrderProjection) (string, error)
 	GetByID(ctx context.Context, orderID string) (*models.OrderProjection, error)
 	UpdateOrder(ctx context.Context, order *models.OrderProjection) error
+
+	UpdateCancel(ctx context.Context, order *models.OrderProjection) error
+	UpdatePayment(ctx context.Context, order *models.OrderProjection) error
+	UpdateDelivery(ctx context.Context, order *models.OrderProjection) error
+	UpdateDeliveryAddress(ctx context.Context, order *models.OrderProjection) error
+	UpdateSubmit(ctx context.Context, order *models.OrderProjection) error
 }
 
 type ElasticOrderRepository interface {

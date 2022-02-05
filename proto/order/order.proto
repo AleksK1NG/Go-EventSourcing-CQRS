@@ -7,6 +7,11 @@ option go_package = "./;orderService";
 import "google/protobuf/timestamp.proto";
 
 
+message Payment {
+  string ID = 1;
+  google.protobuf.Timestamp  Timestamp = 2;
+}
+
 message ShopItem {
   string ID = 1;
   string Title = 2;
@@ -28,6 +33,7 @@ message Order {
   string CancelReason = 10;
   string DeliveryAddress = 11;
   google.protobuf.Timestamp  DeliveryTimestamp = 12;
+  Payment Payment = 13;
 }
 
 message CreateOrderReq {
@@ -42,6 +48,7 @@ message CreateOrderRes {
 
 message PayOrderReq {
   string AggregateID = 1;
+  Payment Payment = 2;
 }
 
 message PayOrderRes {

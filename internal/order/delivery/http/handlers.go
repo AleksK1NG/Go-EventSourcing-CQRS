@@ -5,6 +5,7 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/metrics"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
+	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/internal/order/queries"
 	"github.com/AleksK1NG/es-microservice/internal/order/service"
 	"github.com/AleksK1NG/es-microservice/pkg/constants"
@@ -115,7 +116,14 @@ func (h *orderHandlers) PayOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := aggregate.NewOrderPaidCommand(orderID.String())
+		var payment models.Payment
+		if err := c.Bind(&payment); err != nil {
+			h.log.Errorf("(Bind) err: {%v}", err)
+			tracing.TraceErr(span, err)
+			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
+		}
+
+		command := aggregate.NewOrderPaidCommand(payment, orderID.String())
 		if err := h.v.StructCtx(ctx, command); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
