@@ -74,25 +74,25 @@ func (a *OrderAggregate) HandleCommand(ctx context.Context, command es.Command) 
 	switch c := command.(type) {
 
 	case *CreateOrderCommand:
-		return a.createOrder(ctx, c)
+		return a.CreateOrder(ctx, c)
 
 	case *OrderPaidCommand:
-		return a.payOrder(ctx, c)
+		return a.PayOrder(ctx, c)
 
 	case *SubmitOrderCommand:
-		return a.submitOrder(ctx, c)
+		return a.SubmitOrder(ctx, c)
 
 	case *OrderUpdatedCommand:
-		return a.updateOrder(ctx, c)
+		return a.UpdateOrder(ctx, c)
 
 	case *OrderCanceledCommand:
-		return a.cancelOrder(ctx, c)
+		return a.CancelOrder(ctx, c)
 
 	case *OrderDeliveredCommand:
-		return a.deliverOrder(ctx, c)
+		return a.DeliverOrder(ctx, c)
 
 	case *OrderChangeDeliveryAddressCommand:
-		return a.changeDeliveryAddressCommand(ctx, c)
+		return a.ChangeDeliveryAddress(ctx, c)
 
 	default:
 		return es.ErrInvalidCommandType

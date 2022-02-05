@@ -29,5 +29,14 @@ func (c *updateOrderCmdHandler) Handle(ctx context.Context, command *aggregate.O
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
-	return aggregate.HandleCommand(ctx, c.es, command)
+	orderAggregate, err := aggregate.LoadOrderAggregate(ctx, c.es, command.GetAggregateID())
+	if err != nil {
+		return err
+	}
+
+	if err := orderAggregate.UpdateOrder(ctx, command); err != nil {
+		return err
+	}
+
+	return c.es.Save(ctx, orderAggregate)
 }
