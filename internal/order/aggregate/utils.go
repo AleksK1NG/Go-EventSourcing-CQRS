@@ -54,3 +54,22 @@ func HandleCommand(ctx context.Context, eventStore es.AggregateStore, command es
 	span.LogFields(log.String("order", order.Order.String()))
 	return eventStore.Save(ctx, order)
 }
+
+func LoadOrderAggregate(ctx context.Context, eventStore es.AggregateStore, aggregateID string) (*OrderAggregate, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "LoadOrderAggregate")
+	defer span.Finish()
+	span.LogFields(log.String("AggregateID", aggregateID))
+
+	order := NewOrderAggregateWithID(aggregateID)
+
+	err := eventStore.Exists(ctx, order.GetID())
+	if err != nil && !errors.Is(err, esdb.ErrStreamNotFound) {
+		return nil, err
+	}
+
+	if err := eventStore.Load(ctx, order); err != nil {
+		return nil, err
+	}
+
+	return order, nil
+}

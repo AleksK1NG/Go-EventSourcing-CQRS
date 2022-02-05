@@ -53,7 +53,8 @@ func TestOrderGrpcService_UpdateOrder(t *testing.T) {
 	client := orderService.NewOrderServiceClient(orderServiceConn)
 
 	res, err := client.CreateOrder(context.Background(), &orderService.CreateOrderReq{
-		AccountEmail: "alexander.bryksin@yandex.ru",
+		DeliveryAddress: "Moscow, Tayninskaya st",
+		AccountEmail:    "alexander.bryksin@yandex.ru",
 		ShopItems: []*orderService.ShopItem{
 			{
 				ID:          uuid.NewV4().String(),

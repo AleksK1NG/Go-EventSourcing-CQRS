@@ -6,7 +6,6 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
-	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/EventStore/EventStore-Client-Go/esdb"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
@@ -32,17 +31,16 @@ func (c *createOrderHandler) Handle(ctx context.Context, command *aggregate.Crea
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
-	order := aggregate.NewOrderAggregateWithID(command.AggregateID)
-	err := c.es.Exists(ctx, order.GetID())
+	orderAggregate := aggregate.NewOrderAggregateWithID(command.AggregateID)
+	err := c.es.Exists(ctx, orderAggregate.GetID())
 	if err != nil && !errors.Is(err, esdb.ErrStreamNotFound) {
 		return err
 	}
 
-	if err := order.HandleCommand(ctx, command); err != nil {
-		tracing.TraceErr(span, err)
+	if err := orderAggregate.CreateOrder(ctx, command); err != nil {
 		return err
 	}
 
-	span.LogFields(log.String("order", order.String()))
-	return c.es.Save(ctx, order)
+	span.LogFields(log.String("orderAggregate", orderAggregate.String()))
+	return c.es.Save(ctx, orderAggregate)
 }
