@@ -44,8 +44,14 @@ func (o *elasticProjection) onOrderPaid(ctx context.Context, evt es.Event) error
 		return errors.Wrap(err, "GetJsonData")
 	}
 
-	op := &models.OrderProjection{OrderID: aggregate.GetOrderAggregateID(evt.AggregateID), Paid: true, Payment: payment}
-	return o.elasticRepository.UpdateOrder(ctx, op)
+	projection, err := o.elasticRepository.GetByID(ctx, aggregate.GetOrderAggregateID(evt.AggregateID))
+	if err != nil {
+		return err
+	}
+	projection.Paid = true
+	projection.Payment = payment
+
+	return o.elasticRepository.UpdateOrder(ctx, projection)
 }
 
 func (o *elasticProjection) onSubmit(ctx context.Context, evt es.Event) error {
@@ -53,8 +59,13 @@ func (o *elasticProjection) onSubmit(ctx context.Context, evt es.Event) error {
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	op := &models.OrderProjection{OrderID: aggregate.GetOrderAggregateID(evt.AggregateID), Submitted: true}
-	return o.elasticRepository.UpdateOrder(ctx, op)
+	projection, err := o.elasticRepository.GetByID(ctx, aggregate.GetOrderAggregateID(evt.AggregateID))
+	if err != nil {
+		return err
+	}
+	projection.Submitted = true
+
+	return o.elasticRepository.UpdateOrder(ctx, projection)
 }
 
 func (o *elasticProjection) onUpdate(ctx context.Context, evt es.Event) error {
@@ -68,9 +79,14 @@ func (o *elasticProjection) onUpdate(ctx context.Context, evt es.Event) error {
 		return errors.Wrap(err, "evt.GetJsonData")
 	}
 
-	op := &models.OrderProjection{OrderID: aggregate.GetOrderAggregateID(evt.AggregateID), ShopItems: eventData.ShopItems}
-	op.TotalPrice = aggregate.GetShopItemsTotalPrice(eventData.ShopItems)
-	return o.elasticRepository.UpdateOrder(ctx, op)
+	projection, err := o.elasticRepository.GetByID(ctx, aggregate.GetOrderAggregateID(evt.AggregateID))
+	if err != nil {
+		return err
+	}
+	projection.ShopItems = eventData.ShopItems
+	projection.TotalPrice = aggregate.GetShopItemsTotalPrice(eventData.ShopItems)
+
+	return o.elasticRepository.UpdateOrder(ctx, projection)
 }
 
 func (o *elasticProjection) onCancel(ctx context.Context, evt es.Event) error {
@@ -84,13 +100,15 @@ func (o *elasticProjection) onCancel(ctx context.Context, evt es.Event) error {
 		return errors.Wrap(err, "evt.GetJsonData")
 	}
 
-	op := &models.OrderProjection{
-		OrderID:      aggregate.GetOrderAggregateID(evt.AggregateID),
-		Canceled:     true,
-		Delivered:    false,
-		CancelReason: eventData.CancelReason,
+	projection, err := o.elasticRepository.GetByID(ctx, aggregate.GetOrderAggregateID(evt.AggregateID))
+	if err != nil {
+		return err
 	}
-	return o.elasticRepository.UpdateOrder(ctx, op)
+	projection.Canceled = true
+	projection.Delivered = false
+	projection.CancelReason = eventData.CancelReason
+
+	return o.elasticRepository.UpdateOrder(ctx, projection)
 }
 
 func (o *elasticProjection) onDelivered(ctx context.Context, evt es.Event) error {
@@ -104,12 +122,14 @@ func (o *elasticProjection) onDelivered(ctx context.Context, evt es.Event) error
 		return errors.Wrap(err, "evt.GetJsonData")
 	}
 
-	op := &models.OrderProjection{
-		OrderID:       aggregate.GetOrderAggregateID(evt.AggregateID),
-		Delivered:     true,
-		DeliveredTime: eventData.DeliveryTimestamp,
+	projection, err := o.elasticRepository.GetByID(ctx, aggregate.GetOrderAggregateID(evt.AggregateID))
+	if err != nil {
+		return err
 	}
-	return o.elasticRepository.UpdateOrder(ctx, op)
+	projection.Delivered = true
+	projection.DeliveredTime = eventData.DeliveryTimestamp
+
+	return o.elasticRepository.UpdateOrder(ctx, projection)
 }
 
 func (o *elasticProjection) onOrderDeliveryAddressUpdated(ctx context.Context, evt es.Event) error {
@@ -123,10 +143,12 @@ func (o *elasticProjection) onOrderDeliveryAddressUpdated(ctx context.Context, e
 		return errors.Wrap(err, "evt.GetJsonData")
 	}
 
-	op := &models.OrderProjection{
-		OrderID:         aggregate.GetOrderAggregateID(evt.AggregateID),
-		DeliveryAddress: eventData.DeliveryAddress,
+	projection, err := o.elasticRepository.GetByID(ctx, aggregate.GetOrderAggregateID(evt.AggregateID))
+	if err != nil {
+		return err
 	}
-	return o.elasticRepository.UpdateOrder(ctx, op)
+	projection.DeliveryAddress = eventData.DeliveryAddress
+
+	return o.elasticRepository.UpdateOrder(ctx, projection)
 
 }

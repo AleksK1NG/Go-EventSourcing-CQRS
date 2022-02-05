@@ -153,7 +153,7 @@ func (s *orderGrpcService) CancelOrder(ctx context.Context, req *orderService.Ca
 	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.CancelOrder")
 	defer span.Finish()
 	span.LogFields(log.String("CancelOrder req", req.String()))
-	//s.metrics.UpdateOrderGrpcRequests.Inc()
+	s.metrics.CancelOrderGrpcRequests.Inc()
 
 	command := aggregate.NewOrderCanceledCommand(events.OrderCanceledEventData{CancelReason: req.GetCancelReason()}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
@@ -175,7 +175,7 @@ func (s *orderGrpcService) DeliveryOrder(ctx context.Context, req *orderService.
 	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.DeliveryOrder")
 	defer span.Finish()
 	span.LogFields(log.String("DeliveryOrder req", req.String()))
-	//s.metrics.UpdateOrderGrpcRequests.Inc()
+	s.metrics.DeliverOrderGrpcRequests.Inc()
 
 	command := aggregate.NewOrderDeliveredCommand(events.OrderDeliveredEventData{DeliveryTimestamp: time.Now()}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
@@ -197,7 +197,7 @@ func (s *orderGrpcService) ChangeDeliveryAddress(ctx context.Context, req *order
 	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.ChangeDeliveryAddress")
 	defer span.Finish()
 	span.LogFields(log.String("ChangeDeliveryAddress req", req.String()))
-	//s.metrics.UpdateOrderGrpcRequests.Inc()
+	s.metrics.ChangeAddressOrderGrpcRequests.Inc()
 
 	command := aggregate.NewOrderChangeDeliveryAddressCommand(events.OrderChangeDeliveryAddress{DeliveryAddress: req.GetDeliveryAddress()}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
