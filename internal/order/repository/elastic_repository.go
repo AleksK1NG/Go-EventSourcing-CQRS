@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/AleksK1NG/es-microservice/config"
-	"github.com/AleksK1NG/es-microservice/internal/models"
+	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/AleksK1NG/es-microservice/pkg/utils"
