@@ -175,6 +175,150 @@ func (h *orderHandlers) SubmitOrder() echo.HandlerFunc {
 	}
 }
 
+// CancelOrder
+// @Tags Orders
+// @Summary Cancel order
+// @Description Cancel existing order
+// @Accept json
+// @Produce json
+// @Param id path string true "Order ID"
+// @Success 200 {string} id ""
+// @Router /orders/cancel/{id} [post]
+func (h *orderHandlers) CancelOrder() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.CancelOrder")
+		defer span.Finish()
+		h.metrics.SubmitOrderHttpRequests.Inc()
+
+		orderID, err := uuid.FromString(c.Param(constants.ID))
+		if err != nil {
+			h.log.Errorf("(uuid.FromString) err: {%v}", err)
+			tracing.TraceErr(span, err)
+			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
+		}
+
+		var data events.OrderCanceledEventData
+		if err := c.Bind(&data); err != nil {
+			h.log.Errorf("(Bind) err: {%v}", err)
+			tracing.TraceErr(span, err)
+			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
+		}
+
+		command := aggregate.NewOrderCanceledCommand(data, orderID.String())
+		if err := h.v.StructCtx(ctx, command); err != nil {
+			h.log.Errorf("(validate) err: {%v}", err)
+			tracing.TraceErr(span, err)
+			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
+		}
+
+		err = h.os.Commands.CancelOrder.Handle(ctx, command)
+		if err != nil {
+			h.log.Errorf("(CancelOrder.Handle) id: {%s}, err: {%v}", orderID.String(), err)
+			tracing.TraceErr(span, err)
+			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
+		}
+
+		h.log.Infof("(order canceled) id: {%s}", orderID.String())
+		return c.JSON(http.StatusOK, orderID.String())
+	}
+}
+
+// DeliverOrder
+// @Tags Orders
+// @Summary Deliver order
+// @Description Deliver existing order
+// @Accept json
+// @Produce json
+// @Param id path string true "Order ID"
+// @Success 200 {string} id ""
+// @Router /orders/delivery/{id} [post]
+func (h *orderHandlers) DeliverOrder() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.DeliverOrder")
+		defer span.Finish()
+		h.metrics.SubmitOrderHttpRequests.Inc()
+
+		orderID, err := uuid.FromString(c.Param(constants.ID))
+		if err != nil {
+			h.log.Errorf("(uuid.FromString) err: {%v}", err)
+			tracing.TraceErr(span, err)
+			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
+		}
+
+		var data events.OrderDeliveredEventData
+		if err := c.Bind(&data); err != nil {
+			h.log.Errorf("(Bind) err: {%v}", err)
+			tracing.TraceErr(span, err)
+			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
+		}
+
+		command := aggregate.NewOrderDeliveredCommand(data, orderID.String())
+		if err := h.v.StructCtx(ctx, command); err != nil {
+			h.log.Errorf("(validate) err: {%v}", err)
+			tracing.TraceErr(span, err)
+			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
+		}
+
+		err = h.os.Commands.DeliveryOrder.Handle(ctx, command)
+		if err != nil {
+			h.log.Errorf("(DeliveryOrder.Handle) id: {%s}, err: {%v}", orderID.String(), err)
+			tracing.TraceErr(span, err)
+			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
+		}
+
+		h.log.Infof("(order delivered) id: {%s}", orderID.String())
+		return c.JSON(http.StatusOK, orderID.String())
+	}
+}
+
+// ChangeDeliveryAddress
+// @Tags Orders
+// @Summary Change delivery address order
+// @Description Deliver existing order
+// @Accept json
+// @Produce json
+// @Param id path string true "Order ID"
+// @Success 200 {string} id ""
+// @Router /orders/address/{id} [put]
+func (h *orderHandlers) ChangeDeliveryAddress() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.ChangeDeliveryAddress")
+		defer span.Finish()
+		h.metrics.SubmitOrderHttpRequests.Inc()
+
+		orderID, err := uuid.FromString(c.Param(constants.ID))
+		if err != nil {
+			h.log.Errorf("(uuid.FromString) err: {%v}", err)
+			tracing.TraceErr(span, err)
+			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
+		}
+
+		var data events.OrderChangeDeliveryAddress
+		if err := c.Bind(&data); err != nil {
+			h.log.Errorf("(Bind) err: {%v}", err)
+			tracing.TraceErr(span, err)
+			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
+		}
+
+		command := aggregate.NewOrderChangeDeliveryAddressCommand(data, orderID.String())
+		if err := h.v.StructCtx(ctx, command); err != nil {
+			h.log.Errorf("(validate) err: {%v}", err)
+			tracing.TraceErr(span, err)
+			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
+		}
+
+		err = h.os.Commands.ChangeOrderDeliveryAddress.Handle(ctx, command)
+		if err != nil {
+			h.log.Errorf("(ChangeOrderDeliveryAddress.Handle) id: {%s}, err: {%v}", orderID.String(), err)
+			tracing.TraceErr(span, err)
+			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
+		}
+
+		h.log.Infof("(ChangeDeliveryAddress) id: {%s}", orderID.String())
+		return c.JSON(http.StatusOK, orderID.String())
+	}
+}
+
 // UpdateOrder
 // @Tags Orders
 // @Summary Update order
