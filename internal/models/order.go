@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	orderService "github.com/AleksK1NG/es-microservice/proto/order"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
@@ -17,19 +18,17 @@ type Order struct {
 	Created         bool        `json:"created" bson:"created,omitempty"`
 	Paid            bool        `json:"paid" bson:"paid,omitempty"`
 	Submitted       bool        `json:"submitted" bson:"submitted,omitempty"`
-	Delivering      bool        `json:"delivering" bson:"delivering,omitempty"`
 	Delivered       bool        `json:"delivered" bson:"delivered,omitempty"`
 	Canceled        bool        `json:"canceled" bson:"canceled,omitempty"`
 }
 
 func (o *Order) String() string {
-	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, Delivering: {%v}, Delivered: {%v}, Canceled: {%v}, TotalPrice: {%v}, AccountEmail: {%s},",
+	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, Delivered: {%v}, Canceled: {%v}, TotalPrice: {%v}, AccountEmail: {%s},",
 		o.ID,
 		o.ShopItems,
 		o.Created,
 		o.Paid,
 		o.Submitted,
-		o.Delivering,
 		o.Delivered,
 		o.Canceled,
 		o.TotalPrice,
@@ -39,25 +38,28 @@ func (o *Order) String() string {
 
 func NewOrder() *Order {
 	return &Order{
-		ShopItems:  make([]*ShopItem, 0),
-		Created:    false,
-		Paid:       false,
-		Submitted:  false,
-		Delivering: false,
-		Delivered:  false,
-		Canceled:   false,
+		ShopItems: make([]*ShopItem, 0),
+		Created:   false,
+		Paid:      false,
+		Submitted: false,
+		Delivered: false,
+		Canceled:  false,
 	}
 }
 
 func OrderToProto(order *Order, id string) *orderService.Order {
 	return &orderService.Order{
-		ID:         id,
-		ShopItems:  ShopItemsToProto(order.ShopItems),
-		Created:    order.Created,
-		Paid:       order.Paid,
-		Submitted:  order.Submitted,
-		Delivering: order.Delivering,
-		Delivered:  order.Delivered,
-		Canceled:   order.Canceled,
+		ID:                id,
+		ShopItems:         ShopItemsToProto(order.ShopItems),
+		Created:           order.Created,
+		Paid:              order.Paid,
+		Submitted:         order.Submitted,
+		Delivered:         order.Delivered,
+		Canceled:          order.Canceled,
+		CancelReason:      order.CancelReason,
+		DeliveryTimestamp: timestamppb.New(order.DeliveredTime),
+		DeliveryAddress:   order.DeliveryAddress,
+		AccountEmail:      order.AccountEmail,
+		TotalPrice:        order.TotalPrice,
 	}
 }

@@ -16,6 +16,7 @@ func (a *OrderAggregate) onOrderCreated(evt es.Event) error {
 	a.Order.ShopItems = eventData.ShopItems
 	a.Order.Created = true
 	a.Order.TotalPrice = GetShopItemsTotalPrice(eventData.ShopItems)
+	a.Order.DeliveryAddress = eventData.DeliveryAddress
 	return nil
 }
 
@@ -61,5 +62,15 @@ func (a *OrderAggregate) onOrderUpdated(evt es.Event) error {
 
 	a.Order.ShopItems = eventData.ShopItems
 	a.Order.TotalPrice = GetShopItemsTotalPrice(eventData.ShopItems)
+	return nil
+}
+
+func (a *OrderAggregate) onOrderDeliveryAddressUpdated(evt es.Event) error {
+	var eventData events.OrderChangeDeliveryAddress
+	if err := evt.GetJsonData(&eventData); err != nil {
+		return errors.Wrap(err, "GetJsonData")
+	}
+
+	a.Order.DeliveryAddress = eventData.DeliveryAddress
 	return nil
 }

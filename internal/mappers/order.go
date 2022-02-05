@@ -12,7 +12,6 @@ func OrderProjectionFromAggregate(orderAggregate *aggregate.OrderAggregate) *mod
 		Created:         orderAggregate.Order.Created,
 		Paid:            orderAggregate.Order.Paid,
 		Submitted:       orderAggregate.Order.Submitted,
-		Delivering:      orderAggregate.Order.Delivering,
 		Delivered:       orderAggregate.Order.Delivered,
 		Canceled:        orderAggregate.Order.Canceled,
 		AccountEmail:    orderAggregate.Order.AccountEmail,

@@ -114,6 +114,15 @@ func (o *mongoProjection) When(ctx context.Context, evt es.Event) error {
 	case events.OrderUpdated:
 		return o.onUpdate(ctx, evt)
 
+	case events.OrderCanceled:
+		return o.onCancel(ctx, evt)
+
+	case events.OrderDelivered:
+		return o.onDelivered(ctx, evt)
+
+	case events.OrderDeliveryAddressUpdated:
+		return o.onOrderDeliveryAddressUpdated(ctx, evt)
+
 	default:
 		o.log.Warnf("(mongoProjection) [When unknown EventType] eventType: {%s}", evt.EventType)
 		return es.ErrInvalidEventType

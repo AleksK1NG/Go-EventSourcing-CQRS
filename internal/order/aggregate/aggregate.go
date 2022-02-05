@@ -58,6 +58,9 @@ func (a *OrderAggregate) When(evt es.Event) error {
 	case events.OrderUpdated:
 		return a.onOrderUpdated(evt)
 
+	case events.OrderDeliveryAddressUpdated:
+		return a.onOrderDeliveryAddressUpdated(evt)
+
 	default:
 		return es.ErrInvalidEventType
 	}
@@ -87,6 +90,9 @@ func (a *OrderAggregate) HandleCommand(ctx context.Context, command es.Command) 
 
 	case *OrderDeliveredCommand:
 		return a.onOrderDeliveredCommand(ctx, c)
+
+	case *OrderChangeDeliveryAddressCommand:
+		return a.onOrderChangeDeliveryAddressCommand(ctx, c)
 
 	default:
 		return es.ErrInvalidCommandType

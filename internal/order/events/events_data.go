@@ -6,8 +6,9 @@ import (
 )
 
 type OrderCreatedEventData struct {
-	ShopItems    []*models.ShopItem `json:"shopItems" bson:"shopItems,omitempty" validate:"required"`
-	AccountEmail string             `json:"accountEmail" bson:"accountEmail,omitempty" validate:"required,email"`
+	ShopItems       []*models.ShopItem `json:"shopItems" bson:"shopItems,omitempty" validate:"required"`
+	AccountEmail    string             `json:"accountEmail" bson:"accountEmail,omitempty" validate:"required,email"`
+	DeliveryAddress string             `json:"deliveryAddress" bson:"deliveryAddress,omitempty" validate:"required"`
 }
 
 type OrderUpdatedEventData struct {
@@ -20,4 +21,8 @@ type OrderCanceledEventData struct {
 
 type OrderDeliveredEventData struct {
 	DeliveryTimestamp time.Time `json:"deliveryTimestamp"`
+}
+
+type OrderChangeDeliveryAddress struct {
+	DeliveryAddress string `json:"deliveryAddress" bson:"deliveryAddress,omitempty" validate:"required"`
 }

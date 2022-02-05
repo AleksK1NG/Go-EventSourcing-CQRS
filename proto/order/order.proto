@@ -4,6 +4,8 @@ package orderService;
 
 option go_package = "./;orderService";
 
+import "google/protobuf/timestamp.proto";
+
 
 message ShopItem {
   string ID = 1;
@@ -19,16 +21,19 @@ message Order {
   bool Created = 3;
   bool Paid = 4;
   bool Submitted = 5;
-  bool Delivering = 6;
-  bool Delivered = 7;
-  bool Canceled = 8;
-  double TotalPrice = 9;
-  string AccountEmail = 10;
+  bool Delivered = 6;
+  bool Canceled = 7;
+  double TotalPrice = 8;
+  string AccountEmail = 9;
+  string CancelReason = 10;
+  string DeliveryAddress = 11;
+  google.protobuf.Timestamp  DeliveryTimestamp = 12;
 }
 
 message CreateOrderReq {
   string AccountEmail = 1;
   repeated ShopItem ShopItems = 2;
+  string DeliveryAddress = 3;
 }
 
 message CreateOrderRes {
@@ -66,6 +71,27 @@ message UpdateOrderReq {
 
 message UpdateOrderRes {}
 
+message CancelOrderReq {
+  string AggregateID = 1;
+  string CancelReason = 2;
+}
+
+message CancelOrderRes {}
+
+message DeliveryOrderReq {
+  string AggregateID = 1;
+  google.protobuf.Timestamp  DeliveryTimestamp = 2;
+}
+
+message DeliveryOrderRes {}
+
+message ChangeDeliveryAddressReq {
+  string AggregateID = 1;
+  string DeliveryAddress = 2;
+}
+
+message ChangeDeliveryAddressRes {}
+
 message SearchReq {
   string SearchText = 1;
   int64 Page = 2;
@@ -89,7 +115,10 @@ service orderService {
   rpc CreateOrder(CreateOrderReq) returns (CreateOrderRes);
   rpc PayOrder(PayOrderReq) returns (PayOrderRes);
   rpc SubmitOrder(SubmitOrderReq) returns (SubmitOrderRes);
-  rpc GetOrderByID(GetOrderByIDReq) returns (GetOrderByIDRes);
   rpc UpdateOrder(UpdateOrderReq) returns (UpdateOrderRes);
+  rpc CancelOrder(CancelOrderReq) returns (CancelOrderRes);
+  rpc DeliveryOrder(DeliveryOrderReq) returns (DeliveryOrderRes);
+  rpc ChangeDeliveryAddress(ChangeDeliveryAddressReq) returns (ChangeDeliveryAddressRes);
+  rpc GetOrderByID(GetOrderByIDReq) returns (GetOrderByIDRes);
   rpc Search(SearchReq) returns (SearchRes);
 }
