@@ -11,8 +11,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (a *OrderAggregate) onCreateOrderCommand(ctx context.Context, command *CreateOrderCommand) error {
-	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onCreateOrderCommand")
+func (a *OrderAggregate) createOrder(ctx context.Context, command *CreateOrderCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.createOrder")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
@@ -40,8 +40,8 @@ func (a *OrderAggregate) onCreateOrderCommand(ctx context.Context, command *Crea
 	return a.Apply(createOrderEvent)
 }
 
-func (a *OrderAggregate) onOrderPaidCommand(ctx context.Context, command *OrderPaidCommand) error {
-	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onOrderPaidCommand")
+func (a *OrderAggregate) payOrder(ctx context.Context, command *OrderPaidCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.payOrder")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
@@ -64,8 +64,8 @@ func (a *OrderAggregate) onOrderPaidCommand(ctx context.Context, command *OrderP
 	return a.Apply(payOrderEvent)
 }
 
-func (a *OrderAggregate) onSubmitOrderCommand(ctx context.Context, command *SubmitOrderCommand) error {
-	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onSubmitOrderCommand")
+func (a *OrderAggregate) submitOrder(ctx context.Context, command *SubmitOrderCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.submitOrder")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
@@ -88,8 +88,8 @@ func (a *OrderAggregate) onSubmitOrderCommand(ctx context.Context, command *Subm
 	return a.Apply(submitOrderEvent)
 }
 
-func (a *OrderAggregate) onOrderUpdatedCommand(ctx context.Context, command *OrderUpdatedCommand) error {
-	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onOrderUpdatedCommand")
+func (a *OrderAggregate) updateOrder(ctx context.Context, command *OrderUpdatedCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.updateOrder")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
@@ -116,8 +116,8 @@ func (a *OrderAggregate) onOrderUpdatedCommand(ctx context.Context, command *Ord
 	return a.Apply(orderUpdatedEvent)
 }
 
-func (a *OrderAggregate) onOrderCanceledCommand(ctx context.Context, command *OrderCanceledCommand) error {
-	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onOrderCanceledCommand")
+func (a *OrderAggregate) cancelOrder(ctx context.Context, command *OrderCanceledCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.cancelOrder")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
@@ -137,8 +137,8 @@ func (a *OrderAggregate) onOrderCanceledCommand(ctx context.Context, command *Or
 	return a.Apply(event)
 }
 
-func (a *OrderAggregate) onOrderDeliveredCommand(ctx context.Context, command *OrderDeliveredCommand) error {
-	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onOrderDeliveredCommand")
+func (a *OrderAggregate) deliverOrder(ctx context.Context, command *OrderDeliveredCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.deliverOrder")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
@@ -158,8 +158,8 @@ func (a *OrderAggregate) onOrderDeliveredCommand(ctx context.Context, command *O
 	return a.Apply(event)
 }
 
-func (a *OrderAggregate) onOrderChangeDeliveryAddressCommand(ctx context.Context, command *OrderChangeDeliveryAddressCommand) error {
-	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.onOrderChangeDeliveryAddressCommand")
+func (a *OrderAggregate) changeDeliveryAddressCommand(ctx context.Context, command *OrderChangeDeliveryAddressCommand) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.changeDeliveryAddressCommand")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
