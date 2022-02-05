@@ -88,7 +88,7 @@ mongo:
 
 swagger:
 	@echo Starting swagger generating
-	swag init -g **/**/*.go
+	swag init --parseDependency --parseInternal -g **/**/*.go
 
 
 #docker run --name esdb-node -it -p 2113:2113 -p 1113:1113 \
