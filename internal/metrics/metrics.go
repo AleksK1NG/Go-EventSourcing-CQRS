@@ -11,12 +11,15 @@ type ESMicroserviceMetrics struct {
 	SuccessGrpcRequests prometheus.Counter
 	ErrorGrpcRequests   prometheus.Counter
 
-	CreateOrderGrpcRequests  prometheus.Counter
-	UpdateOrderGrpcRequests  prometheus.Counter
-	PayOrderGrpcRequests     prometheus.Counter
-	SubmitOrderGrpcRequests  prometheus.Counter
-	GetOrderByIdGrpcRequests prometheus.Counter
-	SearchOrderGrpcRequests  prometheus.Counter
+	CreateOrderGrpcRequests        prometheus.Counter
+	UpdateOrderGrpcRequests        prometheus.Counter
+	PayOrderGrpcRequests           prometheus.Counter
+	SubmitOrderGrpcRequests        prometheus.Counter
+	GetOrderByIdGrpcRequests       prometheus.Counter
+	SearchOrderGrpcRequests        prometheus.Counter
+	CancelOrderGrpcRequests        prometheus.Counter
+	DeliverOrderGrpcRequests       prometheus.Counter
+	ChangeAddressOrderGrpcRequests prometheus.Counter
 
 	SuccessHttpRequests prometheus.Counter
 	ErrorHttpRequests   prometheus.Counter
@@ -102,6 +105,18 @@ func NewESMicroserviceMetrics(cfg *config.Config) *ESMicroserviceMetrics {
 		SearchOrderHttpRequests: promauto.NewCounter(prometheus.CounterOpts{
 			Name: fmt.Sprintf("%s_search_order_http_requests_total", cfg.ServiceName),
 			Help: "The total number of search order http requests",
+		}),
+		CancelOrderGrpcRequests: promauto.NewCounter(prometheus.CounterOpts{
+			Name: fmt.Sprintf("%s_cancel_order_http_requests_total", cfg.ServiceName),
+			Help: "The total number of cancel order http requests",
+		}),
+		DeliverOrderGrpcRequests: promauto.NewCounter(prometheus.CounterOpts{
+			Name: fmt.Sprintf("%s_deliver_order_http_requests_total", cfg.ServiceName),
+			Help: "The total number of deliver order http requests",
+		}),
+		ChangeAddressOrderGrpcRequests: promauto.NewCounter(prometheus.CounterOpts{
+			Name: fmt.Sprintf("%s_change_address_order_http_requests_total", cfg.ServiceName),
+			Help: "The total number of change address order http requests",
 		}),
 	}
 }

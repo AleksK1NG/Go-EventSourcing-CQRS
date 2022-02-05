@@ -9,19 +9,19 @@ import (
 
 type OrderProjection struct {
 	ID              string      `json:"id" bson:"_id,omitempty"`
-	OrderID         string      `json:"orderId" bson:"orderId,omitempty"`
-	ShopItems       []*ShopItem `json:"shopItems" bson:"shopItems,omitempty"`
-	AccountEmail    string      `json:"accountEmail" bson:"accountEmail,omitempty" validate:"required,email"`
-	DeliveryAddress string      `json:"deliveryAddress" bson:"deliveryAddress,omitempty"`
-	CancelReason    string      `json:"cancelReason" bson:"cancelReason,omitempty"`
-	TotalPrice      float64     `json:"totalPrice" bson:"totalPrice,omitempty"`
-	DeliveredTime   time.Time   `json:"deliveredTime" bson:"deliveredTime,omitempty"`
-	Created         bool        `json:"created" bson:"created,omitempty"`
-	Paid            bool        `json:"paid" bson:"paid,omitempty"`
-	Submitted       bool        `json:"submitted" bson:"submitted,omitempty"`
-	Delivered       bool        `json:"delivered" bson:"delivered,omitempty"`
-	Canceled        bool        `json:"canceled" bson:"canceled,omitempty"`
-	Payment         Payment     `json:"payment" bson:"payment,omitempty"`
+	OrderID         string      `json:"orderId,omitempty" bson:"orderId,omitempty"`
+	ShopItems       []*ShopItem `json:"shopItems,omitempty" bson:"shopItems,omitempty"`
+	AccountEmail    string      `json:"accountEmail,omitempty" bson:"accountEmail,omitempty" validate:"required,email"`
+	DeliveryAddress string      `json:"deliveryAddress,omitempty" bson:"deliveryAddress,omitempty"`
+	CancelReason    string      `json:"cancelReason,omitempty" bson:"cancelReason,omitempty"`
+	TotalPrice      float64     `json:"totalPrice,omitempty" bson:"totalPrice,omitempty"`
+	DeliveredTime   time.Time   `json:"deliveredTime,omitempty" bson:"deliveredTime,omitempty"`
+	Created         bool        `json:"created,omitempty" bson:"created,omitempty"`
+	Paid            bool        `json:"paid,omitempty" bson:"paid,omitempty"`
+	Submitted       bool        `json:"submitted,omitempty" bson:"submitted,omitempty"`
+	Delivered       bool        `json:"delivered,omitempty" bson:"delivered,omitempty"`
+	Canceled        bool        `json:"canceled,omitempty" bson:"canceled,omitempty"`
+	Payment         Payment     `json:"payment,omitempty" bson:"payment,omitempty"`
 }
 
 func (o *OrderProjection) String() string {
