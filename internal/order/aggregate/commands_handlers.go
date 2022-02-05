@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
+	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
@@ -56,7 +57,14 @@ func (a *OrderAggregate) PayOrder(ctx context.Context, command *OrderPaidCommand
 		return ErrAlreadySubmitted
 	}
 
-	payOrderEvent := events.NewPayOrderEvent(a, nil)
+	payment := models.Payment{PaymentID: command.PaymentID, Timestamp: command.Timestamp}
+	eventData, err := json.Marshal(&payment)
+	if err != nil {
+		tracing.TraceErr(span, err)
+		return errors.Wrap(err, "json.Marshal")
+	}
+
+	payOrderEvent := events.NewPayOrderEvent(a, eventData)
 	if err := payOrderEvent.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "SetMetadata")
@@ -125,7 +133,7 @@ func (a *OrderAggregate) CancelOrder(ctx context.Context, command *OrderCanceled
 	if a.Order.Delivered {
 		return ErrOrderAlreadyDelivered
 	}
-	if a.Order.CancelReason == "" {
+	if command.CancelReason == "" {
 		return ErrCancelReasonRequired
 	}
 

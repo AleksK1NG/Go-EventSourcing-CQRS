@@ -16,6 +16,7 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/opentracing/opentracing-go/log"
 	uuid "github.com/satori/go.uuid"
+	"time"
 )
 
 type orderGrpcService struct {
@@ -63,7 +64,8 @@ func (s *orderGrpcService) PayOrder(ctx context.Context, req *orderService.PayOr
 	span.LogFields(log.String("req", req.String()))
 	s.metrics.PayOrderGrpcRequests.Inc()
 
-	command := aggregate.NewOrderPaidCommand(req.GetAggregateID())
+	payment := models.Payment{PaymentID: req.GetPayment().GetID(), Timestamp: time.Now()}
+	command := aggregate.NewOrderPaidCommand(payment, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
@@ -121,6 +123,7 @@ func (s *orderGrpcService) GetOrderByID(ctx context.Context, req *orderService.G
 	}
 
 	s.log.Infof("(GetOrderByID) AggregateID: {%s}", req.GetAggregateID())
+	s.log.Debugf("(GetOrderByID) orderProjection: {%s}", orderProjection.String())
 	return &orderService.GetOrderByIDRes{Order: models.OrderProjectionToProto(orderProjection)}, nil
 }
 
@@ -174,7 +177,7 @@ func (s *orderGrpcService) DeliveryOrder(ctx context.Context, req *orderService.
 	span.LogFields(log.String("DeliveryOrder req", req.String()))
 	//s.metrics.UpdateOrderGrpcRequests.Inc()
 
-	command := aggregate.NewOrderDeliveredCommand(events.OrderDeliveredEventData{DeliveryTimestamp: req.GetDeliveryTimestamp().AsTime()}, req.GetAggregateID())
+	command := aggregate.NewOrderDeliveredCommand(events.OrderDeliveredEventData{DeliveryTimestamp: time.Now()}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)

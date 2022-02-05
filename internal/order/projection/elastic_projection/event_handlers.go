@@ -39,7 +39,12 @@ func (o *elasticProjection) onOrderPaid(ctx context.Context, evt es.Event) error
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	op := &models.OrderProjection{OrderID: aggregate.GetOrderAggregateID(evt.AggregateID), Paid: true}
+	var payment models.Payment
+	if err := evt.GetJsonData(&payment); err != nil {
+		return errors.Wrap(err, "GetJsonData")
+	}
+
+	op := &models.OrderProjection{OrderID: aggregate.GetOrderAggregateID(evt.AggregateID), Paid: true, Payment: payment}
 	return o.elasticRepository.UpdateOrder(ctx, op)
 }
 

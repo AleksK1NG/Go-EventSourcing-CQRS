@@ -71,6 +71,106 @@ func (m *mongoRepository) UpdateOrder(ctx context.Context, order *models.OrderPr
 	return nil
 }
 
+func (m *mongoRepository) UpdateCancel(ctx context.Context, order *models.OrderProjection) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoRepository.UpdateCancel")
+	defer span.Finish()
+	span.LogFields(log.String("OrderID", order.OrderID))
+
+	ops := options.FindOneAndUpdate()
+	ops.SetReturnDocument(options.After)
+	ops.SetUpsert(false)
+
+	update := bson.M{"$set": bson.M{"canceled": order.Canceled, "cancelReason": order.CancelReason}}
+	var res models.OrderProjection
+	if err := m.getOrdersCollection().FindOneAndUpdate(ctx, bson.M{"orderId": order.OrderID}, update, ops).Decode(&res); err != nil {
+		tracing.TraceErr(span, err)
+		return err
+	}
+
+	m.log.Debugf("(UpdateCancel) result OrderID: {%s}", res.OrderID)
+	return nil
+}
+
+func (m *mongoRepository) UpdatePayment(ctx context.Context, order *models.OrderProjection) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoRepository.UpdatePayment")
+	defer span.Finish()
+	span.LogFields(log.String("OrderID", order.OrderID))
+
+	ops := options.FindOneAndUpdate()
+	ops.SetReturnDocument(options.After)
+	ops.SetUpsert(false)
+
+	update := bson.M{"$set": bson.M{"payment": order.Payment, "paid": order.Paid}}
+	var res models.OrderProjection
+	if err := m.getOrdersCollection().FindOneAndUpdate(ctx, bson.M{"orderId": order.OrderID}, update, ops).Decode(&res); err != nil {
+		tracing.TraceErr(span, err)
+		return err
+	}
+
+	m.log.Debugf("(UpdatePayment) result OrderID: {%s}", res.OrderID)
+	return nil
+}
+
+func (m *mongoRepository) UpdateDelivery(ctx context.Context, order *models.OrderProjection) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoRepository.UpdateDelivery")
+	defer span.Finish()
+	span.LogFields(log.String("OrderID", order.OrderID))
+
+	ops := options.FindOneAndUpdate()
+	ops.SetReturnDocument(options.After)
+	ops.SetUpsert(false)
+
+	update := bson.M{"$set": bson.M{"delivered": order.Delivered, "deliveredTime": order.DeliveredTime}}
+	var res models.OrderProjection
+	if err := m.getOrdersCollection().FindOneAndUpdate(ctx, bson.M{"orderId": order.OrderID}, update, ops).Decode(&res); err != nil {
+		tracing.TraceErr(span, err)
+		return err
+	}
+
+	m.log.Debugf("(UpdateDelivery) result OrderID: {%s}", res.OrderID)
+	return nil
+}
+
+func (m *mongoRepository) UpdateDeliveryAddress(ctx context.Context, order *models.OrderProjection) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoRepository.UpdateDeliveryAddress")
+	defer span.Finish()
+	span.LogFields(log.String("OrderID", order.OrderID))
+
+	ops := options.FindOneAndUpdate()
+	ops.SetReturnDocument(options.After)
+	ops.SetUpsert(false)
+
+	update := bson.M{"$set": bson.M{"deliveryAddress": order.DeliveryAddress}}
+	var res models.OrderProjection
+	if err := m.getOrdersCollection().FindOneAndUpdate(ctx, bson.M{"orderId": order.OrderID}, update, ops).Decode(&res); err != nil {
+		tracing.TraceErr(span, err)
+		return err
+	}
+
+	m.log.Debugf("(UpdateDeliveryAddress) result OrderID: {%s}", res.OrderID)
+	return nil
+}
+
+func (m *mongoRepository) UpdateSubmit(ctx context.Context, order *models.OrderProjection) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoRepository.UpdateSubmit")
+	defer span.Finish()
+	span.LogFields(log.String("OrderID", order.OrderID))
+
+	ops := options.FindOneAndUpdate()
+	ops.SetReturnDocument(options.After)
+	ops.SetUpsert(false)
+
+	update := bson.M{"$set": bson.M{"submitted": order.Submitted}}
+	var res models.OrderProjection
+	if err := m.getOrdersCollection().FindOneAndUpdate(ctx, bson.M{"orderId": order.OrderID}, update, ops).Decode(&res); err != nil {
+		tracing.TraceErr(span, err)
+		return err
+	}
+
+	m.log.Debugf("(UpdateSubmit) result OrderID: {%s}", res.OrderID)
+	return nil
+}
+
 func (m *mongoRepository) getOrdersCollection() *mongo.Collection {
 	return m.db.Database(m.cfg.Mongo.Db).Collection(m.cfg.MongoCollections.Orders)
 }

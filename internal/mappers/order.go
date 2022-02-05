@@ -19,5 +19,6 @@ func OrderProjectionFromAggregate(orderAggregate *aggregate.OrderAggregate) *mod
 		DeliveredTime:   orderAggregate.Order.DeliveredTime,
 		CancelReason:    orderAggregate.Order.CancelReason,
 		DeliveryAddress: orderAggregate.Order.DeliveryAddress,
+		Payment:         orderAggregate.Order.Payment,
 	}
 }

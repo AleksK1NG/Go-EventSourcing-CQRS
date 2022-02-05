@@ -16,11 +16,11 @@ type OrderUpdatedEventData struct {
 }
 
 type OrderCanceledEventData struct {
-	CancelReason string `json:"cancelReason"`
+	CancelReason string `json:"cancelReason" validate:"required"`
 }
 
 type OrderDeliveredEventData struct {
-	DeliveryTimestamp time.Time `json:"deliveryTimestamp"`
+	DeliveryTimestamp time.Time `json:"deliveryTimestamp" validate:"required"`
 }
 
 type OrderChangeDeliveryAddress struct {
