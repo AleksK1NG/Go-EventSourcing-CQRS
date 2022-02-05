@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"github.com/AleksK1NG/es-microservice/internal/models"
+	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/utils"
 	orderService "github.com/AleksK1NG/es-microservice/proto/order"
 )

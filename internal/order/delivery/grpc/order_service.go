@@ -3,9 +3,9 @@ package grpc
 import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/internal/metrics"
-	"github.com/AleksK1NG/es-microservice/internal/models"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
+	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/internal/order/queries"
 	"github.com/AleksK1NG/es-microservice/internal/order/service"
 	grpcErrors "github.com/AleksK1NG/es-microservice/pkg/grpc_errors"

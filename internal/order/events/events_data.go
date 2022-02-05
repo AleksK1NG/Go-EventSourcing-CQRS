@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/AleksK1NG/es-microservice/internal/models"
+	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"time"
 )
 
