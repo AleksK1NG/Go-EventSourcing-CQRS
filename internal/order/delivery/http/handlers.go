@@ -55,7 +55,7 @@ func NewOrderHandlers(
 // @Tags Orders
 // @Summary Create order
 // @Description Create new order
-// @Param order body dto.OrderCreatedEventData true "create order"
+// @Param order body events.OrderCreatedEventData true "create order"
 // @Accept json
 // @Produce json
 // @Success 201 {string} id ""
@@ -326,7 +326,7 @@ func (h *orderHandlers) ChangeDeliveryAddress() echo.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
-// @Param order body dto.OrderUpdatedEventData true "update order"
+// @Param order body events.OrderUpdatedEventData true "update order"
 // @Success 200 {string} id ""
 // @Router /orders/{id} [put]
 func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
