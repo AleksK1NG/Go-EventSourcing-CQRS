@@ -65,7 +65,7 @@ func (a *OrderAggregate) onOrderUpdated(evt es.Event) error {
 	return nil
 }
 
-func (a *OrderAggregate) onOrderDeliveryAddressUpdated(evt es.Event) error {
+func (a *OrderAggregate) onOrderChangeDeliveryAddress(evt es.Event) error {
 	var eventData events.OrderChangeDeliveryAddress
 	if err := evt.GetJsonData(&eventData); err != nil {
 		return errors.Wrap(err, "GetJsonData")

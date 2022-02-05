@@ -59,7 +59,7 @@ func (a *OrderAggregate) When(evt es.Event) error {
 		return a.onOrderUpdated(evt)
 
 	case events.OrderDeliveryAddressUpdated:
-		return a.onOrderDeliveryAddressUpdated(evt)
+		return a.onOrderChangeDeliveryAddress(evt)
 
 	default:
 		return es.ErrInvalidEventType
@@ -74,25 +74,25 @@ func (a *OrderAggregate) HandleCommand(ctx context.Context, command es.Command) 
 	switch c := command.(type) {
 
 	case *CreateOrderCommand:
-		return a.onCreateOrderCommand(ctx, c)
+		return a.createOrder(ctx, c)
 
 	case *OrderPaidCommand:
-		return a.onOrderPaidCommand(ctx, c)
+		return a.payOrder(ctx, c)
 
 	case *SubmitOrderCommand:
-		return a.onSubmitOrderCommand(ctx, c)
+		return a.submitOrder(ctx, c)
 
 	case *OrderUpdatedCommand:
-		return a.onOrderUpdatedCommand(ctx, c)
+		return a.updateOrder(ctx, c)
 
 	case *OrderCanceledCommand:
-		return a.onOrderCanceledCommand(ctx, c)
+		return a.cancelOrder(ctx, c)
 
 	case *OrderDeliveredCommand:
-		return a.onOrderDeliveredCommand(ctx, c)
+		return a.deliverOrder(ctx, c)
 
 	case *OrderChangeDeliveryAddressCommand:
-		return a.onOrderChangeDeliveryAddressCommand(ctx, c)
+		return a.changeDeliveryAddressCommand(ctx, c)
 
 	default:
 		return es.ErrInvalidCommandType
