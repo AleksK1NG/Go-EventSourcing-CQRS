@@ -279,7 +279,7 @@ const docTemplate_swagger = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GetOrderResponseDto"
+                            "$ref": "#/definitions/dto.OrderResponseDto"
                         }
                     }
                 }
@@ -348,7 +348,7 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "dto.GetOrderResponseDto": {
+        "dto.OrderResponseDto": {
             "type": "object",
             "required": [
                 "accountEmail"
@@ -407,7 +407,7 @@ const docTemplate_swagger = `{
                 "orders": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.GetOrderResponseDto"
+                        "$ref": "#/definitions/dto.OrderResponseDto"
                     }
                 },
                 "pagination": {

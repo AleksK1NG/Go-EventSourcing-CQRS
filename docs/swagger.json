@@ -267,7 +267,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GetOrderResponseDto"
+                            "$ref": "#/definitions/dto.OrderResponseDto"
                         }
                     }
                 }
@@ -336,7 +336,7 @@
                 }
             }
         },
-        "dto.GetOrderResponseDto": {
+        "dto.OrderResponseDto": {
             "type": "object",
             "required": [
                 "accountEmail"
@@ -395,7 +395,7 @@
                 "orders": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.GetOrderResponseDto"
+                        "$ref": "#/definitions/dto.OrderResponseDto"
                     }
                 },
                 "pagination": {

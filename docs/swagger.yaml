@@ -14,7 +14,7 @@ definitions:
     - deliveryAddress
     - shopItems
     type: object
-  dto.GetOrderResponseDto:
+  dto.OrderResponseDto:
     properties:
       accountEmail:
         type: string
@@ -53,7 +53,7 @@ definitions:
     properties:
       orders:
         items:
-          $ref: '#/definitions/dto.GetOrderResponseDto'
+          $ref: '#/definitions/dto.OrderResponseDto'
         type: array
       pagination:
         $ref: '#/definitions/dto.Pagination'
@@ -158,7 +158,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GetOrderResponseDto'
+            $ref: '#/definitions/dto.OrderResponseDto'
       summary: Get order
       tags:
       - Orders
