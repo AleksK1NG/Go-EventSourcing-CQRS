@@ -36,7 +36,7 @@ func (s *server) configureHealthCheckEndpoints(ctx context.Context, health healt
 
 	health.AddReadinessCheck(constants.MongoDB, healthcheck.AsyncWithContext(ctx, func() error {
 		if err := s.mongoClient.Ping(ctx, nil); err != nil {
-			s.log.Warnf("(MongoDB ReadinessCheck) err: {%v}", err)
+			s.log.Warnf("(MongoDB Readiness Check) err: {%v}", err)
 			return err
 		}
 		return nil
@@ -44,7 +44,7 @@ func (s *server) configureHealthCheckEndpoints(ctx context.Context, health healt
 
 	health.AddLivenessCheck(constants.MongoDB, healthcheck.AsyncWithContext(ctx, func() error {
 		if err := s.mongoClient.Ping(ctx, nil); err != nil {
-			s.log.Warnf("(MongoDB LivenessCheck) err: {%v}", err)
+			s.log.Warnf("(MongoDB Liveness Check) err: {%v}", err)
 			return err
 		}
 		return nil
@@ -53,7 +53,7 @@ func (s *server) configureHealthCheckEndpoints(ctx context.Context, health healt
 	health.AddReadinessCheck(constants.ElasticSearch, healthcheck.AsyncWithContext(ctx, func() error {
 		_, _, err := s.elasticClient.Ping(s.cfg.Elastic.URL).Do(ctx)
 		if err != nil {
-			s.log.Warnf("(ElasticSearch ReadinessCheck) err: {%v}", err)
+			s.log.Warnf("(ElasticSearch Readiness Check) err: {%v}", err)
 			return errors.Wrap(err, "client.Ping")
 		}
 		return nil
@@ -62,7 +62,7 @@ func (s *server) configureHealthCheckEndpoints(ctx context.Context, health healt
 	health.AddLivenessCheck(constants.ElasticSearch, healthcheck.AsyncWithContext(ctx, func() error {
 		_, _, err := s.elasticClient.Ping(s.cfg.Elastic.URL).Do(ctx)
 		if err != nil {
-			s.log.Warnf("(ElasticSearch LivenessCheck) err: {%v}", err)
+			s.log.Warnf("(ElasticSearch Liveness Check) err: {%v}", err)
 			return errors.Wrap(err, "client.Ping")
 		}
 		return nil

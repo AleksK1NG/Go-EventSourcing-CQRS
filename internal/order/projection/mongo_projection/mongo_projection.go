@@ -80,11 +80,13 @@ func (o *mongoProjection) ProcessEvents(ctx context.Context, stream *esdb.Persis
 			err := o.When(ctx, es.NewEventFromRecorded(event.EventAppeared.Event))
 			if err != nil {
 				o.log.Errorf("(mongoProjection.when) err: {%v}", err)
+
 				if err := stream.Nack(err.Error(), esdb.Nack_Retry, event.EventAppeared); err != nil {
 					o.log.Errorf("(stream.Nack) err: {%v}", err)
 					return errors.Wrap(err, "stream.Nack")
 				}
 			}
+
 			err = stream.Ack(event.EventAppeared)
 			if err != nil {
 				o.log.Errorf("(stream.Ack) err: {%v}", err)
@@ -104,22 +106,16 @@ func (o *mongoProjection) When(ctx context.Context, evt es.Event) error {
 
 	case events.OrderCreated:
 		return o.onOrderCreate(ctx, evt)
-
 	case events.OrderPaid:
 		return o.onOrderPaid(ctx, evt)
-
 	case events.OrderSubmitted:
 		return o.onSubmit(ctx, evt)
-
 	case events.OrderUpdated:
 		return o.onUpdate(ctx, evt)
-
 	case events.OrderCanceled:
 		return o.onCancel(ctx, evt)
-
 	case events.OrderDelivered:
 		return o.onDelivered(ctx, evt)
-
 	case events.OrderDeliveryAddressUpdated:
 		return o.onOrderDeliveryAddressUpdated(ctx, evt)
 
