@@ -17,8 +17,9 @@ import (
 )
 
 const (
-	shopItemTitle       = "shopItems.title"
-	shopItemDescription = "shopItems.description"
+	shopItemTitle            = "shopItems.title"
+	shopItemDescription      = "shopItems.description"
+	minimumNumberShouldMatch = 1
 )
 
 type elasticRepository struct {
@@ -94,7 +95,7 @@ func (e *elasticRepository) Search(ctx context.Context, text string, pq *utils.P
 
 	shouldMatch := v7.NewBoolQuery().
 		Should(v7.NewMatchPhrasePrefixQuery(shopItemTitle, text), v7.NewMatchPhrasePrefixQuery(shopItemDescription, text)).
-		MinimumNumberShouldMatch(1)
+		MinimumNumberShouldMatch(minimumNumberShouldMatch)
 
 	searchResult, err := e.elasticClient.Search(e.cfg.ElasticIndexes.Orders).
 		Query(shouldMatch).
