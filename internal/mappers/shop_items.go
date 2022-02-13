@@ -41,3 +41,21 @@ func ShopItemsResponseFromProto(items []*orderService.ShopItem) []dto.ShopItem {
 	}
 	return shopItems
 }
+
+func ShopItemResponseToProto(item dto.ShopItem) *orderService.ShopItem {
+	return &orderService.ShopItem{
+		ID:          item.ID,
+		Title:       item.Title,
+		Description: item.Description,
+		Quantity:    item.Quantity,
+		Price:       item.Price,
+	}
+}
+
+func ShopItemsResponseToProto(items []dto.ShopItem) []*orderService.ShopItem {
+	shopItems := make([]*orderService.ShopItem, 0, len(items))
+	for _, item := range items {
+		shopItems = append(shopItems, ShopItemResponseToProto(item))
+	}
+	return shopItems
+}
