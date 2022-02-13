@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/metrics"
-	orderHttp "github.com/AleksK1NG/es-microservice/internal/order/delivery/http"
+	orderHttp "github.com/AleksK1NG/es-microservice/internal/order/delivery/http/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/projection/elastic_projection"
 	"github.com/AleksK1NG/es-microservice/internal/order/projection/mongo_projection"
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"

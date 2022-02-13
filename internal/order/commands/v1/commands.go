@@ -1,17 +1,17 @@
 package v1
 
 import (
-	"github.com/AleksK1NG/es-microservice/internal/order/events"
+	"github.com/AleksK1NG/es-microservice/internal/order/events/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 )
 
 type CreateOrderCommand struct {
-	events.OrderCreatedEventData
+	v1.OrderCreatedEventData
 	es.BaseCommand
 }
 
-func NewCreateOrderCommand(orderCreatedData events.OrderCreatedEventData, aggregateID string) *CreateOrderCommand {
+func NewCreateOrderCommand(orderCreatedData v1.OrderCreatedEventData, aggregateID string) *CreateOrderCommand {
 	return &CreateOrderCommand{OrderCreatedEventData: orderCreatedData, BaseCommand: es.NewBaseCommand(aggregateID)}
 }
 
@@ -33,37 +33,37 @@ func NewSubmitOrderCommand(aggregateID string) *SubmitOrderCommand {
 }
 
 type OrderUpdatedCommand struct {
-	events.OrderUpdatedEventData
+	v1.OrderUpdatedEventData
 	es.BaseCommand
 }
 
-func NewOrderUpdatedCommand(orderUpdatedData events.OrderUpdatedEventData, aggregateID string) *OrderUpdatedCommand {
+func NewOrderUpdatedCommand(orderUpdatedData v1.OrderUpdatedEventData, aggregateID string) *OrderUpdatedCommand {
 	return &OrderUpdatedCommand{OrderUpdatedEventData: orderUpdatedData, BaseCommand: es.NewBaseCommand(aggregateID)}
 }
 
 type OrderCanceledCommand struct {
-	events.OrderCanceledEventData
+	v1.OrderCanceledEventData
 	es.BaseCommand
 }
 
-func NewOrderCanceledCommand(orderCanceledEventData events.OrderCanceledEventData, aggregateID string) *OrderCanceledCommand {
+func NewOrderCanceledCommand(orderCanceledEventData v1.OrderCanceledEventData, aggregateID string) *OrderCanceledCommand {
 	return &OrderCanceledCommand{OrderCanceledEventData: orderCanceledEventData, BaseCommand: es.NewBaseCommand(aggregateID)}
 }
 
 type OrderDeliveredCommand struct {
-	events.OrderDeliveredEventData
+	v1.OrderDeliveredEventData
 	es.BaseCommand
 }
 
-func NewOrderDeliveredCommand(orderDeliveredEventData events.OrderDeliveredEventData, aggregateID string) *OrderDeliveredCommand {
+func NewOrderDeliveredCommand(orderDeliveredEventData v1.OrderDeliveredEventData, aggregateID string) *OrderDeliveredCommand {
 	return &OrderDeliveredCommand{OrderDeliveredEventData: orderDeliveredEventData, BaseCommand: es.NewBaseCommand(aggregateID)}
 }
 
 type OrderChangeDeliveryAddressCommand struct {
-	events.OrderChangeDeliveryAddress
+	v1.OrderChangeDeliveryAddress
 	es.BaseCommand
 }
 
-func NewOrderChangeDeliveryAddressCommand(orderChangeDeliveryAddress events.OrderChangeDeliveryAddress, aggregateID string) *OrderChangeDeliveryAddressCommand {
+func NewOrderChangeDeliveryAddressCommand(orderChangeDeliveryAddress v1.OrderChangeDeliveryAddress, aggregateID string) *OrderChangeDeliveryAddressCommand {
 	return &OrderChangeDeliveryAddressCommand{OrderChangeDeliveryAddress: orderChangeDeliveryAddress, BaseCommand: es.NewBaseCommand(aggregateID)}
 }

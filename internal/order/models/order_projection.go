@@ -26,7 +26,7 @@ type OrderProjection struct {
 
 func (o *OrderProjection) String() string {
 	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, "+
-		"Delivered: {%v}, Canceled: {%v}, TotalPrice: {%v}, AccountEmail: {%s}, Payment: {%s}",
+		"Delivered: {%v}, Canceled: {%v}, CancelReason: {%s}, TotalPrice: {%v}, AccountEmail: {%s}, DeliveryAddress: {%s}, DeliveredTime: {%s}, Payment: {%s}",
 		o.ID,
 		o.ShopItems,
 		o.Created,
@@ -34,8 +34,11 @@ func (o *OrderProjection) String() string {
 		o.Submitted,
 		o.Delivered,
 		o.Canceled,
+		o.CancelReason,
 		o.TotalPrice,
 		o.AccountEmail,
+		o.DeliveryAddress,
+		o.DeliveredTime.UTC().String(),
 		o.Payment.String(),
 	)
 }

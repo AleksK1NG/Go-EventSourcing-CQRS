@@ -1,9 +1,10 @@
 package aggregate
 
 import (
-	"github.com/AleksK1NG/es-microservice/internal/order/events"
+	"github.com/AleksK1NG/es-microservice/internal/order/events/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -37,19 +38,19 @@ func (a *OrderAggregate) When(evt es.Event) error {
 
 	switch evt.GetEventType() {
 
-	case events.OrderCreated:
+	case v1.OrderCreated:
 		return a.onOrderCreated(evt)
-	case events.OrderPaid:
+	case v1.OrderPaid:
 		return a.onOrderPaid(evt)
-	case events.OrderSubmitted:
+	case v1.OrderSubmitted:
 		return a.onOrderSubmitted(evt)
-	case events.OrderDelivered:
+	case v1.OrderDelivered:
 		return a.onOrderDelivered(evt)
-	case events.OrderCanceled:
+	case v1.OrderCanceled:
 		return a.onOrderCanceled(evt)
-	case events.OrderUpdated:
+	case v1.OrderUpdated:
 		return a.onOrderUpdated(evt)
-	case events.OrderDeliveryAddressUpdated:
+	case v1.OrderDeliveryAddressUpdated:
 		return a.onOrderChangeDeliveryAddress(evt)
 
 	default:
@@ -57,35 +58,77 @@ func (a *OrderAggregate) When(evt es.Event) error {
 	}
 }
 
-//func (a *OrderAggregate) HandleCommand(ctx context.Context, command es.Command) error {
-//	span, ctx := opentracing.StartSpanFromContext(ctx, "OrderAggregate.HandleCommand")
-//	defer span.Finish()
-//	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
-//
-//	switch c := command.(type) {
-//
-//	case *CreateOrderCommand:
-//		return a.CreateOrder(ctx, c)
-//
-//	case *OrderPaidCommand:
-//		return a.PayOrder(ctx, c)
-//
-//	case *SubmitOrderCommand:
-//		return a.SubmitOrder(ctx, c)
-//
-//	case *OrderUpdatedCommand:
-//		return a.UpdateOrder(ctx, c)
-//
-//	case *OrderCanceledCommand:
-//		return a.CancelOrder(ctx, c)
-//
-//	case *OrderDeliveredCommand:
-//		return a.DeliverOrder(ctx, c)
-//
-//	case *OrderChangeDeliveryAddressCommand:
-//		return a.ChangeDeliveryAddress(ctx, c)
-//
-//	default:
-//		return es.ErrInvalidCommandType
-//	}
-//}
+func (a *OrderAggregate) onOrderCreated(evt es.Event) error {
+	var eventData v1.OrderCreatedEventData
+	if err := evt.GetJsonData(&eventData); err != nil {
+		return errors.Wrap(err, "GetJsonData")
+	}
+
+	a.Order.AccountEmail = eventData.AccountEmail
+	a.Order.ShopItems = eventData.ShopItems
+	a.Order.Created = true
+	a.Order.TotalPrice = GetShopItemsTotalPrice(eventData.ShopItems)
+	a.Order.DeliveryAddress = eventData.DeliveryAddress
+	return nil
+}
+
+func (a *OrderAggregate) onOrderPaid(evt es.Event) error {
+	var payment models.Payment
+	if err := evt.GetJsonData(&payment); err != nil {
+		return errors.Wrap(err, "GetJsonData")
+	}
+
+	a.Order.Paid = true
+	a.Order.Payment = payment
+	return nil
+}
+
+func (a *OrderAggregate) onOrderSubmitted(evt es.Event) error {
+	a.Order.Submitted = true
+	return nil
+}
+
+func (a *OrderAggregate) onOrderDelivered(evt es.Event) error {
+	var eventData v1.OrderDeliveredEventData
+	if err := evt.GetJsonData(&eventData); err != nil {
+		return errors.Wrap(err, "GetJsonData")
+	}
+
+	a.Order.Delivered = true
+	a.Order.DeliveredTime = eventData.DeliveryTimestamp
+	a.Order.Canceled = false
+	return nil
+}
+
+func (a *OrderAggregate) onOrderCanceled(evt es.Event) error {
+	var eventData v1.OrderCanceledEventData
+	if err := evt.GetJsonData(&eventData); err != nil {
+		return errors.Wrap(err, "GetJsonData")
+	}
+
+	a.Order.Canceled = true
+	a.Order.Delivered = false
+	a.Order.CancelReason = eventData.CancelReason
+	return nil
+}
+
+func (a *OrderAggregate) onOrderUpdated(evt es.Event) error {
+	var eventData v1.OrderUpdatedEventData
+	if err := evt.GetJsonData(&eventData); err != nil {
+		return errors.Wrap(err, "GetJsonData")
+	}
+
+	a.Order.ShopItems = eventData.ShopItems
+	a.Order.TotalPrice = GetShopItemsTotalPrice(eventData.ShopItems)
+	return nil
+}
+
+func (a *OrderAggregate) onOrderChangeDeliveryAddress(evt es.Event) error {
+	var eventData v1.OrderChangeDeliveryAddress
+	if err := evt.GetJsonData(&eventData); err != nil {
+		return errors.Wrap(err, "GetJsonData")
+	}
+
+	a.Order.DeliveryAddress = eventData.DeliveryAddress
+	return nil
+}

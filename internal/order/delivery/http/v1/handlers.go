@@ -1,4 +1,4 @@
-package http
+package v1
 
 import (
 	"github.com/AleksK1NG/es-microservice/config"
@@ -6,7 +6,7 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/mappers"
 	"github.com/AleksK1NG/es-microservice/internal/metrics"
 	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
-	"github.com/AleksK1NG/es-microservice/internal/order/events"
+	v12 "github.com/AleksK1NG/es-microservice/internal/order/events/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/internal/order/queries"
 	"github.com/AleksK1NG/es-microservice/internal/order/service"
@@ -197,7 +197,7 @@ func (h *orderHandlers) CancelOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		var data events.OrderCanceledEventData
+		var data v12.OrderCanceledEventData
 		if err := c.Bind(&data); err != nil {
 			h.log.Errorf("(Bind) err: {%v}", err)
 			tracing.TraceErr(span, err)
@@ -245,7 +245,7 @@ func (h *orderHandlers) DeliverOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		var data events.OrderDeliveredEventData
+		var data v12.OrderDeliveredEventData
 		if err := c.Bind(&data); err != nil {
 			h.log.Errorf("(Bind) err: {%v}", err)
 			tracing.TraceErr(span, err)

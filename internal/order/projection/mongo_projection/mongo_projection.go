@@ -3,7 +3,7 @@ package mongo_projection
 import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/config"
-	"github.com/AleksK1NG/es-microservice/internal/order/events"
+	"github.com/AleksK1NG/es-microservice/internal/order/events/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
 	"github.com/AleksK1NG/es-microservice/pkg/constants"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
@@ -104,19 +104,19 @@ func (o *mongoProjection) When(ctx context.Context, evt es.Event) error {
 
 	switch evt.GetEventType() {
 
-	case events.OrderCreated:
+	case v1.OrderCreated:
 		return o.onOrderCreate(ctx, evt)
-	case events.OrderPaid:
+	case v1.OrderPaid:
 		return o.onOrderPaid(ctx, evt)
-	case events.OrderSubmitted:
+	case v1.OrderSubmitted:
 		return o.onSubmit(ctx, evt)
-	case events.OrderUpdated:
+	case v1.OrderUpdated:
 		return o.onUpdate(ctx, evt)
-	case events.OrderCanceled:
+	case v1.OrderCanceled:
 		return o.onCancel(ctx, evt)
-	case events.OrderDelivered:
+	case v1.OrderDelivered:
 		return o.onDelivered(ctx, evt)
-	case events.OrderDeliveryAddressUpdated:
+	case v1.OrderDeliveryAddressUpdated:
 		return o.onOrderDeliveryAddressUpdated(ctx, evt)
 
 	default:
