@@ -5,6 +5,7 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	orderService "github.com/AleksK1NG/es-microservice/proto/order"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func OrderProjectionFromAggregate(orderAggregate *aggregate.OrderAggregate) *models.OrderProjection {
@@ -60,4 +61,38 @@ func OrderResponseDtoFromProto(orderProto *orderService.Order) dto.GetOrderRespo
 		Canceled:        orderProto.GetCanceled(),
 		Payment:         PaymentFromProto(orderProto.GetPayment()),
 	}
+}
+
+func OrdersFromProjections(projections []*models.OrderProjection) []dto.GetOrderResponseDto {
+	orders := make([]dto.GetOrderResponseDto, 0, len(projections))
+	for _, projection := range projections {
+		orders = append(orders, GetOrderResponseFromProjection(projection))
+	}
+	return orders
+}
+
+func OrderResponseDtoToProto(orderDto dto.GetOrderResponseDto) *orderService.Order {
+	return &orderService.Order{
+		ID:                orderDto.OrderID,
+		ShopItems:         ShopItemsResponseToProto(orderDto.ShopItems),
+		Created:           orderDto.Created,
+		Paid:              orderDto.Paid,
+		Submitted:         orderDto.Submitted,
+		Delivered:         orderDto.Delivered,
+		Canceled:          orderDto.Canceled,
+		TotalPrice:        orderDto.TotalPrice,
+		AccountEmail:      orderDto.AccountEmail,
+		CancelReason:      orderDto.CancelReason,
+		DeliveryAddress:   orderDto.DeliveryAddress,
+		DeliveryTimestamp: timestamppb.New(orderDto.DeliveredTime),
+		Payment:           PaymentToProto(orderDto.Payment),
+	}
+}
+
+func OrdersResponseDtoToProto(ordersDto []dto.GetOrderResponseDto) []*orderService.Order {
+	orders := make([]*orderService.Order, 0, len(ordersDto))
+	for _, order := range ordersDto {
+		orders = append(orders, OrderResponseDtoToProto(order))
+	}
+	return orders
 }

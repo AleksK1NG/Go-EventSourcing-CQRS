@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/AleksK1NG/es-microservice/internal/mappers"
 	"github.com/AleksK1NG/es-microservice/internal/metrics"
 	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
@@ -234,8 +235,8 @@ func (s *orderGrpcService) Search(ctx context.Context, req *orderService.SearchR
 		return nil, s.errResponse(err)
 	}
 
-	s.log.Infof("(Search result): searchText: {%s}, pagination: {%s}", req.GetSearchText(), searchResult.GetPagination().String())
-	return searchResult, nil
+	s.log.Infof("(Search result): searchText: {%s}, pagination: {%+v}", req.GetSearchText(), searchResult.Pagination)
+	return mappers.SearchResponseToProto(searchResult), nil
 }
 
 func (s *orderGrpcService) errResponse(err error) error {

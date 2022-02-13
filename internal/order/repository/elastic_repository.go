@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/AleksK1NG/es-microservice/config"
+	"github.com/AleksK1NG/es-microservice/internal/dto"
+	"github.com/AleksK1NG/es-microservice/internal/mappers"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/AleksK1NG/es-microservice/pkg/utils"
-	orderService "github.com/AleksK1NG/es-microservice/proto/order"
 	v7 "github.com/olivere/elastic/v7"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
@@ -86,7 +87,7 @@ func (e *elasticRepository) UpdateOrder(ctx context.Context, order *models.Order
 	return nil
 }
 
-func (e *elasticRepository) Search(ctx context.Context, text string, pq *utils.Pagination) (*orderService.SearchRes, error) {
+func (e *elasticRepository) Search(ctx context.Context, text string, pq *utils.Pagination) (*dto.OrderSearchResponseDto, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticRepository.Search")
 	defer span.Finish()
 	span.LogFields(log.String("Search", text))
@@ -124,14 +125,25 @@ func (e *elasticRepository) Search(ctx context.Context, text string, pq *utils.P
 		orders = append(orders, &order)
 	}
 
-	return &orderService.SearchRes{
-		Pagination: &orderService.Pagination{
+	return &dto.OrderSearchResponseDto{
+		Pagination: dto.Pagination{
 			TotalCount: searchResult.TotalHits(),
 			TotalPages: int64(pq.GetTotalPages(int(searchResult.TotalHits()))),
 			Page:       int64(pq.GetPage()),
 			Size:       int64(pq.GetSize()),
 			HasMore:    pq.GetHasMore(int(searchResult.TotalHits())),
 		},
-		Orders: models.OrderProjectionsToProto(orders),
+		Orders: mappers.OrdersFromProjections(orders),
 	}, nil
+
+	//return &orderService.SearchRes{
+	//	Pagination: &orderService.Pagination{
+	//		TotalCount: searchResult.TotalHits(),
+	//		TotalPages: int64(pq.GetTotalPages(int(searchResult.TotalHits()))),
+	//		Page:       int64(pq.GetPage()),
+	//		Size:       int64(pq.GetSize()),
+	//		HasMore:    pq.GetHasMore(int(searchResult.TotalHits())),
+	//	},
+	//	Orders: models.OrderProjectionsToProto(orders),
+	//}, nil
 }

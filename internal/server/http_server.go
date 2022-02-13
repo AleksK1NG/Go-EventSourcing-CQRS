@@ -30,11 +30,11 @@ func (s *server) runHttpServer() error {
 }
 
 func (s *server) mapRoutes() {
-	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Title = "EventSourcing Microservice"
-	docs.SwaggerInfo.Description = "EventSourcing CQRS Microservice."
-	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo_swagger.Version = "1.0"
+	docs.SwaggerInfo_swagger.Title = "EventSourcing Microservice"
+	docs.SwaggerInfo_swagger.Description = "EventSourcing CQRS Microservice."
+	docs.SwaggerInfo_swagger.Version = "1.0"
+	docs.SwaggerInfo_swagger.BasePath = "/api/v1"
 
 	s.echo.GET("/swagger/*", echoSwagger.WrapHandler)
 

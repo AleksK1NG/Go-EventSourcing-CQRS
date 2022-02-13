@@ -442,7 +442,7 @@ func (h *orderHandlers) Search() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		h.log.Infof("(search) result: {%s}", searchRes.GetPagination().String())
-		return c.JSON(http.StatusOK, mappers.SearchResponseFromProto(searchRes))
+		h.log.Infof("(search) result: {%+v}", searchRes)
+		return c.JSON(http.StatusOK, searchRes)
 	}
 }

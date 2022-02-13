@@ -2,9 +2,9 @@ package repository
 
 import (
 	"context"
+	"github.com/AleksK1NG/es-microservice/internal/dto"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/utils"
-	orderService "github.com/AleksK1NG/es-microservice/proto/order"
 )
 
 type OrderMongoRepository interface {
@@ -23,5 +23,5 @@ type ElasticOrderRepository interface {
 	IndexOrder(ctx context.Context, order *models.OrderProjection) error
 	GetByID(ctx context.Context, orderID string) (*models.OrderProjection, error)
 	UpdateOrder(ctx context.Context, order *models.OrderProjection) error
-	Search(ctx context.Context, text string, pq *utils.Pagination) (*orderService.SearchRes, error)
+	Search(ctx context.Context, text string, pq *utils.Pagination) (*dto.OrderSearchResponseDto, error)
 }

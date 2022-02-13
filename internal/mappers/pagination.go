@@ -14,3 +14,13 @@ func PaginationFromProto(protoPagination *orderService.Pagination) dto.Paginatio
 		HasMore:    protoPagination.GetHasMore(),
 	}
 }
+
+func PaginationToProto(protoPagination dto.Pagination) *orderService.Pagination {
+	return &orderService.Pagination{
+		TotalCount: protoPagination.TotalCount,
+		TotalPages: protoPagination.TotalPages,
+		Page:       protoPagination.Page,
+		Size:       protoPagination.Size,
+		HasMore:    protoPagination.HasMore,
+	}
+}
