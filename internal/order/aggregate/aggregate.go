@@ -39,22 +39,16 @@ func (a *OrderAggregate) When(evt es.Event) error {
 
 	case events.OrderCreated:
 		return a.onOrderCreated(evt)
-
 	case events.OrderPaid:
 		return a.onOrderPaid(evt)
-
 	case events.OrderSubmitted:
 		return a.onOrderSubmitted(evt)
-
 	case events.OrderDelivered:
 		return a.onOrderDelivered(evt)
-
 	case events.OrderCanceled:
 		return a.onOrderCanceled(evt)
-
 	case events.OrderUpdated:
 		return a.onOrderUpdated(evt)
-
 	case events.OrderDeliveryAddressUpdated:
 		return a.onOrderChangeDeliveryAddress(evt)
 

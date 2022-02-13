@@ -2,6 +2,8 @@ package http
 
 import (
 	"github.com/AleksK1NG/es-microservice/config"
+	"github.com/AleksK1NG/es-microservice/internal/dto"
+	"github.com/AleksK1NG/es-microservice/internal/mappers"
 	"github.com/AleksK1NG/es-microservice/internal/metrics"
 	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
@@ -19,16 +21,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"net/http"
 )
-
-type OrderHandlers interface {
-	CreateOrder() echo.HandlerFunc
-	PayOrder() echo.HandlerFunc
-	SubmitOrder() echo.HandlerFunc
-	UpdateOrder() echo.HandlerFunc
-
-	GetOrderByID() echo.HandlerFunc
-	Search() echo.HandlerFunc
-}
 
 type orderHandlers struct {
 	group   *echo.Group
@@ -56,7 +48,7 @@ func NewOrderHandlers(
 // @Tags Orders
 // @Summary Create order
 // @Description Create new order
-// @Param order body events.OrderCreatedEventData true "create order"
+// @Param order body dto.CreateOrderReqDto true "create order"
 // @Accept json
 // @Produce json
 // @Success 201 {string} id ""
@@ -67,7 +59,7 @@ func (h *orderHandlers) CreateOrder() echo.HandlerFunc {
 		defer span.Finish()
 		h.metrics.CreateOrderHttpRequests.Inc()
 
-		eventData := events.OrderCreatedEventData{}
+		var eventData dto.CreateOrderReqDto
 		if err := c.Bind(&eventData); err != nil {
 			h.log.Errorf("(Bind) err: {%v}", err)
 			tracing.TraceErr(span, err)
@@ -81,7 +73,7 @@ func (h *orderHandlers) CreateOrder() echo.HandlerFunc {
 		}
 
 		id := uuid.NewV4().String()
-		command := v1.NewCreateOrderCommand(eventData, id)
+		command := v1.NewCreateOrderCommand(mappers.CreateOrderDtoToEventData(eventData), id)
 		err := h.os.Commands.CreateOrder.Handle(ctx, command)
 		if err != nil {
 			h.log.Errorf("(CreateOrder.Handle) id: {%s}, err: {%v}", id, err)
@@ -301,14 +293,14 @@ func (h *orderHandlers) ChangeDeliveryAddress() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		var data events.OrderChangeDeliveryAddress
+		var data dto.ChangeDeliveryAddressReqDto
 		if err := c.Bind(&data); err != nil {
 			h.log.Errorf("(Bind) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := v1.NewOrderChangeDeliveryAddressCommand(data, orderID.String())
+		command := v1.NewOrderChangeDeliveryAddressCommand(mappers.ChangeDeliveryAddressReqDtoToEventData(data), orderID.String())
 		if err := h.v.StructCtx(ctx, command); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
@@ -334,7 +326,7 @@ func (h *orderHandlers) ChangeDeliveryAddress() echo.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
-// @Param order body events.OrderUpdatedEventData true "update order"
+// @Param order body dto.UpdateOrderItemsReqDto true "update order"
 // @Success 200 {string} id ""
 // @Router /orders/{id} [put]
 func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
@@ -350,20 +342,20 @@ func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		eventData := events.OrderUpdatedEventData{}
-		if err := c.Bind(&eventData); err != nil {
+		var reqDto dto.UpdateOrderItemsReqDto
+		if err := c.Bind(&reqDto); err != nil {
 			h.log.Errorf("(Bind) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		if err := h.v.StructCtx(ctx, eventData); err != nil {
+		if err := h.v.StructCtx(ctx, reqDto); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := v1.NewOrderUpdatedCommand(eventData, orderID.String())
+		command := v1.NewOrderUpdatedCommand(mappers.UpdateOrderReqDtoToEventData(reqDto), orderID.String())
 		err = h.os.Commands.UpdateOrder.Handle(ctx, command)
 		if err != nil {
 			h.log.Errorf("(UpdateOrder.Handle) id: {%s}, err: {%v}", orderID.String(), err)
@@ -383,7 +375,7 @@ func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
-// @Success 200 {object} models.OrderProjection
+// @Success 200 {object} dto.GetOrderResponseDto
 // @Router /orders/{id} [get]
 func (h *orderHandlers) GetOrderByID() echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -413,7 +405,7 @@ func (h *orderHandlers) GetOrderByID() echo.HandlerFunc {
 		}
 
 		h.log.Infof("(get order by id) orderID: {%s}", orderID.String())
-		return c.JSON(http.StatusOK, orderProjection)
+		return c.JSON(http.StatusOK, mappers.GetOrderResponseFromProjection(orderProjection))
 	}
 }
 

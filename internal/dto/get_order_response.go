@@ -1,0 +1,23 @@
+package dto
+
+import (
+	"github.com/AleksK1NG/es-microservice/internal/order/models"
+	"time"
+)
+
+type GetOrderResponseDto struct {
+	ID              string             `json:"id" bson:"_id,omitempty"`
+	OrderID         string             `json:"orderId,omitempty" bson:"orderId,omitempty"`
+	ShopItems       []*models.ShopItem `json:"shopItems,omitempty" bson:"shopItems,omitempty"`
+	AccountEmail    string             `json:"accountEmail,omitempty" bson:"accountEmail,omitempty" validate:"required,email"`
+	DeliveryAddress string             `json:"deliveryAddress,omitempty" bson:"deliveryAddress,omitempty"`
+	CancelReason    string             `json:"cancelReason,omitempty" bson:"cancelReason,omitempty"`
+	TotalPrice      float64            `json:"totalPrice,omitempty" bson:"totalPrice,omitempty"`
+	DeliveredTime   time.Time          `json:"deliveredTime,omitempty" bson:"deliveredTime,omitempty"`
+	Created         bool               `json:"created,omitempty" bson:"created,omitempty"`
+	Paid            bool               `json:"paid,omitempty" bson:"paid,omitempty"`
+	Submitted       bool               `json:"submitted,omitempty" bson:"submitted,omitempty"`
+	Delivered       bool               `json:"delivered,omitempty" bson:"delivered,omitempty"`
+	Canceled        bool               `json:"canceled,omitempty" bson:"canceled,omitempty"`
+	Payment         models.Payment     `json:"payment,omitempty" bson:"payment,omitempty"`
+}
