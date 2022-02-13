@@ -6,7 +6,7 @@ import (
 )
 
 func SearchResponseFromProto(protoSearch *orderService.SearchRes) dto.OrderSearchResponseDto {
-	orders := make([]dto.GetOrderResponseDto, 0, len(protoSearch.GetOrders()))
+	orders := make([]dto.OrderResponseDto, 0, len(protoSearch.GetOrders()))
 	for _, order := range protoSearch.GetOrders() {
 		orders = append(orders, OrderResponseDtoFromProto(order))
 	}

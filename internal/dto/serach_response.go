@@ -1,8 +1,8 @@
 package dto
 
 type OrderSearchResponseDto struct {
-	Pagination Pagination            `json:"pagination"`
-	Orders     []GetOrderResponseDto `json:"orders"`
+	Pagination Pagination         `json:"pagination"`
+	Orders     []OrderResponseDto `json:"orders"`
 }
 
 type Pagination struct {
