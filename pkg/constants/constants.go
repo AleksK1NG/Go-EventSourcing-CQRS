@@ -68,5 +68,14 @@ const (
 	MongoProjection   = "(MongoDB Projection)"
 	ElasticProjection = "(Elastic Projection)"
 
-	OrderIdIndex = "orderId"
+	OrderIdIndex    = "orderId"
+	OrderId         = "orderId"
+	DeliveryAddress = "deliveryAddress"
+	Submitted       = "submitted"
+	Delivered       = "delivered"
+	DeliveredTime   = "deliveredTime"
+	Payment         = "payment"
+	Paid            = "paid"
+	Canceled        = "canceled"
+	CancelReason    = "cancelReason"
 )
