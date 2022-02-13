@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"sync"
 	"testing"
 	"time"
@@ -27,7 +28,7 @@ func NewOrderServiceConn(ctx context.Context, im interceptors.InterceptorManager
 		ctx,
 		":5001",
 		grpc.WithUnaryInterceptor(im.ClientRequestLoggerInterceptor()),
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(opts...)),
 	)
 	if err != nil {

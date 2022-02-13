@@ -24,13 +24,109 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CreateOrderDto"
+                            "$ref": "#/definitions/dto.CreateOrderReqDto"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
                         "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/address/{id}": {
+            "put": {
+                "description": "Deliver existing order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Change delivery address order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/cancel/{id}": {
+            "post": {
+                "description": "Cancel existing order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Cancel order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/delivery/{id}": {
+            "post": {
+                "description": "Deliver existing order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Deliver order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "type": "string"
                         }
@@ -107,7 +203,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/orderService.SearchRes"
+                            "$ref": "#/definitions/dto.OrderSearchResponseDto"
                         }
                     }
                 }
@@ -171,7 +267,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.OrderProjection"
+                            "$ref": "#/definitions/dto.GetOrderResponseDto"
                         }
                     }
                 }
@@ -202,7 +298,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.UpdateOrderDto"
+                            "$ref": "#/definitions/dto.UpdateOrderItemsReqDto"
                         }
                     }
                 ],
@@ -218,14 +314,18 @@
         }
     },
     "definitions": {
-        "dto.CreateOrderDto": {
+        "dto.CreateOrderReqDto": {
             "type": "object",
             "required": [
                 "accountEmail",
+                "deliveryAddress",
                 "shopItems"
             ],
             "properties": {
                 "accountEmail": {
+                    "type": "string"
+                },
+                "deliveryAddress": {
                     "type": "string"
                 },
                 "shopItems": {
@@ -236,27 +336,16 @@
                 }
             }
         },
-        "dto.UpdateOrderDto": {
-            "type": "object",
-            "required": [
-                "shopItems"
-            ],
-            "properties": {
-                "shopItems": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ShopItem"
-                    }
-                }
-            }
-        },
-        "models.OrderProjection": {
+        "dto.GetOrderResponseDto": {
             "type": "object",
             "required": [
                 "accountEmail"
             ],
             "properties": {
                 "accountEmail": {
+                    "type": "string"
+                },
+                "cancelReason": {
                     "type": "string"
                 },
                 "canceled": {
@@ -268,8 +357,11 @@
                 "delivered": {
                     "type": "boolean"
                 },
-                "delivering": {
-                    "type": "boolean"
+                "deliveredTime": {
+                    "type": "string"
+                },
+                "deliveryAddress": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "string"
@@ -280,10 +372,13 @@
                 "paid": {
                     "type": "boolean"
                 },
+                "payment": {
+                    "$ref": "#/definitions/dto.Payment"
+                },
                 "shopItems": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.ShopItem"
+                        "$ref": "#/definitions/dto.ShopItem"
                     }
                 },
                 "submitted": {
@@ -294,7 +389,56 @@
                 }
             }
         },
-        "models.ShopItem": {
+        "dto.OrderSearchResponseDto": {
+            "type": "object",
+            "properties": {
+                "orders": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.GetOrderResponseDto"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/dto.Pagination"
+                }
+            }
+        },
+        "dto.Pagination": {
+            "type": "object",
+            "properties": {
+                "hasMore": {
+                    "type": "boolean"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "totalCount": {
+                    "type": "integer"
+                },
+                "totalPages": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.Payment": {
+            "type": "object",
+            "required": [
+                "paymentID",
+                "timestamp"
+            ],
+            "properties": {
+                "paymentID": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ShopItem": {
             "type": "object",
             "properties": {
                 "description": {
@@ -314,94 +458,36 @@
                 }
             }
         },
-        "orderService.Order": {
+        "dto.UpdateOrderItemsReqDto": {
             "type": "object",
+            "required": [
+                "shopItems"
+            ],
             "properties": {
-                "AccountEmail": {
-                    "type": "string"
-                },
-                "Canceled": {
-                    "type": "boolean"
-                },
-                "Created": {
-                    "type": "boolean"
-                },
-                "Delivered": {
-                    "type": "boolean"
-                },
-                "Delivering": {
-                    "type": "boolean"
-                },
-                "ID": {
-                    "type": "string"
-                },
-                "Paid": {
-                    "type": "boolean"
-                },
-                "ShopItems": {
+                "shopItems": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/orderService.ShopItem"
+                        "$ref": "#/definitions/models.ShopItem"
                     }
-                },
-                "Submitted": {
-                    "type": "boolean"
-                },
-                "TotalPrice": {
-                    "type": "number"
                 }
             }
         },
-        "orderService.Pagination": {
+        "models.ShopItem": {
             "type": "object",
             "properties": {
-                "HasMore": {
-                    "type": "boolean"
-                },
-                "Page": {
-                    "type": "integer"
-                },
-                "Size": {
-                    "type": "integer"
-                },
-                "TotalCount": {
-                    "type": "integer"
-                },
-                "TotalPages": {
-                    "type": "integer"
-                }
-            }
-        },
-        "orderService.SearchRes": {
-            "type": "object",
-            "properties": {
-                "Orders": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/orderService.Order"
-                    }
-                },
-                "Pagination": {
-                    "$ref": "#/definitions/orderService.Pagination"
-                }
-            }
-        },
-        "orderService.ShopItem": {
-            "type": "object",
-            "properties": {
-                "Description": {
+                "description": {
                     "type": "string"
                 },
-                "ID": {
+                "id": {
                     "type": "string"
                 },
-                "Price": {
+                "price": {
                     "type": "number"
                 },
-                "Quantity": {
+                "quantity": {
                     "type": "integer"
                 },
-                "Title": {
+                "title": {
                     "type": "string"
                 }
             }

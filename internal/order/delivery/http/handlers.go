@@ -418,7 +418,7 @@ func (h *orderHandlers) GetOrderByID() echo.HandlerFunc {
 // @Param search query string false "search text"
 // @Param page query string false "page number"
 // @Param size query string false "number of elements"
-// @Success 200 {object} orderService.SearchRes
+// @Success 200 {object} dto.OrderSearchResponseDto
 // @Router /orders/search [get]
 func (h *orderHandlers) Search() echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -443,6 +443,6 @@ func (h *orderHandlers) Search() echo.HandlerFunc {
 		}
 
 		h.log.Infof("(search) result: {%s}", searchRes.GetPagination().String())
-		return c.JSON(http.StatusOK, searchRes)
+		return c.JSON(http.StatusOK, mappers.SearchResponseFromProto(searchRes))
 	}
 }
