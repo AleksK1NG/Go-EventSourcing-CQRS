@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type GetOrderResponseDto struct {
+type OrderResponseDto struct {
 	ID              string     `json:"id" bson:"_id,omitempty"`
 	OrderID         string     `json:"orderId,omitempty" bson:"orderId,omitempty"`
 	ShopItems       []ShopItem `json:"shopItems,omitempty" bson:"shopItems,omitempty"`

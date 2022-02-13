@@ -375,7 +375,7 @@ func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
-// @Success 200 {object} dto.GetOrderResponseDto
+// @Success 200 {object} dto.OrderResponseDto
 // @Router /orders/{id} [get]
 func (h *orderHandlers) GetOrderByID() echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -405,7 +405,7 @@ func (h *orderHandlers) GetOrderByID() echo.HandlerFunc {
 		}
 
 		h.log.Infof("(get order by id) orderID: {%s}", orderID.String())
-		return c.JSON(http.StatusOK, mappers.GetOrderResponseFromProjection(orderProjection))
+		return c.JSON(http.StatusOK, mappers.OrderResponseFromProjection(orderProjection))
 	}
 }
 

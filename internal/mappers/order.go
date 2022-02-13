@@ -26,8 +26,8 @@ func OrderProjectionFromAggregate(orderAggregate *aggregate.OrderAggregate) *mod
 	}
 }
 
-func GetOrderResponseFromProjection(projection *models.OrderProjection) dto.GetOrderResponseDto {
-	return dto.GetOrderResponseDto{
+func OrderResponseFromProjection(projection *models.OrderProjection) dto.OrderResponseDto {
+	return dto.OrderResponseDto{
 		ID:              projection.ID,
 		OrderID:         projection.OrderID,
 		ShopItems:       ShopItemsResponseFromModels(projection.ShopItems),
@@ -45,8 +45,8 @@ func GetOrderResponseFromProjection(projection *models.OrderProjection) dto.GetO
 	}
 }
 
-func OrderResponseDtoFromProto(orderProto *orderService.Order) dto.GetOrderResponseDto {
-	return dto.GetOrderResponseDto{
+func OrderResponseDtoFromProto(orderProto *orderService.Order) dto.OrderResponseDto {
+	return dto.OrderResponseDto{
 		OrderID:         orderProto.GetID(),
 		ShopItems:       ShopItemsResponseFromProto(orderProto.GetShopItems()),
 		AccountEmail:    orderProto.GetAccountEmail(),
@@ -63,15 +63,15 @@ func OrderResponseDtoFromProto(orderProto *orderService.Order) dto.GetOrderRespo
 	}
 }
 
-func OrdersFromProjections(projections []*models.OrderProjection) []dto.GetOrderResponseDto {
-	orders := make([]dto.GetOrderResponseDto, 0, len(projections))
+func OrdersFromProjections(projections []*models.OrderProjection) []dto.OrderResponseDto {
+	orders := make([]dto.OrderResponseDto, 0, len(projections))
 	for _, projection := range projections {
-		orders = append(orders, GetOrderResponseFromProjection(projection))
+		orders = append(orders, OrderResponseFromProjection(projection))
 	}
 	return orders
 }
 
-func OrderResponseDtoToProto(orderDto dto.GetOrderResponseDto) *orderService.Order {
+func OrderResponseDtoToProto(orderDto dto.OrderResponseDto) *orderService.Order {
 	return &orderService.Order{
 		ID:                orderDto.OrderID,
 		ShopItems:         ShopItemsResponseToProto(orderDto.ShopItems),
@@ -89,7 +89,7 @@ func OrderResponseDtoToProto(orderDto dto.GetOrderResponseDto) *orderService.Ord
 	}
 }
 
-func OrdersResponseDtoToProto(ordersDto []dto.GetOrderResponseDto) []*orderService.Order {
+func OrdersResponseDtoToProto(ordersDto []dto.OrderResponseDto) []*orderService.Order {
 	orders := make([]*orderService.Order, 0, len(ordersDto))
 	for _, order := range ordersDto {
 		orders = append(orders, OrderResponseDtoToProto(order))
