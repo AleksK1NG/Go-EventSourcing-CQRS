@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
+	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/opentracing/opentracing-go"
@@ -11,7 +12,7 @@ import (
 )
 
 type SubmitOrderCommandHandler interface {
-	Handle(ctx context.Context, command *aggregate.SubmitOrderCommand) error
+	Handle(ctx context.Context, command *v1.SubmitOrderCommand) error
 }
 
 type submitOrderHandler struct {
@@ -24,7 +25,7 @@ func NewSubmitOrderHandler(log logger.Logger, cfg *config.Config, es es.Aggregat
 	return &submitOrderHandler{log: log, cfg: cfg, es: es}
 }
 
-func (c *submitOrderHandler) Handle(ctx context.Context, command *aggregate.SubmitOrderCommand) error {
+func (c *submitOrderHandler) Handle(ctx context.Context, command *v1.SubmitOrderCommand) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "submitOrderHandler.Handle")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))

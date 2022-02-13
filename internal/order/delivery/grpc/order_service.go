@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/internal/metrics"
-	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
+	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/internal/order/queries"
@@ -42,7 +42,7 @@ func (s *orderGrpcService) CreateOrder(ctx context.Context, req *orderService.Cr
 		DeliveryAddress: req.GetDeliveryAddress(),
 		AccountEmail:    req.GetAccountEmail(),
 	}
-	command := aggregate.NewCreateOrderCommand(orderCreatedData, aggregateID)
+	command := v1.NewCreateOrderCommand(orderCreatedData, aggregateID)
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) aggregateID: {%s}, err: {%v}", aggregateID, err)
 		tracing.TraceErr(span, err)
@@ -65,7 +65,7 @@ func (s *orderGrpcService) PayOrder(ctx context.Context, req *orderService.PayOr
 	s.metrics.PayOrderGrpcRequests.Inc()
 
 	payment := models.Payment{PaymentID: req.GetPayment().GetID(), Timestamp: time.Now()}
-	command := aggregate.NewOrderPaidCommand(payment, req.GetAggregateID())
+	command := v1.NewOrderPaidCommand(payment, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
@@ -87,7 +87,7 @@ func (s *orderGrpcService) SubmitOrder(ctx context.Context, req *orderService.Su
 	span.LogFields(log.String("req", req.String()))
 	s.metrics.SubmitOrderGrpcRequests.Inc()
 
-	command := aggregate.NewSubmitOrderCommand(req.GetAggregateID())
+	command := v1.NewSubmitOrderCommand(req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
@@ -133,7 +133,7 @@ func (s *orderGrpcService) UpdateOrder(ctx context.Context, req *orderService.Up
 	span.LogFields(log.String("UpdateOrder req", req.String()))
 	s.metrics.UpdateOrderGrpcRequests.Inc()
 
-	command := aggregate.NewOrderUpdatedCommand(events.OrderUpdatedEventData{ShopItems: models.ShopItemsFromProto(req.GetShopItems())}, req.GetAggregateID())
+	command := v1.NewOrderUpdatedCommand(events.OrderUpdatedEventData{ShopItems: models.ShopItemsFromProto(req.GetShopItems())}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
@@ -155,7 +155,7 @@ func (s *orderGrpcService) CancelOrder(ctx context.Context, req *orderService.Ca
 	span.LogFields(log.String("CancelOrder req", req.String()))
 	s.metrics.CancelOrderGrpcRequests.Inc()
 
-	command := aggregate.NewOrderCanceledCommand(events.OrderCanceledEventData{CancelReason: req.GetCancelReason()}, req.GetAggregateID())
+	command := v1.NewOrderCanceledCommand(events.OrderCanceledEventData{CancelReason: req.GetCancelReason()}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
@@ -177,7 +177,7 @@ func (s *orderGrpcService) DeliveryOrder(ctx context.Context, req *orderService.
 	span.LogFields(log.String("DeliveryOrder req", req.String()))
 	s.metrics.DeliverOrderGrpcRequests.Inc()
 
-	command := aggregate.NewOrderDeliveredCommand(events.OrderDeliveredEventData{DeliveryTimestamp: time.Now()}, req.GetAggregateID())
+	command := v1.NewOrderDeliveredCommand(events.OrderDeliveredEventData{DeliveryTimestamp: time.Now()}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
@@ -199,7 +199,7 @@ func (s *orderGrpcService) ChangeDeliveryAddress(ctx context.Context, req *order
 	span.LogFields(log.String("ChangeDeliveryAddress req", req.String()))
 	s.metrics.ChangeAddressOrderGrpcRequests.Inc()
 
-	command := aggregate.NewOrderChangeDeliveryAddressCommand(events.OrderChangeDeliveryAddress{DeliveryAddress: req.GetDeliveryAddress()}, req.GetAggregateID())
+	command := v1.NewOrderChangeDeliveryAddressCommand(events.OrderChangeDeliveryAddress{DeliveryAddress: req.GetDeliveryAddress()}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)

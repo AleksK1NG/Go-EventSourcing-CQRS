@@ -1,4 +1,4 @@
-package aggregate
+package v1
 
 import (
 	"github.com/AleksK1NG/es-microservice/internal/order/events"

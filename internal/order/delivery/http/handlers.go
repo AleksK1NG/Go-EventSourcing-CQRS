@@ -3,7 +3,7 @@ package http
 import (
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/metrics"
-	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
+	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/internal/order/queries"
@@ -81,7 +81,7 @@ func (h *orderHandlers) CreateOrder() echo.HandlerFunc {
 		}
 
 		id := uuid.NewV4().String()
-		command := aggregate.NewCreateOrderCommand(eventData, id)
+		command := v1.NewCreateOrderCommand(eventData, id)
 		err := h.os.Commands.CreateOrder.Handle(ctx, command)
 		if err != nil {
 			h.log.Errorf("(CreateOrder.Handle) id: {%s}, err: {%v}", id, err)
@@ -123,7 +123,7 @@ func (h *orderHandlers) PayOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := aggregate.NewOrderPaidCommand(payment, orderID.String())
+		command := v1.NewOrderPaidCommand(payment, orderID.String())
 		if err := h.v.StructCtx(ctx, command); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
@@ -164,7 +164,7 @@ func (h *orderHandlers) SubmitOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := aggregate.NewSubmitOrderCommand(orderID.String())
+		command := v1.NewSubmitOrderCommand(orderID.String())
 		if err := h.v.StructCtx(ctx, command); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
@@ -212,7 +212,7 @@ func (h *orderHandlers) CancelOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := aggregate.NewOrderCanceledCommand(data, orderID.String())
+		command := v1.NewOrderCanceledCommand(data, orderID.String())
 		if err := h.v.StructCtx(ctx, command); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
@@ -260,7 +260,7 @@ func (h *orderHandlers) DeliverOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := aggregate.NewOrderDeliveredCommand(data, orderID.String())
+		command := v1.NewOrderDeliveredCommand(data, orderID.String())
 		if err := h.v.StructCtx(ctx, command); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
@@ -308,7 +308,7 @@ func (h *orderHandlers) ChangeDeliveryAddress() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := aggregate.NewOrderChangeDeliveryAddressCommand(data, orderID.String())
+		command := v1.NewOrderChangeDeliveryAddressCommand(data, orderID.String())
 		if err := h.v.StructCtx(ctx, command); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
@@ -363,7 +363,7 @@ func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := aggregate.NewOrderUpdatedCommand(eventData, orderID.String())
+		command := v1.NewOrderUpdatedCommand(eventData, orderID.String())
 		err = h.os.Commands.UpdateOrder.Handle(ctx, command)
 		if err != nil {
 			h.log.Errorf("(UpdateOrder.Handle) id: {%s}, err: {%v}", orderID.String(), err)
