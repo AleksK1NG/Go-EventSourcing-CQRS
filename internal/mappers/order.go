@@ -4,6 +4,7 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/dto"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
+	orderService "github.com/AleksK1NG/es-microservice/proto/order"
 )
 
 func OrderProjectionFromAggregate(orderAggregate *aggregate.OrderAggregate) *models.OrderProjection {
@@ -28,7 +29,7 @@ func GetOrderResponseFromProjection(projection *models.OrderProjection) dto.GetO
 	return dto.GetOrderResponseDto{
 		ID:              projection.ID,
 		OrderID:         projection.OrderID,
-		ShopItems:       projection.ShopItems,
+		ShopItems:       ShopItemsResponseFromModels(projection.ShopItems),
 		AccountEmail:    projection.AccountEmail,
 		DeliveryAddress: projection.DeliveryAddress,
 		CancelReason:    projection.CancelReason,
@@ -39,6 +40,24 @@ func GetOrderResponseFromProjection(projection *models.OrderProjection) dto.GetO
 		Submitted:       projection.Submitted,
 		Delivered:       projection.Delivered,
 		Canceled:        projection.Canceled,
-		Payment:         projection.Payment,
+		Payment:         PaymentResponseFromModel(projection.Payment),
+	}
+}
+
+func OrderResponseDtoFromProto(orderProto *orderService.Order) dto.GetOrderResponseDto {
+	return dto.GetOrderResponseDto{
+		OrderID:         orderProto.GetID(),
+		ShopItems:       ShopItemsResponseFromProto(orderProto.GetShopItems()),
+		AccountEmail:    orderProto.GetAccountEmail(),
+		DeliveryAddress: orderProto.GetDeliveryAddress(),
+		CancelReason:    orderProto.GetCancelReason(),
+		TotalPrice:      orderProto.GetTotalPrice(),
+		DeliveredTime:   orderProto.GetDeliveryTimestamp().AsTime(),
+		Created:         orderProto.GetCreated(),
+		Paid:            orderProto.GetPaid(),
+		Submitted:       orderProto.GetSubmitted(),
+		Delivered:       orderProto.GetDelivered(),
+		Canceled:        orderProto.GetCanceled(),
+		Payment:         PaymentFromProto(orderProto.GetPayment()),
 	}
 }

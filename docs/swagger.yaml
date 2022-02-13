@@ -1,7 +1,9 @@
 definitions:
-  dto.CreateOrderDto:
+  dto.CreateOrderReqDto:
     properties:
       accountEmail:
+        type: string
+      deliveryAddress:
         type: string
       shopItems:
         items:
@@ -9,20 +11,14 @@ definitions:
         type: array
     required:
     - accountEmail
+    - deliveryAddress
     - shopItems
     type: object
-  dto.UpdateOrderDto:
-    properties:
-      shopItems:
-        items:
-          $ref: '#/definitions/models.ShopItem'
-        type: array
-    required:
-    - shopItems
-    type: object
-  models.OrderProjection:
+  dto.GetOrderResponseDto:
     properties:
       accountEmail:
+        type: string
+      cancelReason:
         type: string
       canceled:
         type: boolean
@@ -30,17 +26,21 @@ definitions:
         type: boolean
       delivered:
         type: boolean
-      delivering:
-        type: boolean
+      deliveredTime:
+        type: string
+      deliveryAddress:
+        type: string
       id:
         type: string
       orderId:
         type: string
       paid:
         type: boolean
+      payment:
+        $ref: '#/definitions/dto.Payment'
       shopItems:
         items:
-          $ref: '#/definitions/models.ShopItem'
+          $ref: '#/definitions/dto.ShopItem'
         type: array
       submitted:
         type: boolean
@@ -49,7 +49,39 @@ definitions:
     required:
     - accountEmail
     type: object
-  models.ShopItem:
+  dto.OrderSearchResponseDto:
+    properties:
+      orders:
+        items:
+          $ref: '#/definitions/dto.GetOrderResponseDto'
+        type: array
+      pagination:
+        $ref: '#/definitions/dto.Pagination'
+    type: object
+  dto.Pagination:
+    properties:
+      hasMore:
+        type: boolean
+      page:
+        type: integer
+      size:
+        type: integer
+      totalCount:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  dto.Payment:
+    properties:
+      paymentID:
+        type: string
+      timestamp:
+        type: string
+    required:
+    - paymentID
+    - timestamp
+    type: object
+  dto.ShopItem:
     properties:
       description:
         type: string
@@ -62,64 +94,26 @@ definitions:
       title:
         type: string
     type: object
-  orderService.Order:
+  dto.UpdateOrderItemsReqDto:
     properties:
-      AccountEmail:
-        type: string
-      Canceled:
-        type: boolean
-      Created:
-        type: boolean
-      Delivered:
-        type: boolean
-      Delivering:
-        type: boolean
-      ID:
-        type: string
-      Paid:
-        type: boolean
-      ShopItems:
+      shopItems:
         items:
-          $ref: '#/definitions/orderService.ShopItem'
+          $ref: '#/definitions/models.ShopItem'
         type: array
-      Submitted:
-        type: boolean
-      TotalPrice:
-        type: number
+    required:
+    - shopItems
     type: object
-  orderService.Pagination:
+  models.ShopItem:
     properties:
-      HasMore:
-        type: boolean
-      Page:
-        type: integer
-      Size:
-        type: integer
-      TotalCount:
-        type: integer
-      TotalPages:
-        type: integer
-    type: object
-  orderService.SearchRes:
-    properties:
-      Orders:
-        items:
-          $ref: '#/definitions/orderService.Order'
-        type: array
-      Pagination:
-        $ref: '#/definitions/orderService.Pagination'
-    type: object
-  orderService.ShopItem:
-    properties:
-      Description:
+      description:
         type: string
-      ID:
+      id:
         type: string
-      Price:
+      price:
         type: number
-      Quantity:
+      quantity:
         type: integer
-      Title:
+      title:
         type: string
     type: object
 info:
@@ -136,7 +130,7 @@ paths:
         name: order
         required: true
         schema:
-          $ref: '#/definitions/dto.CreateOrderDto'
+          $ref: '#/definitions/dto.CreateOrderReqDto'
       produces:
       - application/json
       responses:
@@ -164,7 +158,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.OrderProjection'
+            $ref: '#/definitions/dto.GetOrderResponseDto'
       summary: Get order
       tags:
       - Orders
@@ -183,7 +177,7 @@ paths:
         name: order
         required: true
         schema:
-          $ref: '#/definitions/dto.UpdateOrderDto'
+          $ref: '#/definitions/dto.UpdateOrderItemsReqDto'
       produces:
       - application/json
       responses:
@@ -192,6 +186,69 @@ paths:
           schema:
             type: string
       summary: Update order
+      tags:
+      - Orders
+  /orders/address/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Deliver existing order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Change delivery address order
+      tags:
+      - Orders
+  /orders/cancel/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Cancel existing order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Cancel order
+      tags:
+      - Orders
+  /orders/delivery/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Deliver existing order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Deliver order
       tags:
       - Orders
   /orders/pay/{id}:
@@ -239,7 +296,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/orderService.SearchRes'
+            $ref: '#/definitions/dto.OrderSearchResponseDto'
       summary: Search orders
       tags:
       - Orders
