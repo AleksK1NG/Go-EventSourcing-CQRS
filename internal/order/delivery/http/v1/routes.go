@@ -1,4 +1,4 @@
-package http
+package v1
 
 func (h *orderHandlers) MapRoutes() {
 	h.group.POST("", h.CreateOrder())

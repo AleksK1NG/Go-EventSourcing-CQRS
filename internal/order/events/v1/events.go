@@ -1,4 +1,4 @@
-package events
+package v1
 
 import (
 	"github.com/AleksK1NG/es-microservice/pkg/es"

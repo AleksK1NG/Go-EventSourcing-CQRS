@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
-	"github.com/AleksK1NG/es-microservice/internal/order/events"
+	eventsV1 "github.com/AleksK1NG/es-microservice/internal/order/events/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/opentracing/opentracing-go"
@@ -27,14 +27,14 @@ func (a *OrderAggregate) CreateOrder(ctx context.Context, command *v1.CreateOrde
 		return ErrInvalidDeliveryAddress
 	}
 
-	createdData := &events.OrderCreatedEventData{ShopItems: command.ShopItems, AccountEmail: command.AccountEmail, DeliveryAddress: command.DeliveryAddress}
+	createdData := &eventsV1.OrderCreatedEventData{ShopItems: command.ShopItems, AccountEmail: command.AccountEmail, DeliveryAddress: command.DeliveryAddress}
 	createdDataBytes, err := json.Marshal(createdData)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "json.Marshal")
 	}
 
-	createOrderEvent := events.NewCreateOrderEvent(a, createdDataBytes)
+	createOrderEvent := eventsV1.NewCreateOrderEvent(a, createdDataBytes)
 	if err := createOrderEvent.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "SetMetadata")
@@ -65,7 +65,7 @@ func (a *OrderAggregate) PayOrder(ctx context.Context, command *v1.OrderPaidComm
 		return errors.Wrap(err, "json.Marshal")
 	}
 
-	payOrderEvent := events.NewPayOrderEvent(a, eventData)
+	payOrderEvent := eventsV1.NewPayOrderEvent(a, eventData)
 	if err := payOrderEvent.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "SetMetadata")
@@ -89,7 +89,7 @@ func (a *OrderAggregate) SubmitOrder(ctx context.Context, command *v1.SubmitOrde
 		return ErrAlreadySubmitted
 	}
 
-	submitOrderEvent := events.NewSubmitOrderEvent(a)
+	submitOrderEvent := eventsV1.NewSubmitOrderEvent(a)
 	if err := submitOrderEvent.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "SetMetadata")
@@ -110,14 +110,14 @@ func (a *OrderAggregate) UpdateOrder(ctx context.Context, command *v1.OrderUpdat
 		return ErrAlreadySubmitted
 	}
 
-	eventData := &events.OrderUpdatedEventData{ShopItems: command.ShopItems}
+	eventData := &eventsV1.OrderUpdatedEventData{ShopItems: command.ShopItems}
 	eventDataBytes, err := json.Marshal(eventData)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "json.Marshal")
 	}
 
-	orderUpdatedEvent := events.NewOrderUpdatedEvent(a, eventDataBytes)
+	orderUpdatedEvent := eventsV1.NewOrderUpdatedEvent(a, eventDataBytes)
 	if err := orderUpdatedEvent.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "SetMetadata")
@@ -138,14 +138,14 @@ func (a *OrderAggregate) CancelOrder(ctx context.Context, command *v1.OrderCance
 		return ErrCancelReasonRequired
 	}
 
-	eventData := &events.OrderCanceledEventData{CancelReason: command.CancelReason}
+	eventData := &eventsV1.OrderCanceledEventData{CancelReason: command.CancelReason}
 	eventDataBytes, err := json.Marshal(eventData)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "json.Marshal")
 	}
 
-	event := events.NewOrderCanceledEvent(a, eventDataBytes)
+	event := eventsV1.NewOrderCanceledEvent(a, eventDataBytes)
 	if err := event.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "SetMetadata")
@@ -169,14 +169,14 @@ func (a *OrderAggregate) DeliverOrder(ctx context.Context, command *v1.OrderDeli
 		return ErrOrderMustBePaidBeforeDelivered
 	}
 
-	eventData := &events.OrderDeliveredEventData{DeliveryTimestamp: command.DeliveryTimestamp}
+	eventData := &eventsV1.OrderDeliveredEventData{DeliveryTimestamp: command.DeliveryTimestamp}
 	eventDataBytes, err := json.Marshal(eventData)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "json.Marshal")
 	}
 
-	event := events.NewOrderDeliveredEvent(a, eventDataBytes)
+	event := eventsV1.NewOrderDeliveredEvent(a, eventDataBytes)
 	if err := event.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "SetMetadata")
@@ -194,14 +194,14 @@ func (a *OrderAggregate) ChangeDeliveryAddress(ctx context.Context, command *v1.
 		return ErrOrderAlreadyDelivered
 	}
 
-	eventData := &events.OrderChangeDeliveryAddress{DeliveryAddress: command.DeliveryAddress}
+	eventData := &eventsV1.OrderChangeDeliveryAddress{DeliveryAddress: command.DeliveryAddress}
 	eventDataBytes, err := json.Marshal(eventData)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "json.Marshal")
 	}
 
-	event := events.NewOrderDeliveryAddressUpdatedEvent(a, eventDataBytes)
+	event := eventsV1.NewOrderDeliveryAddressUpdatedEvent(a, eventDataBytes)
 	if err := event.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "SetMetadata")

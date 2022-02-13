@@ -3,7 +3,7 @@ package mongo_projection
 import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
-	"github.com/AleksK1NG/es-microservice/internal/order/events"
+	"github.com/AleksK1NG/es-microservice/internal/order/events/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
@@ -17,7 +17,7 @@ func (o *mongoProjection) onOrderCreate(ctx context.Context, evt es.Event) error
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData events.OrderCreatedEventData
+	var eventData v1.OrderCreatedEventData
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")
@@ -69,7 +69,7 @@ func (o *mongoProjection) onUpdate(ctx context.Context, evt es.Event) error {
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData events.OrderUpdatedEventData
+	var eventData v1.OrderUpdatedEventData
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")
@@ -85,7 +85,7 @@ func (o *mongoProjection) onCancel(ctx context.Context, evt es.Event) error {
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData events.OrderCanceledEventData
+	var eventData v1.OrderCanceledEventData
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")
@@ -105,7 +105,7 @@ func (o *mongoProjection) onDelivered(ctx context.Context, evt es.Event) error {
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData events.OrderDeliveredEventData
+	var eventData v1.OrderDeliveredEventData
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")
@@ -125,7 +125,7 @@ func (o *mongoProjection) onOrderDeliveryAddressUpdated(ctx context.Context, evt
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData events.OrderChangeDeliveryAddress
+	var eventData v1.OrderChangeDeliveryAddress
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")
