@@ -30,14 +30,14 @@ func (c *submitOrderHandler) Handle(ctx context.Context, command *v1.SubmitOrder
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
-	orderAggregate, err := aggregate.LoadOrderAggregate(ctx, c.es, command.GetAggregateID())
+	order, err := aggregate.LoadOrderAggregate(ctx, c.es, command.GetAggregateID())
 	if err != nil {
 		return err
 	}
 
-	if err := orderAggregate.SubmitOrder(ctx, command); err != nil {
+	if err := order.SubmitOrder(ctx, command); err != nil {
 		return err
 	}
 
-	return c.es.Save(ctx, orderAggregate)
+	return c.es.Save(ctx, order)
 }

@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"sync"
 	"testing"
 	"time"
@@ -114,7 +115,10 @@ func TestOrderGrpcService_UpdateOrder(t *testing.T) {
 			require.NotNil(t, result)
 			appLogger.Infof("result: %s", result.String())
 
-			res, err := client.PayOrder(context.Background(), &orderService.PayOrderReq{AggregateID: aggregateID})
+			res, err := client.PayOrder(context.Background(), &orderService.PayOrderReq{AggregateID: aggregateID, Payment: &orderService.Payment{
+				ID:        uuid.NewV4().String(),
+				Timestamp: timestamppb.New(time.Now()),
+			}})
 			if err != nil {
 				appLogger.WarnMsg("client.PayOrder", err)
 			}

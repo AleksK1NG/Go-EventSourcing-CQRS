@@ -32,16 +32,16 @@ func (c *createOrderHandler) Handle(ctx context.Context, command *v1.CreateOrder
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
-	orderAggregate := aggregate.NewOrderAggregateWithID(command.AggregateID)
-	err := c.es.Exists(ctx, orderAggregate.GetID())
+	order := aggregate.NewOrderAggregateWithID(command.AggregateID)
+	err := c.es.Exists(ctx, order.GetID())
 	if err != nil && !errors.Is(err, esdb.ErrStreamNotFound) {
 		return err
 	}
 
-	if err := orderAggregate.CreateOrder(ctx, command); err != nil {
+	if err := order.CreateOrder(ctx, command); err != nil {
 		return err
 	}
 
-	span.LogFields(log.String("orderAggregate", orderAggregate.String()))
-	return c.es.Save(ctx, orderAggregate)
+	span.LogFields(log.String("order", order.String()))
+	return c.es.Save(ctx, order)
 }

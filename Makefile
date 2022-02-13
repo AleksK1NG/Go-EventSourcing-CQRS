@@ -78,12 +78,6 @@ proto_order:
 	cd proto/order && protoc --go_out=. --go-grpc_opt=require_unimplemented_servers=false --go-grpc_out=. order.proto
 
 # ==============================================================================
-# MongoDB
-
-mongo:
-	cd ./scripts && mongo admin -u admin -p admin < init.js
-
-# ==============================================================================
 # Swagger
 
 swagger:

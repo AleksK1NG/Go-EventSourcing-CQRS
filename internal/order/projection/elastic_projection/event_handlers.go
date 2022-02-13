@@ -13,7 +13,7 @@ import (
 )
 
 func (o *elasticProjection) onOrderCreate(ctx context.Context, evt es.Event) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.handleOrderCreateEvent")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.onOrderCreate")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
@@ -35,7 +35,7 @@ func (o *elasticProjection) onOrderCreate(ctx context.Context, evt es.Event) err
 }
 
 func (o *elasticProjection) onOrderPaid(ctx context.Context, evt es.Event) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.handleOrderPaidEvent")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.onOrderPaid")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
@@ -55,7 +55,7 @@ func (o *elasticProjection) onOrderPaid(ctx context.Context, evt es.Event) error
 }
 
 func (o *elasticProjection) onSubmit(ctx context.Context, evt es.Event) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.handleSubmitEvent")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.onSubmit")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
@@ -69,7 +69,7 @@ func (o *elasticProjection) onSubmit(ctx context.Context, evt es.Event) error {
 }
 
 func (o *elasticProjection) onUpdate(ctx context.Context, evt es.Event) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.handleUpdateEvent")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.onUpdate")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
