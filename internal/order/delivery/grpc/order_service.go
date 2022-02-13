@@ -79,7 +79,7 @@ func (s *orderGrpcService) PayOrder(ctx context.Context, req *orderService.PayOr
 		return nil, s.errResponse(err)
 	}
 
-	s.log.Infof("(PayOrder): orderID: {%s}", req.GetAggregateID())
+	s.log.Infof("(paid order): orderID: {%s}", req.GetAggregateID())
 	return &orderService.PayOrderRes{AggregateID: req.GetAggregateID()}, nil
 }
 
@@ -101,7 +101,7 @@ func (s *orderGrpcService) SubmitOrder(ctx context.Context, req *orderService.Su
 		return nil, s.errResponse(err)
 	}
 
-	s.log.Infof("(SubmitOrder): orderID: {%s}", req.GetAggregateID())
+	s.log.Infof("(submitted order): orderID: {%s}", req.GetAggregateID())
 	return &orderService.SubmitOrderRes{AggregateID: req.GetAggregateID()}, nil
 }
 

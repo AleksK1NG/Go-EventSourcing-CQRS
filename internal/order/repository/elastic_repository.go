@@ -136,15 +136,4 @@ func (e *elasticRepository) Search(ctx context.Context, text string, pq *utils.P
 		},
 		Orders: mappers.OrdersFromProjections(orders),
 	}, nil
-
-	//return &orderService.SearchRes{
-	//	Pagination: &orderService.Pagination{
-	//		TotalCount: searchResult.TotalHits(),
-	//		TotalPages: int64(pq.GetTotalPages(int(searchResult.TotalHits()))),
-	//		Page:       int64(pq.GetPage()),
-	//		Size:       int64(pq.GetSize()),
-	//		HasMore:    pq.GetHasMore(int(searchResult.TotalHits())),
-	//	},
-	//	Orders: models.OrderProjectionsToProto(orders),
-	//}, nil
 }

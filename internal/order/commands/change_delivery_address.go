@@ -30,14 +30,14 @@ func (c *changeOrderDeliveryAddressCmdHandler) Handle(ctx context.Context, comma
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
-	orderAggregate, err := aggregate.LoadOrderAggregate(ctx, c.es, command.GetAggregateID())
+	order, err := aggregate.LoadOrderAggregate(ctx, c.es, command.GetAggregateID())
 	if err != nil {
 		return err
 	}
 
-	if err := orderAggregate.ChangeDeliveryAddress(ctx, command); err != nil {
+	if err := order.ChangeDeliveryAddress(ctx, command); err != nil {
 		return err
 	}
 
-	return c.es.Save(ctx, orderAggregate)
+	return c.es.Save(ctx, order)
 }
