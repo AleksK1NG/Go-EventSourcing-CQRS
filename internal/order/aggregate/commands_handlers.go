@@ -3,6 +3,7 @@ package aggregate
 import (
 	"context"
 	"encoding/json"
+	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/events"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
@@ -11,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (a *OrderAggregate) CreateOrder(ctx context.Context, command *CreateOrderCommand) error {
+func (a *OrderAggregate) CreateOrder(ctx context.Context, command *v1.CreateOrderCommand) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.CreateOrder")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
@@ -42,7 +43,7 @@ func (a *OrderAggregate) CreateOrder(ctx context.Context, command *CreateOrderCo
 	return a.Apply(createOrderEvent)
 }
 
-func (a *OrderAggregate) PayOrder(ctx context.Context, command *OrderPaidCommand) error {
+func (a *OrderAggregate) PayOrder(ctx context.Context, command *v1.OrderPaidCommand) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.PayOrder")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
@@ -73,7 +74,7 @@ func (a *OrderAggregate) PayOrder(ctx context.Context, command *OrderPaidCommand
 	return a.Apply(payOrderEvent)
 }
 
-func (a *OrderAggregate) SubmitOrder(ctx context.Context, command *SubmitOrderCommand) error {
+func (a *OrderAggregate) SubmitOrder(ctx context.Context, command *v1.SubmitOrderCommand) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.SubmitOrder")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
@@ -97,7 +98,7 @@ func (a *OrderAggregate) SubmitOrder(ctx context.Context, command *SubmitOrderCo
 	return a.Apply(submitOrderEvent)
 }
 
-func (a *OrderAggregate) UpdateOrder(ctx context.Context, command *OrderUpdatedCommand) error {
+func (a *OrderAggregate) UpdateOrder(ctx context.Context, command *v1.OrderUpdatedCommand) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.UpdateOrder")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
@@ -125,7 +126,7 @@ func (a *OrderAggregate) UpdateOrder(ctx context.Context, command *OrderUpdatedC
 	return a.Apply(orderUpdatedEvent)
 }
 
-func (a *OrderAggregate) CancelOrder(ctx context.Context, command *OrderCanceledCommand) error {
+func (a *OrderAggregate) CancelOrder(ctx context.Context, command *v1.OrderCanceledCommand) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.CancelOrder")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
@@ -153,7 +154,7 @@ func (a *OrderAggregate) CancelOrder(ctx context.Context, command *OrderCanceled
 	return a.Apply(event)
 }
 
-func (a *OrderAggregate) DeliverOrder(ctx context.Context, command *OrderDeliveredCommand) error {
+func (a *OrderAggregate) DeliverOrder(ctx context.Context, command *v1.OrderDeliveredCommand) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.DeliverOrder")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
@@ -184,7 +185,7 @@ func (a *OrderAggregate) DeliverOrder(ctx context.Context, command *OrderDeliver
 	return a.Apply(event)
 }
 
-func (a *OrderAggregate) ChangeDeliveryAddress(ctx context.Context, command *OrderChangeDeliveryAddressCommand) error {
+func (a *OrderAggregate) ChangeDeliveryAddress(ctx context.Context, command *v1.OrderChangeDeliveryAddressCommand) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.ChangeDeliveryAddress")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))

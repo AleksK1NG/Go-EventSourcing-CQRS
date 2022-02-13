@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
+	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/opentracing/opentracing-go"
@@ -11,7 +12,7 @@ import (
 )
 
 type ChangeOrderDeliveryAddressCommandHandler interface {
-	Handle(ctx context.Context, command *aggregate.OrderChangeDeliveryAddressCommand) error
+	Handle(ctx context.Context, command *v1.OrderChangeDeliveryAddressCommand) error
 }
 
 type changeOrderDeliveryAddressCmdHandler struct {
@@ -24,7 +25,7 @@ func NewChangeOrderDeliveryAddressCmdHandler(log logger.Logger, cfg *config.Conf
 	return &changeOrderDeliveryAddressCmdHandler{log: log, cfg: cfg, es: es}
 }
 
-func (c *changeOrderDeliveryAddressCmdHandler) Handle(ctx context.Context, command *aggregate.OrderChangeDeliveryAddressCommand) error {
+func (c *changeOrderDeliveryAddressCmdHandler) Handle(ctx context.Context, command *v1.OrderChangeDeliveryAddressCommand) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "changeOrderDeliveryAddressCmdHandler.Handle")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
