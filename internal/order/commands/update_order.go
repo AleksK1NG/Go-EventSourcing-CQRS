@@ -36,7 +36,7 @@ func (c *updateOrderCmdHandler) Handle(ctx context.Context, command *v1.OrderUpd
 		return err
 	}
 
-	if err := order.UpdateOrder(ctx, command); err != nil {
+	if err := order.UpdateOrder(ctx, command.ShopItems); err != nil {
 		return err
 	}
 

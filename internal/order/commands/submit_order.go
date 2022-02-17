@@ -36,7 +36,7 @@ func (c *submitOrderHandler) Handle(ctx context.Context, command *v1.SubmitOrder
 		return err
 	}
 
-	if err := order.SubmitOrder(ctx, command); err != nil {
+	if err := order.SubmitOrder(ctx); err != nil {
 		return err
 	}
 

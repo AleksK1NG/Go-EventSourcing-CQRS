@@ -36,7 +36,7 @@ func (c *changeOrderDeliveryAddressCmdHandler) Handle(ctx context.Context, comma
 		return err
 	}
 
-	if err := order.ChangeDeliveryAddress(ctx, command); err != nil {
+	if err := order.ChangeDeliveryAddress(ctx, command.DeliveryAddress); err != nil {
 		return err
 	}
 
