@@ -1,4 +1,18 @@
 definitions:
+  dto.CancelOrderReqDto:
+    properties:
+      cancelReason:
+        type: string
+    required:
+    - cancelReason
+    type: object
+  dto.ChangeDeliveryAddressReqDto:
+    properties:
+      deliveryAddress:
+        type: string
+    required:
+    - deliveryAddress
+    type: object
   dto.CreateOrderReqDto:
     properties:
       accountEmail:
@@ -194,6 +208,12 @@ paths:
       - application/json
       description: Deliver existing order
       parameters:
+      - description: change delivery address
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChangeDeliveryAddressReqDto'
       - description: Order ID
         in: path
         name: id
@@ -215,6 +235,12 @@ paths:
       - application/json
       description: Cancel existing order
       parameters:
+      - description: cancel order reason
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CancelOrderReqDto'
       - description: Order ID
         in: path
         name: id
@@ -257,6 +283,12 @@ paths:
       - application/json
       description: Pay existing order
       parameters:
+      - description: create order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Payment'
       - description: Order ID
         in: path
         name: id

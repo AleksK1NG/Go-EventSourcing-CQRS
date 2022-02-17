@@ -65,6 +65,15 @@ const docTemplate_swagger = `{
                 "summary": "Change delivery address order",
                 "parameters": [
                     {
+                        "description": "change delivery address",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ChangeDeliveryAddressReqDto"
+                        }
+                    },
+                    {
                         "type": "string",
                         "description": "Order ID",
                         "name": "id",
@@ -96,6 +105,15 @@ const docTemplate_swagger = `{
                 ],
                 "summary": "Cancel order",
                 "parameters": [
+                    {
+                        "description": "cancel order reason",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CancelOrderReqDto"
+                        }
+                    },
                     {
                         "type": "string",
                         "description": "Order ID",
@@ -160,6 +178,15 @@ const docTemplate_swagger = `{
                 ],
                 "summary": "Pay order",
                 "parameters": [
+                    {
+                        "description": "create order",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.Payment"
+                        }
+                    },
                     {
                         "type": "string",
                         "description": "Order ID",
@@ -326,6 +353,28 @@ const docTemplate_swagger = `{
         }
     },
     "definitions": {
+        "dto.CancelOrderReqDto": {
+            "type": "object",
+            "required": [
+                "cancelReason"
+            ],
+            "properties": {
+                "cancelReason": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ChangeDeliveryAddressReqDto": {
+            "type": "object",
+            "required": [
+                "deliveryAddress"
+            ],
+            "properties": {
+                "deliveryAddress": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateOrderReqDto": {
             "type": "object",
             "required": [
