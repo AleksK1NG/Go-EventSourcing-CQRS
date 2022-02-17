@@ -2,13 +2,14 @@ package aggregate
 
 import (
 	"context"
+	"strings"
+
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/EventStore/EventStore-Client-Go/esdb"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
 	"github.com/pkg/errors"
-	"strings"
 )
 
 func GetShopItemsTotalPrice(shopItems []*models.ShopItem) float64 {

@@ -3,6 +3,8 @@ package config
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	"github.com/AleksK1NG/es-microservice/pkg/constants"
 	"github.com/AleksK1NG/es-microservice/pkg/elasticsearch"
 	"github.com/AleksK1NG/es-microservice/pkg/eventstroredb"
@@ -12,7 +14,6 @@ import (
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
-	"os"
 )
 
 var configPath string

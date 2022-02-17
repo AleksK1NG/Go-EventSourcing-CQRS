@@ -38,7 +38,7 @@ type HandleCommand interface {
 //	switch evt.GetEventType() {
 //
 //	case events.OrderCreated:
-//		var eventData events.OrderCreatedEventData
+//		var eventData events.OrderCreatedEvent
 //		if err := json.Unmarshal(evt.GetData(), &eventData); err != nil {
 //			return err
 //		}

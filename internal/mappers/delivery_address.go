@@ -5,8 +5,8 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/events/v1"
 )
 
-func ChangeDeliveryAddressReqDtoToEventData(reqDto dto.ChangeDeliveryAddressReqDto) v1.OrderChangeDeliveryAddress {
-	return v1.OrderChangeDeliveryAddress{
+func ChangeDeliveryAddressReqDtoToEventData(reqDto dto.ChangeDeliveryAddressReqDto) v1.OrderDeliveryAddressChangedEvent {
+	return v1.OrderDeliveryAddressChangedEvent{
 		DeliveryAddress: reqDto.DeliveryAddress,
 	}
 }

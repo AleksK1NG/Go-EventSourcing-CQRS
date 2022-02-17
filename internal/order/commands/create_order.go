@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
 	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
