@@ -59,7 +59,7 @@ func (a *OrderAggregate) When(evt es.Event) error {
 }
 
 func (a *OrderAggregate) onOrderCreated(evt es.Event) error {
-	var eventData v1.OrderCreatedEventData
+	var eventData v1.OrderCreatedEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		return errors.Wrap(err, "GetJsonData")
 	}
@@ -89,7 +89,7 @@ func (a *OrderAggregate) onOrderSubmitted(evt es.Event) error {
 }
 
 func (a *OrderAggregate) onOrderDelivered(evt es.Event) error {
-	var eventData v1.OrderDeliveredEventData
+	var eventData v1.OrderDeliveredEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		return errors.Wrap(err, "GetJsonData")
 	}
@@ -101,7 +101,7 @@ func (a *OrderAggregate) onOrderDelivered(evt es.Event) error {
 }
 
 func (a *OrderAggregate) onOrderCanceled(evt es.Event) error {
-	var eventData v1.OrderCanceledEventData
+	var eventData v1.OrderCanceledEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		return errors.Wrap(err, "GetJsonData")
 	}
@@ -113,7 +113,7 @@ func (a *OrderAggregate) onOrderCanceled(evt es.Event) error {
 }
 
 func (a *OrderAggregate) onOrderUpdated(evt es.Event) error {
-	var eventData v1.OrderUpdatedEventData
+	var eventData v1.OrderUpdatedEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		return errors.Wrap(err, "GetJsonData")
 	}
@@ -124,7 +124,7 @@ func (a *OrderAggregate) onOrderUpdated(evt es.Event) error {
 }
 
 func (a *OrderAggregate) onOrderChangeDeliveryAddress(evt es.Event) error {
-	var eventData v1.OrderChangeDeliveryAddress
+	var eventData v1.OrderDeliveryAddressChangedEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		return errors.Wrap(err, "GetJsonData")
 	}

@@ -2,6 +2,8 @@ package grpc
 
 import (
 	"context"
+	"time"
+
 	"github.com/AleksK1NG/es-microservice/internal/mappers"
 	"github.com/AleksK1NG/es-microservice/internal/metrics"
 	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
@@ -17,7 +19,6 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/opentracing/opentracing-go/log"
 	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 type orderGrpcService struct {
@@ -38,7 +39,7 @@ func (s *orderGrpcService) CreateOrder(ctx context.Context, req *orderService.Cr
 	s.metrics.CreateOrderGrpcRequests.Inc()
 
 	aggregateID := uuid.NewV4().String()
-	orderCreatedData := eventsV1.OrderCreatedEventData{
+	orderCreatedData := eventsV1.OrderCreatedEvent{
 		ShopItems:       models.ShopItemsFromProto(req.GetShopItems()),
 		DeliveryAddress: req.GetDeliveryAddress(),
 		AccountEmail:    req.GetAccountEmail(),
@@ -135,7 +136,7 @@ func (s *orderGrpcService) UpdateOrder(ctx context.Context, req *orderService.Up
 	span.LogFields(log.String("UpdateOrder req", req.String()))
 	s.metrics.UpdateOrderGrpcRequests.Inc()
 
-	command := v1.NewOrderUpdatedCommand(eventsV1.OrderUpdatedEventData{ShopItems: models.ShopItemsFromProto(req.GetShopItems())}, req.GetAggregateID())
+	command := v1.NewOrderUpdatedCommand(eventsV1.OrderUpdatedEvent{ShopItems: models.ShopItemsFromProto(req.GetShopItems())}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
@@ -157,7 +158,7 @@ func (s *orderGrpcService) CancelOrder(ctx context.Context, req *orderService.Ca
 	span.LogFields(log.String("CancelOrder req", req.String()))
 	s.metrics.CancelOrderGrpcRequests.Inc()
 
-	command := v1.NewOrderCanceledCommand(eventsV1.OrderCanceledEventData{CancelReason: req.GetCancelReason()}, req.GetAggregateID())
+	command := v1.NewOrderCanceledCommand(eventsV1.OrderCanceledEvent{CancelReason: req.GetCancelReason()}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
@@ -179,7 +180,7 @@ func (s *orderGrpcService) DeliveryOrder(ctx context.Context, req *orderService.
 	span.LogFields(log.String("DeliveryOrder req", req.String()))
 	s.metrics.DeliverOrderGrpcRequests.Inc()
 
-	command := v1.NewOrderDeliveredCommand(eventsV1.OrderDeliveredEventData{DeliveryTimestamp: time.Now()}, req.GetAggregateID())
+	command := v1.NewOrderDeliveredCommand(eventsV1.OrderDeliveredEvent{DeliveryTimestamp: time.Now()}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
@@ -201,7 +202,7 @@ func (s *orderGrpcService) ChangeDeliveryAddress(ctx context.Context, req *order
 	span.LogFields(log.String("ChangeDeliveryAddress req", req.String()))
 	s.metrics.ChangeAddressOrderGrpcRequests.Inc()
 
-	command := v1.NewOrderChangeDeliveryAddressCommand(eventsV1.OrderChangeDeliveryAddress{DeliveryAddress: req.GetDeliveryAddress()}, req.GetAggregateID())
+	command := v1.NewOrderChangeDeliveryAddressCommand(eventsV1.OrderDeliveryAddressChangedEvent{DeliveryAddress: req.GetDeliveryAddress()}, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)

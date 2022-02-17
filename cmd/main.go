@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
+	"log"
+
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/server"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
-	"log"
 )
 
 // @contact.name Alexander Bryksin

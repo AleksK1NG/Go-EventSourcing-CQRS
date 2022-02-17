@@ -2,6 +2,7 @@ package mongo_projection
 
 import (
 	"context"
+
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
 	"github.com/AleksK1NG/es-microservice/internal/order/events/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
@@ -17,7 +18,7 @@ func (o *mongoProjection) onOrderCreate(ctx context.Context, evt es.Event) error
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData v1.OrderCreatedEventData
+	var eventData v1.OrderCreatedEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")
@@ -69,7 +70,7 @@ func (o *mongoProjection) onUpdate(ctx context.Context, evt es.Event) error {
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData v1.OrderUpdatedEventData
+	var eventData v1.OrderUpdatedEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")
@@ -85,7 +86,7 @@ func (o *mongoProjection) onCancel(ctx context.Context, evt es.Event) error {
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData v1.OrderCanceledEventData
+	var eventData v1.OrderCanceledEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")
@@ -105,7 +106,7 @@ func (o *mongoProjection) onDelivered(ctx context.Context, evt es.Event) error {
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData v1.OrderDeliveredEventData
+	var eventData v1.OrderDeliveredEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")
@@ -125,7 +126,7 @@ func (o *mongoProjection) onOrderDeliveryAddressUpdated(ctx context.Context, evt
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData v1.OrderChangeDeliveryAddress
+	var eventData v1.OrderDeliveryAddressChangedEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")

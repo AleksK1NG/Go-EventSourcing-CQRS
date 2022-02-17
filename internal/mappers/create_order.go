@@ -5,8 +5,8 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/events/v1"
 )
 
-func CreateOrderDtoToEventData(createDto dto.CreateOrderReqDto) v1.OrderCreatedEventData {
-	return v1.OrderCreatedEventData{
+func CreateOrderDtoToEventData(createDto dto.CreateOrderReqDto) v1.OrderCreatedEvent {
+	return v1.OrderCreatedEvent{
 		ShopItems:       createDto.ShopItems,
 		AccountEmail:    createDto.AccountEmail,
 		DeliveryAddress: createDto.DeliveryAddress,

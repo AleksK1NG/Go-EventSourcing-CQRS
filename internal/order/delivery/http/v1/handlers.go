@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"net/http"
+
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/dto"
 	"github.com/AleksK1NG/es-microservice/internal/mappers"
@@ -19,7 +21,6 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	uuid "github.com/satori/go.uuid"
-	"net/http"
 )
 
 type orderHandlers struct {
@@ -197,7 +198,7 @@ func (h *orderHandlers) CancelOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		var data v12.OrderCanceledEventData
+		var data v12.OrderCanceledEvent
 		if err := c.Bind(&data); err != nil {
 			h.log.Errorf("(Bind) err: {%v}", err)
 			tracing.TraceErr(span, err)
@@ -245,7 +246,7 @@ func (h *orderHandlers) DeliverOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		var data v12.OrderDeliveredEventData
+		var data v12.OrderDeliveredEvent
 		if err := c.Bind(&data); err != nil {
 			h.log.Errorf("(Bind) err: {%v}", err)
 			tracing.TraceErr(span, err)
