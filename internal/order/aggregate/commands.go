@@ -2,8 +2,8 @@ package aggregate
 
 import (
 	"context"
+	"time"
 
-	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
 	eventsV1 "github.com/AleksK1NG/es-microservice/internal/order/events/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/tracing"
@@ -12,22 +12,22 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (a *OrderAggregate) CreateOrder(ctx context.Context, command *v1.CreateOrderCommand) error {
+func (a *OrderAggregate) CreateOrder(ctx context.Context, shopItems []*models.ShopItem, accountEmail, deliveryAddress string) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.CreateOrder")
 	defer span.Finish()
-	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
+	span.LogFields(log.String("AggregateID", a.GetID()))
 
 	if a.Order.Created {
 		return ErrAlreadyCreated
 	}
-	if command.ShopItems == nil {
+	if shopItems == nil {
 		return ErrOrderShopItemsIsRequired
 	}
-	if command.DeliveryAddress == "" {
+	if deliveryAddress == "" {
 		return ErrInvalidDeliveryAddress
 	}
 
-	event, err := eventsV1.NewOrderCreatedEvent(a, command.ShopItems, command.AccountEmail, command.DeliveryAddress)
+	event, err := eventsV1.NewOrderCreatedEvent(a, shopItems, accountEmail, deliveryAddress)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "NewOrderCreatedEvent")
@@ -41,10 +41,10 @@ func (a *OrderAggregate) CreateOrder(ctx context.Context, command *v1.CreateOrde
 	return a.Apply(event)
 }
 
-func (a *OrderAggregate) PayOrder(ctx context.Context, command *v1.OrderPaidCommand) error {
+func (a *OrderAggregate) PayOrder(ctx context.Context, payment models.Payment) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.PayOrder")
 	defer span.Finish()
-	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
+	span.LogFields(log.String("AggregateID", a.GetID()))
 
 	if !a.Order.Created || a.Order.Canceled {
 		return ErrAlreadyCreatedOrCancelled
@@ -56,7 +56,6 @@ func (a *OrderAggregate) PayOrder(ctx context.Context, command *v1.OrderPaidComm
 		return ErrAlreadySubmitted
 	}
 
-	payment := models.Payment{PaymentID: command.PaymentID, Timestamp: command.Timestamp}
 	event, err := eventsV1.NewOrderPaidEvent(a, &payment)
 	if err != nil {
 		tracing.TraceErr(span, err)
@@ -71,10 +70,10 @@ func (a *OrderAggregate) PayOrder(ctx context.Context, command *v1.OrderPaidComm
 	return a.Apply(event)
 }
 
-func (a *OrderAggregate) SubmitOrder(ctx context.Context, command *v1.SubmitOrderCommand) error {
+func (a *OrderAggregate) SubmitOrder(ctx context.Context) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.SubmitOrder")
 	defer span.Finish()
-	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
+	span.LogFields(log.String("AggregateID", a.GetID()))
 
 	if !a.Order.Created || a.Order.Canceled {
 		return ErrAlreadyCreatedOrCancelled
@@ -100,10 +99,10 @@ func (a *OrderAggregate) SubmitOrder(ctx context.Context, command *v1.SubmitOrde
 	return a.Apply(submitOrderEvent)
 }
 
-func (a *OrderAggregate) UpdateOrder(ctx context.Context, command *v1.OrderUpdatedCommand) error {
+func (a *OrderAggregate) UpdateOrder(ctx context.Context, shopItems []*models.ShopItem) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.UpdateOrder")
 	defer span.Finish()
-	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
+	span.LogFields(log.String("AggregateID", a.GetID()))
 
 	if !a.Order.Created || a.Order.Canceled {
 		return ErrAlreadyCreatedOrCancelled
@@ -112,7 +111,7 @@ func (a *OrderAggregate) UpdateOrder(ctx context.Context, command *v1.OrderUpdat
 		return ErrAlreadySubmitted
 	}
 
-	orderUpdatedEvent, err := eventsV1.NewOrderUpdatedEvent(a, command.ShopItems)
+	orderUpdatedEvent, err := eventsV1.NewOrderUpdatedEvent(a, shopItems)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "NewOrderUpdatedEvent")
@@ -126,19 +125,19 @@ func (a *OrderAggregate) UpdateOrder(ctx context.Context, command *v1.OrderUpdat
 	return a.Apply(orderUpdatedEvent)
 }
 
-func (a *OrderAggregate) CancelOrder(ctx context.Context, command *v1.OrderCanceledCommand) error {
+func (a *OrderAggregate) CancelOrder(ctx context.Context, cancelReason string) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.CancelOrder")
 	defer span.Finish()
-	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
+	span.LogFields(log.String("AggregateID", a.GetID()))
 
 	if a.Order.Delivered {
 		return ErrOrderAlreadyDelivered
 	}
-	if command.CancelReason == "" {
+	if cancelReason == "" {
 		return ErrCancelReasonRequired
 	}
 
-	event, err := eventsV1.NewOrderCanceledEvent(a, command.CancelReason)
+	event, err := eventsV1.NewOrderCanceledEvent(a, cancelReason)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "NewOrderCanceledEvent")
@@ -152,10 +151,10 @@ func (a *OrderAggregate) CancelOrder(ctx context.Context, command *v1.OrderCance
 	return a.Apply(event)
 }
 
-func (a *OrderAggregate) DeliverOrder(ctx context.Context, command *v1.OrderDeliveredCommand) error {
+func (a *OrderAggregate) DeliverOrder(ctx context.Context, deliveryTimestamp time.Time) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.DeliverOrder")
 	defer span.Finish()
-	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
+	span.LogFields(log.String("AggregateID", a.GetID()))
 
 	if a.Order.Delivered {
 		return ErrOrderAlreadyDelivered
@@ -167,7 +166,7 @@ func (a *OrderAggregate) DeliverOrder(ctx context.Context, command *v1.OrderDeli
 		return ErrOrderMustBePaidBeforeDelivered
 	}
 
-	event, err := eventsV1.NewOrderDeliveredEvent(a, command.DeliveryTimestamp)
+	event, err := eventsV1.NewOrderDeliveredEvent(a, deliveryTimestamp)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "NewOrderDeliveredEvent")
@@ -181,16 +180,16 @@ func (a *OrderAggregate) DeliverOrder(ctx context.Context, command *v1.OrderDeli
 	return a.Apply(event)
 }
 
-func (a *OrderAggregate) ChangeDeliveryAddress(ctx context.Context, command *v1.OrderChangeDeliveryAddressCommand) error {
+func (a *OrderAggregate) ChangeDeliveryAddress(ctx context.Context, deliveryAddress string) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.ChangeDeliveryAddress")
 	defer span.Finish()
-	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
+	span.LogFields(log.String("AggregateID", a.GetID()))
 
 	if a.Order.Delivered {
 		return ErrOrderAlreadyDelivered
 	}
 
-	event, err := eventsV1.NewOrderDeliveryAddressChangedEvent(a, command.DeliveryAddress)
+	event, err := eventsV1.NewOrderDeliveryAddressChangedEvent(a, deliveryAddress)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "NewOrderDeliveryAddressChangedEvent")

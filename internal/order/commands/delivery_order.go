@@ -36,7 +36,7 @@ func (c *deliveryOrderCommandHandler) Handle(ctx context.Context, command *v1.Or
 		return err
 	}
 
-	if err := order.DeliverOrder(ctx, command); err != nil {
+	if err := order.DeliverOrder(ctx, command.DeliveryTimestamp); err != nil {
 		return err
 	}
 

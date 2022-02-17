@@ -36,7 +36,7 @@ func (c *cancelOrderCommandHandler) Handle(ctx context.Context, command *v1.Orde
 		return err
 	}
 
-	if err := order.CancelOrder(ctx, command); err != nil {
+	if err := order.CancelOrder(ctx, command.CancelReason); err != nil {
 		return err
 	}
 

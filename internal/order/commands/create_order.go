@@ -39,7 +39,7 @@ func (c *createOrderHandler) Handle(ctx context.Context, command *v1.CreateOrder
 		return err
 	}
 
-	if err := order.CreateOrder(ctx, command); err != nil {
+	if err := order.CreateOrder(ctx, command.ShopItems, command.AccountEmail, command.DeliveryAddress); err != nil {
 		return err
 	}
 

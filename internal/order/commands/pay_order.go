@@ -36,7 +36,7 @@ func (c *orderPaidHandler) Handle(ctx context.Context, command *v1.OrderPaidComm
 		return err
 	}
 
-	if err := order.PayOrder(ctx, command); err != nil {
+	if err := order.PayOrder(ctx, command.Payment); err != nil {
 		return err
 	}
 
