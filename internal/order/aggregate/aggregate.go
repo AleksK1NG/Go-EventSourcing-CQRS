@@ -23,6 +23,7 @@ func NewOrderAggregateWithID(id string) *OrderAggregate {
 
 	aggregate := NewOrderAggregate()
 	aggregate.SetID(id)
+	aggregate.Order.ID = id
 	return aggregate
 }
 
