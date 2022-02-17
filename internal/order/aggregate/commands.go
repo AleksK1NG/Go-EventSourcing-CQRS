@@ -27,10 +27,10 @@ func (a *OrderAggregate) CreateOrder(ctx context.Context, command *v1.CreateOrde
 		return ErrInvalidDeliveryAddress
 	}
 
-	event, err := eventsV1.NewCreateOrderEvent(a, command.ShopItems, command.AccountEmail, command.DeliveryAddress)
+	event, err := eventsV1.NewOrderCreatedEvent(a, command.ShopItems, command.AccountEmail, command.DeliveryAddress)
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return errors.Wrap(err, "NewCreateOrderEvent")
+		return errors.Wrap(err, "NewOrderCreatedEvent")
 	}
 
 	if err := event.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
@@ -190,10 +190,10 @@ func (a *OrderAggregate) ChangeDeliveryAddress(ctx context.Context, command *v1.
 		return ErrOrderAlreadyDelivered
 	}
 
-	event, err := eventsV1.NewOrderDeliveryAddressUpdatedEvent(a, command.DeliveryAddress)
+	event, err := eventsV1.NewOrderDeliveryAddressChangedEvent(a, command.DeliveryAddress)
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return errors.Wrap(err, "NewOrderDeliveryAddressUpdatedEvent")
+		return errors.Wrap(err, "NewOrderDeliveryAddressChangedEvent")
 	}
 
 	if err := event.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {

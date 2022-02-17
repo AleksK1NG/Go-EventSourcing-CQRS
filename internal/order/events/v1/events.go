@@ -17,13 +17,18 @@ const (
 	OrderDeliveryAddressUpdated = "V1_ORDER_DELIVERY_ADDRESS_UPDATED"
 )
 
-func NewCreateOrderEvent(aggregate es.Aggregate, shopItems []*models.ShopItem, accountEmail, deliveryAddress string) (es.Event, error) {
+type OrderCreatedEvent struct {
+	ShopItems       []*models.ShopItem `json:"shopItems" bson:"shopItems,omitempty"`
+	AccountEmail    string             `json:"accountEmail" bson:"accountEmail,omitempty"`
+	DeliveryAddress string             `json:"deliveryAddress" bson:"deliveryAddress,omitempty"`
+}
+
+func NewOrderCreatedEvent(aggregate es.Aggregate, shopItems []*models.ShopItem, accountEmail, deliveryAddress string) (es.Event, error) {
 	eventData := OrderCreatedEvent{
 		ShopItems:       shopItems,
 		AccountEmail:    accountEmail,
 		DeliveryAddress: deliveryAddress,
 	}
-
 	event := es.NewBaseEvent(aggregate, OrderCreated)
 	if err := event.SetJsonData(&eventData); err != nil {
 		return es.Event{}, err
@@ -43,6 +48,10 @@ func NewSubmitOrderEvent(aggregate es.Aggregate) (es.Event, error) {
 	return es.NewBaseEvent(aggregate, OrderSubmitted), nil
 }
 
+type OrderUpdatedEvent struct {
+	ShopItems []*models.ShopItem `json:"shopItems" bson:"shopItems,omitempty"`
+}
+
 func NewOrderUpdatedEvent(aggregate es.Aggregate, shopItems []*models.ShopItem) (es.Event, error) {
 	eventData := OrderUpdatedEvent{ShopItems: shopItems}
 	event := es.NewBaseEvent(aggregate, OrderUpdated)
@@ -52,13 +61,21 @@ func NewOrderUpdatedEvent(aggregate es.Aggregate, shopItems []*models.ShopItem) 
 	return event, nil
 }
 
-func NewOrderDeliveryAddressUpdatedEvent(aggregate es.Aggregate, deliveryAddress string) (es.Event, error) {
+type OrderDeliveryAddressChangedEvent struct {
+	DeliveryAddress string `json:"deliveryAddress" bson:"deliveryAddress,omitempty"`
+}
+
+func NewOrderDeliveryAddressChangedEvent(aggregate es.Aggregate, deliveryAddress string) (es.Event, error) {
 	eventData := OrderDeliveryAddressChangedEvent{DeliveryAddress: deliveryAddress}
 	event := es.NewBaseEvent(aggregate, OrderDeliveryAddressUpdated)
 	if err := event.SetJsonData(&eventData); err != nil {
 		return es.Event{}, err
 	}
 	return event, nil
+}
+
+type OrderCanceledEvent struct {
+	CancelReason string `json:"cancelReason"`
 }
 
 func NewOrderCanceledEvent(aggregate es.Aggregate, cancelReason string) (es.Event, error) {
@@ -69,6 +86,10 @@ func NewOrderCanceledEvent(aggregate es.Aggregate, cancelReason string) (es.Even
 		return es.Event{}, err
 	}
 	return event, nil
+}
+
+type OrderDeliveredEvent struct {
+	DeliveryTimestamp time.Time `json:"deliveryTimestamp"`
 }
 
 func NewOrderDeliveredEvent(aggregate es.Aggregate, deliveryTimestamp time.Time) (es.Event, error) {
