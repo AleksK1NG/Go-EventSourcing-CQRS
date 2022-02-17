@@ -1,18 +1,21 @@
 package v1
 
 import (
-	"github.com/AleksK1NG/es-microservice/internal/order/events/v1"
+	"time"
+
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 )
 
 type CreateOrderCommand struct {
-	v1.OrderCreatedEvent
 	es.BaseCommand
+	ShopItems       []*models.ShopItem `json:"shopItems" bson:"shopItems,omitempty" validate:"required"`
+	AccountEmail    string             `json:"accountEmail" bson:"accountEmail,omitempty" validate:"required,email"`
+	DeliveryAddress string             `json:"deliveryAddress" bson:"deliveryAddress,omitempty" validate:"required"`
 }
 
-func NewCreateOrderCommand(orderCreatedData v1.OrderCreatedEvent, aggregateID string) *CreateOrderCommand {
-	return &CreateOrderCommand{OrderCreatedEvent: orderCreatedData, BaseCommand: es.NewBaseCommand(aggregateID)}
+func NewCreateOrderCommand(aggregateID string, shopItems []*models.ShopItem, accountEmail, deliveryAddress string) *CreateOrderCommand {
+	return &CreateOrderCommand{BaseCommand: es.NewBaseCommand(aggregateID), ShopItems: shopItems, AccountEmail: accountEmail, DeliveryAddress: deliveryAddress}
 }
 
 type OrderPaidCommand struct {
@@ -33,37 +36,37 @@ func NewSubmitOrderCommand(aggregateID string) *SubmitOrderCommand {
 }
 
 type OrderUpdatedCommand struct {
-	v1.OrderUpdatedEvent
 	es.BaseCommand
+	ShopItems []*models.ShopItem `json:"shopItems" bson:"shopItems,omitempty" validate:"required"`
 }
 
-func NewOrderUpdatedCommand(orderUpdatedData v1.OrderUpdatedEvent, aggregateID string) *OrderUpdatedCommand {
-	return &OrderUpdatedCommand{OrderUpdatedEvent: orderUpdatedData, BaseCommand: es.NewBaseCommand(aggregateID)}
+func NewOrderUpdatedCommand(aggregateID string, shopItems []*models.ShopItem) *OrderUpdatedCommand {
+	return &OrderUpdatedCommand{BaseCommand: es.NewBaseCommand(aggregateID), ShopItems: shopItems}
 }
 
 type OrderCanceledCommand struct {
-	v1.OrderCanceledEvent
 	es.BaseCommand
+	CancelReason string `json:"cancelReason" validate:"required"`
 }
 
-func NewOrderCanceledCommand(orderCanceledEventData v1.OrderCanceledEvent, aggregateID string) *OrderCanceledCommand {
-	return &OrderCanceledCommand{OrderCanceledEvent: orderCanceledEventData, BaseCommand: es.NewBaseCommand(aggregateID)}
+func NewOrderCanceledCommand(aggregateID string, cancelReason string) *OrderCanceledCommand {
+	return &OrderCanceledCommand{BaseCommand: es.NewBaseCommand(aggregateID), CancelReason: cancelReason}
 }
 
 type OrderDeliveredCommand struct {
-	v1.OrderDeliveredEvent
 	es.BaseCommand
+	DeliveryTimestamp time.Time `json:"deliveryTimestamp" validate:"required"`
 }
 
-func NewOrderDeliveredCommand(orderDeliveredEventData v1.OrderDeliveredEvent, aggregateID string) *OrderDeliveredCommand {
-	return &OrderDeliveredCommand{OrderDeliveredEvent: orderDeliveredEventData, BaseCommand: es.NewBaseCommand(aggregateID)}
+func NewOrderDeliveredCommand(aggregateID string, deliveryTimestamp time.Time) *OrderDeliveredCommand {
+	return &OrderDeliveredCommand{BaseCommand: es.NewBaseCommand(aggregateID), DeliveryTimestamp: deliveryTimestamp}
 }
 
 type OrderChangeDeliveryAddressCommand struct {
-	v1.OrderDeliveryAddressChangedEvent
 	es.BaseCommand
+	DeliveryAddress string `json:"deliveryAddress" bson:"deliveryAddress,omitempty" validate:"required"`
 }
 
-func NewOrderChangeDeliveryAddressCommand(orderChangeDeliveryAddress v1.OrderDeliveryAddressChangedEvent, aggregateID string) *OrderChangeDeliveryAddressCommand {
-	return &OrderChangeDeliveryAddressCommand{OrderDeliveryAddressChangedEvent: orderChangeDeliveryAddress, BaseCommand: es.NewBaseCommand(aggregateID)}
+func NewOrderChangeDeliveryAddressCommand(aggregateID string, deliveryAddress string) *OrderChangeDeliveryAddressCommand {
+	return &OrderChangeDeliveryAddressCommand{BaseCommand: es.NewBaseCommand(aggregateID), DeliveryAddress: deliveryAddress}
 }

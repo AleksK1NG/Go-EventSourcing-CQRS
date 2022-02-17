@@ -20,7 +20,7 @@ func (a *OrderAggregate) CreateOrder(ctx context.Context, command *v1.CreateOrde
 	if a.Order.Created {
 		return ErrAlreadyCreated
 	}
-	if command.OrderCreatedEvent.ShopItems == nil {
+	if command.ShopItems == nil {
 		return ErrOrderShopItemsIsRequired
 	}
 	if command.DeliveryAddress == "" {
