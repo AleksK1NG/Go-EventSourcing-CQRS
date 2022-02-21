@@ -106,18 +106,18 @@ func (o *elasticProjection) onCancel(ctx context.Context, evt es.Event) error {
 		return err
 	}
 	projection.Canceled = true
-	projection.Delivered = false
+	projection.Completed = false
 	projection.CancelReason = eventData.CancelReason
 
 	return o.elasticRepository.UpdateOrder(ctx, projection)
 }
 
-func (o *elasticProjection) onDelivered(ctx context.Context, evt es.Event) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.onDelivered")
+func (o *elasticProjection) onComplete(ctx context.Context, evt es.Event) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.onComplete")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData v1.OrderDeliveredEvent
+	var eventData v1.OrderCompletedEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")
@@ -127,7 +127,7 @@ func (o *elasticProjection) onDelivered(ctx context.Context, evt es.Event) error
 	if err != nil {
 		return err
 	}
-	projection.Delivered = true
+	projection.Completed = true
 	projection.DeliveredTime = eventData.DeliveryTimestamp
 
 	return o.elasticRepository.UpdateOrder(ctx, projection)

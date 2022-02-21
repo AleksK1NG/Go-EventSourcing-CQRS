@@ -16,7 +16,7 @@ type OrderResponseDto struct {
 	Created         bool       `json:"created,omitempty" bson:"created,omitempty"`
 	Paid            bool       `json:"paid,omitempty" bson:"paid,omitempty"`
 	Submitted       bool       `json:"submitted,omitempty" bson:"submitted,omitempty"`
-	Delivered       bool       `json:"delivered,omitempty" bson:"delivered,omitempty"`
+	Completed       bool       `json:"completed,omitempty" bson:"completed,omitempty"`
 	Canceled        bool       `json:"canceled,omitempty" bson:"canceled,omitempty"`
 	Payment         Payment    `json:"payment,omitempty" bson:"payment,omitempty"`
 }

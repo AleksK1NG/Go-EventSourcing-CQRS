@@ -18,13 +18,13 @@ func NewCreateOrderCommand(aggregateID string, shopItems []*models.ShopItem, acc
 	return &CreateOrderCommand{BaseCommand: es.NewBaseCommand(aggregateID), ShopItems: shopItems, AccountEmail: accountEmail, DeliveryAddress: deliveryAddress}
 }
 
-type OrderPaidCommand struct {
+type PayOrderCommand struct {
 	models.Payment
 	es.BaseCommand
 }
 
-func NewOrderPaidCommand(payment models.Payment, aggregateID string) *OrderPaidCommand {
-	return &OrderPaidCommand{Payment: payment, BaseCommand: es.NewBaseCommand(aggregateID)}
+func NewPayOrderCommand(payment models.Payment, aggregateID string) *PayOrderCommand {
+	return &PayOrderCommand{Payment: payment, BaseCommand: es.NewBaseCommand(aggregateID)}
 }
 
 type SubmitOrderCommand struct {
@@ -35,38 +35,38 @@ func NewSubmitOrderCommand(aggregateID string) *SubmitOrderCommand {
 	return &SubmitOrderCommand{BaseCommand: es.NewBaseCommand(aggregateID)}
 }
 
-type OrderUpdatedCommand struct {
+type UpdateShoppingCartCommand struct {
 	es.BaseCommand
 	ShopItems []*models.ShopItem `json:"shopItems" bson:"shopItems,omitempty" validate:"required"`
 }
 
-func NewOrderUpdatedCommand(aggregateID string, shopItems []*models.ShopItem) *OrderUpdatedCommand {
-	return &OrderUpdatedCommand{BaseCommand: es.NewBaseCommand(aggregateID), ShopItems: shopItems}
+func NewUpdateShoppingCartCommand(aggregateID string, shopItems []*models.ShopItem) *UpdateShoppingCartCommand {
+	return &UpdateShoppingCartCommand{BaseCommand: es.NewBaseCommand(aggregateID), ShopItems: shopItems}
 }
 
-type OrderCanceledCommand struct {
+type CancelOrderCommand struct {
 	es.BaseCommand
 	CancelReason string `json:"cancelReason" validate:"required"`
 }
 
-func NewOrderCanceledCommand(aggregateID string, cancelReason string) *OrderCanceledCommand {
-	return &OrderCanceledCommand{BaseCommand: es.NewBaseCommand(aggregateID), CancelReason: cancelReason}
+func NewCancelOrderCommand(aggregateID string, cancelReason string) *CancelOrderCommand {
+	return &CancelOrderCommand{BaseCommand: es.NewBaseCommand(aggregateID), CancelReason: cancelReason}
 }
 
-type OrderDeliveredCommand struct {
+type CompleteOrderCommand struct {
 	es.BaseCommand
 	DeliveryTimestamp time.Time `json:"deliveryTimestamp" validate:"required"`
 }
 
-func NewOrderDeliveredCommand(aggregateID string, deliveryTimestamp time.Time) *OrderDeliveredCommand {
-	return &OrderDeliveredCommand{BaseCommand: es.NewBaseCommand(aggregateID), DeliveryTimestamp: deliveryTimestamp}
+func NewCompleteOrderCommand(aggregateID string, deliveryTimestamp time.Time) *CompleteOrderCommand {
+	return &CompleteOrderCommand{BaseCommand: es.NewBaseCommand(aggregateID), DeliveryTimestamp: deliveryTimestamp}
 }
 
-type OrderChangeDeliveryAddressCommand struct {
+type ChangeDeliveryAddressCommand struct {
 	es.BaseCommand
 	DeliveryAddress string `json:"deliveryAddress" bson:"deliveryAddress,omitempty" validate:"required"`
 }
 
-func NewOrderChangeDeliveryAddressCommand(aggregateID string, deliveryAddress string) *OrderChangeDeliveryAddressCommand {
-	return &OrderChangeDeliveryAddressCommand{BaseCommand: es.NewBaseCommand(aggregateID), DeliveryAddress: deliveryAddress}
+func NewChangeDeliveryAddressCommand(aggregateID string, deliveryAddress string) *ChangeDeliveryAddressCommand {
+	return &ChangeDeliveryAddressCommand{BaseCommand: es.NewBaseCommand(aggregateID), DeliveryAddress: deliveryAddress}
 }

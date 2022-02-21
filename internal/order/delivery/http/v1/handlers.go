@@ -117,7 +117,7 @@ func (h *orderHandlers) PayOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := v1.NewOrderPaidCommand(models.Payment{PaymentID: payment.PaymentID, Timestamp: payment.Timestamp}, orderID.String())
+		command := v1.NewPayOrderCommand(models.Payment{PaymentID: payment.PaymentID, Timestamp: payment.Timestamp}, orderID.String())
 		if err := h.v.StructCtx(ctx, command); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
@@ -207,7 +207,7 @@ func (h *orderHandlers) CancelOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := v1.NewOrderCanceledCommand(orderID.String(), data.CancelReason)
+		command := v1.NewCancelOrderCommand(orderID.String(), data.CancelReason)
 		if err := h.v.StructCtx(ctx, command); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
@@ -237,7 +237,7 @@ func (h *orderHandlers) CancelOrder() echo.HandlerFunc {
 // @Router /orders/delivery/{id} [post]
 func (h *orderHandlers) DeliverOrder() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.DeliverOrder")
+		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.CompleteOrder")
 		defer span.Finish()
 		h.metrics.SubmitOrderHttpRequests.Inc()
 
@@ -248,16 +248,16 @@ func (h *orderHandlers) DeliverOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := v1.NewOrderDeliveredCommand(orderID.String(), time.Now())
+		command := v1.NewCompleteOrderCommand(orderID.String(), time.Now())
 		if err := h.v.StructCtx(ctx, command); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		err = h.os.Commands.DeliveryOrder.Handle(ctx, command)
+		err = h.os.Commands.CompleteOrder.Handle(ctx, command)
 		if err != nil {
-			h.log.Errorf("(DeliveryOrder.Handle) id: {%s}, err: {%v}", orderID.String(), err)
+			h.log.Errorf("(CompleteOrder.Handle) id: {%s}, err: {%v}", orderID.String(), err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
@@ -298,7 +298,7 @@ func (h *orderHandlers) ChangeDeliveryAddress() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := v1.NewOrderChangeDeliveryAddressCommand(orderID.String(), data.DeliveryAddress)
+		command := v1.NewChangeDeliveryAddressCommand(orderID.String(), data.DeliveryAddress)
 		if err := h.v.StructCtx(ctx, command); err != nil {
 			h.log.Errorf("(validate) err: {%v}", err)
 			tracing.TraceErr(span, err)
@@ -329,7 +329,7 @@ func (h *orderHandlers) ChangeDeliveryAddress() echo.HandlerFunc {
 // @Router /orders/{id} [put]
 func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.UpdateOrder")
+		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.UpdateShoppingCart")
 		defer span.Finish()
 		h.metrics.UpdateOrderHttpRequests.Inc()
 
@@ -353,10 +353,10 @@ func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		command := v1.NewOrderUpdatedCommand(orderID.String(), reqDto.ShopItems)
+		command := v1.NewUpdateShoppingCartCommand(orderID.String(), reqDto.ShopItems)
 		err = h.os.Commands.UpdateOrder.Handle(ctx, command)
 		if err != nil {
-			h.log.Errorf("(UpdateOrder.Handle) id: {%s}, err: {%v}", orderID.String(), err)
+			h.log.Errorf("(UpdateShoppingCart.Handle) id: {%s}, err: {%v}", orderID.String(), err)
 			tracing.TraceErr(span, err)
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}

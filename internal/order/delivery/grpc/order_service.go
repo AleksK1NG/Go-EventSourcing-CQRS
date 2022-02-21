@@ -61,7 +61,7 @@ func (s *orderGrpcService) PayOrder(ctx context.Context, req *orderService.PayOr
 	s.metrics.PayOrderGrpcRequests.Inc()
 
 	payment := models.Payment{PaymentID: req.GetPayment().GetID(), Timestamp: time.Now()}
-	command := v1.NewOrderPaidCommand(payment, req.GetAggregateID())
+	command := v1.NewPayOrderCommand(payment, req.GetAggregateID())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
@@ -124,12 +124,12 @@ func (s *orderGrpcService) GetOrderByID(ctx context.Context, req *orderService.G
 }
 
 func (s *orderGrpcService) UpdateOrder(ctx context.Context, req *orderService.UpdateOrderReq) (*orderService.UpdateOrderRes, error) {
-	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.UpdateOrder")
+	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.UpdateShoppingCart")
 	defer span.Finish()
-	span.LogFields(log.String("UpdateOrder req", req.String()))
+	span.LogFields(log.String("UpdateShoppingCart req", req.String()))
 	s.metrics.UpdateOrderGrpcRequests.Inc()
 
-	command := v1.NewOrderUpdatedCommand(req.GetAggregateID(), models.ShopItemsFromProto(req.GetShopItems()))
+	command := v1.NewUpdateShoppingCartCommand(req.GetAggregateID(), models.ShopItemsFromProto(req.GetShopItems()))
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
@@ -137,11 +137,11 @@ func (s *orderGrpcService) UpdateOrder(ctx context.Context, req *orderService.Up
 	}
 
 	if err := s.os.Commands.UpdateOrder.Handle(ctx, command); err != nil {
-		s.log.Errorf("(UpdateOrder.Handle) orderID: {%s}, err: {%v}", req.GetAggregateID(), err)
+		s.log.Errorf("(UpdateShoppingCart.Handle) orderID: {%s}, err: {%v}", req.GetAggregateID(), err)
 		return nil, s.errResponse(err)
 	}
 
-	s.log.Infof("(UpdateOrder): AggregateID: {%s}", req.GetAggregateID())
+	s.log.Infof("(UpdateShoppingCart): AggregateID: {%s}", req.GetAggregateID())
 	return &orderService.UpdateOrderRes{}, nil
 }
 
@@ -151,7 +151,7 @@ func (s *orderGrpcService) CancelOrder(ctx context.Context, req *orderService.Ca
 	span.LogFields(log.String("CancelOrder req", req.String()))
 	s.metrics.CancelOrderGrpcRequests.Inc()
 
-	command := v1.NewOrderCanceledCommand(req.GetAggregateID(), req.GetCancelReason())
+	command := v1.NewCancelOrderCommand(req.GetAggregateID(), req.GetCancelReason())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
@@ -167,26 +167,26 @@ func (s *orderGrpcService) CancelOrder(ctx context.Context, req *orderService.Ca
 	return &orderService.CancelOrderRes{}, nil
 }
 
-func (s *orderGrpcService) DeliveryOrder(ctx context.Context, req *orderService.DeliveryOrderReq) (*orderService.DeliveryOrderRes, error) {
-	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.DeliveryOrder")
+func (s *orderGrpcService) CompleteOrder(ctx context.Context, req *orderService.CompleteOrderReq) (*orderService.CompleteOrderRes, error) {
+	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.CompleteOrder")
 	defer span.Finish()
-	span.LogFields(log.String("DeliveryOrder req", req.String()))
+	span.LogFields(log.String("CompleteOrder req", req.String()))
 	s.metrics.DeliverOrderGrpcRequests.Inc()
 
-	command := v1.NewOrderDeliveredCommand(req.GetAggregateID(), time.Now())
+	command := v1.NewCompleteOrderCommand(req.GetAggregateID(), time.Now())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)
 		return nil, s.errResponse(err)
 	}
 
-	if err := s.os.Commands.DeliveryOrder.Handle(ctx, command); err != nil {
-		s.log.Errorf("(DeliveryOrder.Handle) orderID: {%s}, err: {%v}", req.GetAggregateID(), err)
+	if err := s.os.Commands.CompleteOrder.Handle(ctx, command); err != nil {
+		s.log.Errorf("(CompleteOrder.Handle) orderID: {%s}, err: {%v}", req.GetAggregateID(), err)
 		return nil, s.errResponse(err)
 	}
 
-	s.log.Infof("(DeliveryOrder): AggregateID: {%s}", req.GetAggregateID())
-	return &orderService.DeliveryOrderRes{}, nil
+	s.log.Infof("(CompleteOrder): AggregateID: {%s}", req.GetAggregateID())
+	return &orderService.CompleteOrderRes{}, nil
 }
 
 func (s *orderGrpcService) ChangeDeliveryAddress(ctx context.Context, req *orderService.ChangeDeliveryAddressReq) (*orderService.ChangeDeliveryAddressRes, error) {
@@ -195,7 +195,7 @@ func (s *orderGrpcService) ChangeDeliveryAddress(ctx context.Context, req *order
 	span.LogFields(log.String("ChangeDeliveryAddress req", req.String()))
 	s.metrics.ChangeAddressOrderGrpcRequests.Inc()
 
-	command := v1.NewOrderChangeDeliveryAddressCommand(req.GetAggregateID(), req.GetDeliveryAddress())
+	command := v1.NewChangeDeliveryAddressCommand(req.GetAggregateID(), req.GetDeliveryAddress())
 	if err := s.v.StructCtx(ctx, command); err != nil {
 		s.log.Errorf("(validate) err: {%v}", err)
 		tracing.TraceErr(span, err)

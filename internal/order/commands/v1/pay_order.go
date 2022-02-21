@@ -11,22 +11,22 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 )
 
-type OrderPaidCommandHandler interface {
-	Handle(ctx context.Context, command *OrderPaidCommand) error
+type PayOrderCommandHandler interface {
+	Handle(ctx context.Context, command *PayOrderCommand) error
 }
 
-type orderPaidHandler struct {
+type payOrderCommandHandler struct {
 	log logger.Logger
 	cfg *config.Config
 	es  es.AggregateStore
 }
 
-func NewOrderPaidHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore) *orderPaidHandler {
-	return &orderPaidHandler{log: log, cfg: cfg, es: es}
+func NewOrderPaidHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore) *payOrderCommandHandler {
+	return &payOrderCommandHandler{log: log, cfg: cfg, es: es}
 }
 
-func (c *orderPaidHandler) Handle(ctx context.Context, command *OrderPaidCommand) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "orderPaidHandler.Handle")
+func (c *payOrderCommandHandler) Handle(ctx context.Context, command *PayOrderCommand) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "payOrderCommandHandler.Handle")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 

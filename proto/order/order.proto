@@ -26,7 +26,7 @@ message Order {
   bool Created = 3;
   bool Paid = 4;
   bool Submitted = 5;
-  bool Delivered = 6;
+  bool Completed = 6;
   bool Canceled = 7;
   double TotalPrice = 8;
   string AccountEmail = 9;
@@ -85,12 +85,12 @@ message CancelOrderReq {
 
 message CancelOrderRes {}
 
-message DeliveryOrderReq {
+message CompleteOrderReq {
   string AggregateID = 1;
   google.protobuf.Timestamp  DeliveryTimestamp = 2;
 }
 
-message DeliveryOrderRes {}
+message CompleteOrderRes {}
 
 message ChangeDeliveryAddressReq {
   string AggregateID = 1;
@@ -124,7 +124,7 @@ service orderService {
   rpc SubmitOrder(SubmitOrderReq) returns (SubmitOrderRes);
   rpc UpdateOrder(UpdateOrderReq) returns (UpdateOrderRes);
   rpc CancelOrder(CancelOrderReq) returns (CancelOrderRes);
-  rpc DeliveryOrder(DeliveryOrderReq) returns (DeliveryOrderRes);
+  rpc CompleteOrder(CompleteOrderReq) returns (CompleteOrderRes);
   rpc ChangeDeliveryAddress(ChangeDeliveryAddressReq) returns (ChangeDeliveryAddressRes);
   rpc GetOrderByID(GetOrderByIDReq) returns (GetOrderByIDRes);
   rpc Search(SearchReq) returns (SearchRes);

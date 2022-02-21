@@ -95,18 +95,18 @@ func (o *mongoProjection) onCancel(ctx context.Context, evt es.Event) error {
 	op := &models.OrderProjection{
 		OrderID:      aggregate.GetOrderAggregateID(evt.AggregateID),
 		Canceled:     true,
-		Delivered:    false,
+		Completed:    false,
 		CancelReason: eventData.CancelReason,
 	}
 	return o.mongoRepo.UpdateCancel(ctx, op)
 }
 
-func (o *mongoProjection) onDelivered(ctx context.Context, evt es.Event) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.onDelivered")
+func (o *mongoProjection) onCompleted(ctx context.Context, evt es.Event) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.onCompleted")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData v1.OrderDeliveredEvent
+	var eventData v1.OrderCompletedEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")
@@ -115,14 +115,14 @@ func (o *mongoProjection) onDelivered(ctx context.Context, evt es.Event) error {
 	op := &models.OrderProjection{
 		OrderID:       aggregate.GetOrderAggregateID(evt.AggregateID),
 		Canceled:      false,
-		Delivered:     true,
+		Completed:     true,
 		DeliveredTime: eventData.DeliveryTimestamp,
 	}
 	return o.mongoRepo.UpdateDelivery(ctx, op)
 }
 
-func (o *mongoProjection) onOrderDeliveryAddressUpdated(ctx context.Context, evt es.Event) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.onOrderDeliveryAddressUpdated")
+func (o *mongoProjection) onDeliveryAddressUpdated(ctx context.Context, evt es.Event) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.onDeliveryAddressUpdated")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
