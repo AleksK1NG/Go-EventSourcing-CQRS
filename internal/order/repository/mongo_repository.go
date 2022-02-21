@@ -113,8 +113,8 @@ func (m *mongoRepository) UpdatePayment(ctx context.Context, order *models.Order
 	return nil
 }
 
-func (m *mongoRepository) UpdateDelivery(ctx context.Context, order *models.OrderProjection) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoRepository.UpdateDelivery")
+func (m *mongoRepository) Complete(ctx context.Context, order *models.OrderProjection) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoRepository.Complete")
 	defer span.Finish()
 	span.LogFields(log.String("OrderID", order.OrderID))
 
@@ -122,14 +122,14 @@ func (m *mongoRepository) UpdateDelivery(ctx context.Context, order *models.Orde
 	ops.SetReturnDocument(options.After)
 	ops.SetUpsert(false)
 
-	update := bson.M{"$set": bson.M{constants.Delivered: order.Completed, constants.DeliveredTime: order.DeliveredTime}}
+	update := bson.M{"$set": bson.M{constants.Completed: order.Completed, constants.DeliveredTime: order.DeliveredTime}}
 	var res models.OrderProjection
 	if err := m.getOrdersCollection().FindOneAndUpdate(ctx, bson.M{constants.OrderId: order.OrderID}, update, ops).Decode(&res); err != nil {
 		tracing.TraceErr(span, err)
 		return err
 	}
 
-	m.log.Debugf("(UpdateDelivery) result OrderID: {%s}", res.OrderID)
+	m.log.Debugf("(Complete) result OrderID: {%s}", res.OrderID)
 	return nil
 }
 

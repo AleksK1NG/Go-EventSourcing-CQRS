@@ -111,10 +111,10 @@ func (a *OrderAggregate) UpdateShoppingCart(ctx context.Context, shopItems []*mo
 		return ErrAlreadySubmitted
 	}
 
-	orderUpdatedEvent, err := eventsV1.NewOrderUpdatedEvent(a, shopItems)
+	orderUpdatedEvent, err := eventsV1.NewShoppingCartUpdatedEvent(a, shopItems)
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return errors.Wrap(err, "NewOrderUpdatedEvent")
+		return errors.Wrap(err, "NewShoppingCartUpdatedEvent")
 	}
 
 	if err := orderUpdatedEvent.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
@@ -189,10 +189,10 @@ func (a *OrderAggregate) ChangeDeliveryAddress(ctx context.Context, deliveryAddr
 		return ErrOrderAlreadyCompleted
 	}
 
-	event, err := eventsV1.NewOrderDeliveryAddressChangedEvent(a, deliveryAddress)
+	event, err := eventsV1.NewDeliveryAddressChangedEvent(a, deliveryAddress)
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return errors.Wrap(err, "NewOrderDeliveryAddressChangedEvent")
+		return errors.Wrap(err, "NewDeliveryAddressChangedEvent")
 	}
 
 	if err := event.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {

@@ -6,7 +6,7 @@ type OrderHandlers interface {
 	CreateOrder() echo.HandlerFunc
 	PayOrder() echo.HandlerFunc
 	SubmitOrder() echo.HandlerFunc
-	UpdateOrder() echo.HandlerFunc
+	UpdateShoppingCart() echo.HandlerFunc
 
 	GetOrderByID() echo.HandlerFunc
 	Search() echo.HandlerFunc

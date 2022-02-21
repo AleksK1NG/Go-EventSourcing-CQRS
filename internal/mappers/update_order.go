@@ -5,8 +5,8 @@ import (
 	"github.com/AleksK1NG/es-microservice/internal/order/events/v1"
 )
 
-func UpdateOrderReqDtoToEventData(reqDto dto.UpdateOrderItemsReqDto) v1.OrderUpdatedEvent {
-	return v1.OrderUpdatedEvent{
+func UpdateOrderReqDtoToEventData(reqDto dto.UpdateShoppingItemsReqDto) v1.ShoppingCartUpdatedEvent {
+	return v1.ShoppingCartUpdatedEvent{
 		ShopItems: reqDto.ShopItems,
 	}
 }

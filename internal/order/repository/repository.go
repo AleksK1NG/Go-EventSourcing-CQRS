@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"github.com/AleksK1NG/es-microservice/internal/dto"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/utils"
@@ -14,7 +15,7 @@ type OrderMongoRepository interface {
 
 	UpdateCancel(ctx context.Context, order *models.OrderProjection) error
 	UpdatePayment(ctx context.Context, order *models.OrderProjection) error
-	UpdateDelivery(ctx context.Context, order *models.OrderProjection) error
+	Complete(ctx context.Context, order *models.OrderProjection) error
 	UpdateDeliveryAddress(ctx context.Context, order *models.OrderProjection) error
 	UpdateSubmit(ctx context.Context, order *models.OrderProjection) error
 }

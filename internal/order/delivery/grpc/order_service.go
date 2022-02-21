@@ -123,7 +123,7 @@ func (s *orderGrpcService) GetOrderByID(ctx context.Context, req *orderService.G
 	return &orderService.GetOrderByIDRes{Order: models.OrderProjectionToProto(orderProjection)}, nil
 }
 
-func (s *orderGrpcService) UpdateOrder(ctx context.Context, req *orderService.UpdateOrderReq) (*orderService.UpdateOrderRes, error) {
+func (s *orderGrpcService) UpdateShoppingCart(ctx context.Context, req *orderService.UpdateShoppingCartReq) (*orderService.UpdateShoppingCartRes, error) {
 	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.UpdateShoppingCart")
 	defer span.Finish()
 	span.LogFields(log.String("UpdateShoppingCart req", req.String()))
@@ -142,7 +142,7 @@ func (s *orderGrpcService) UpdateOrder(ctx context.Context, req *orderService.Up
 	}
 
 	s.log.Infof("(UpdateShoppingCart): AggregateID: {%s}", req.GetAggregateID())
-	return &orderService.UpdateOrderRes{}, nil
+	return &orderService.UpdateShoppingCartRes{}, nil
 }
 
 func (s *orderGrpcService) CancelOrder(ctx context.Context, req *orderService.CancelOrderReq) (*orderService.CancelOrderRes, error) {
@@ -171,7 +171,7 @@ func (s *orderGrpcService) CompleteOrder(ctx context.Context, req *orderService.
 	ctx, span := tracing.StartGrpcServerTracerSpan(ctx, "orderGrpcService.CompleteOrder")
 	defer span.Finish()
 	span.LogFields(log.String("CompleteOrder req", req.String()))
-	s.metrics.DeliverOrderGrpcRequests.Inc()
+	s.metrics.CompleteOrderGrpcRequests.Inc()
 
 	command := v1.NewCompleteOrderCommand(req.GetAggregateID(), time.Now())
 	if err := s.v.StructCtx(ctx, command); err != nil {

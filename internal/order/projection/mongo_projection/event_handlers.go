@@ -65,12 +65,12 @@ func (o *mongoProjection) onSubmit(ctx context.Context, evt es.Event) error {
 	return o.mongoRepo.UpdateSubmit(ctx, op)
 }
 
-func (o *mongoProjection) onUpdate(ctx context.Context, evt es.Event) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.onUpdate")
+func (o *mongoProjection) onShoppingCartUpdate(ctx context.Context, evt es.Event) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoProjection.onShoppingCartUpdate")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData v1.OrderUpdatedEvent
+	var eventData v1.ShoppingCartUpdatedEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")
@@ -118,7 +118,7 @@ func (o *mongoProjection) onCompleted(ctx context.Context, evt es.Event) error {
 		Completed:     true,
 		DeliveredTime: eventData.DeliveryTimestamp,
 	}
-	return o.mongoRepo.UpdateDelivery(ctx, op)
+	return o.mongoRepo.Complete(ctx, op)
 }
 
 func (o *mongoProjection) onDeliveryAddressUpdated(ctx context.Context, evt es.Event) error {

@@ -8,13 +8,13 @@ import (
 )
 
 const (
-	OrderCreated                = "V1_ORDER_CREATED"
-	OrderPaid                   = "V1_ORDER_PAID"
-	OrderSubmitted              = "V1_ORDER_SUBMITTED"
-	OrderCompleted              = "V1_ORDER_COMPLETED"
-	OrderCanceled               = "V1_ORDER_CANCELED"
-	ShoppingCartUpdated         = "V1_SHOPPING_CART_UPDATED"
-	OrderDeliveryAddressUpdated = "V1_ORDER_DELIVERY_ADDRESS_UPDATED"
+	OrderCreated           = "V1_ORDER_CREATED"
+	OrderPaid              = "V1_ORDER_PAID"
+	OrderSubmitted         = "V1_ORDER_SUBMITTED"
+	OrderCompleted         = "V1_ORDER_COMPLETED"
+	OrderCanceled          = "V1_ORDER_CANCELED"
+	ShoppingCartUpdated    = "V1_SHOPPING_CART_UPDATED"
+	DeliveryAddressUpdated = "V1_DELIVERY_ADDRESS_UPDATED"
 )
 
 type OrderCreatedEvent struct {
@@ -48,12 +48,12 @@ func NewSubmitOrderEvent(aggregate es.Aggregate) (es.Event, error) {
 	return es.NewBaseEvent(aggregate, OrderSubmitted), nil
 }
 
-type OrderUpdatedEvent struct {
+type ShoppingCartUpdatedEvent struct {
 	ShopItems []*models.ShopItem `json:"shopItems" bson:"shopItems,omitempty"`
 }
 
-func NewOrderUpdatedEvent(aggregate es.Aggregate, shopItems []*models.ShopItem) (es.Event, error) {
-	eventData := OrderUpdatedEvent{ShopItems: shopItems}
+func NewShoppingCartUpdatedEvent(aggregate es.Aggregate, shopItems []*models.ShopItem) (es.Event, error) {
+	eventData := ShoppingCartUpdatedEvent{ShopItems: shopItems}
 	event := es.NewBaseEvent(aggregate, ShoppingCartUpdated)
 	if err := event.SetJsonData(&eventData); err != nil {
 		return es.Event{}, err
@@ -65,9 +65,9 @@ type OrderDeliveryAddressChangedEvent struct {
 	DeliveryAddress string `json:"deliveryAddress" bson:"deliveryAddress,omitempty"`
 }
 
-func NewOrderDeliveryAddressChangedEvent(aggregate es.Aggregate, deliveryAddress string) (es.Event, error) {
+func NewDeliveryAddressChangedEvent(aggregate es.Aggregate, deliveryAddress string) (es.Event, error) {
 	eventData := OrderDeliveryAddressChangedEvent{DeliveryAddress: deliveryAddress}
-	event := es.NewBaseEvent(aggregate, OrderDeliveryAddressUpdated)
+	event := es.NewBaseEvent(aggregate, DeliveryAddressUpdated)
 	if err := event.SetJsonData(&eventData); err != nil {
 		return es.Event{}, err
 	}
