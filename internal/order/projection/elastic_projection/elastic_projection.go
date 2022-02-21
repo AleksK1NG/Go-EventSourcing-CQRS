@@ -41,7 +41,12 @@ func (o *elasticProjection) Subscribe(ctx context.Context, prefixes []string, po
 		}
 	}
 
-	stream, err := o.db.ConnectToPersistentSubscription(ctx, constants.EsAll, o.cfg.Subscriptions.ElasticProjectionGroupName, esdb.ConnectToPersistentSubscriptionOptions{})
+	stream, err := o.db.ConnectToPersistentSubscription(
+		ctx,
+		constants.EsAll,
+		o.cfg.Subscriptions.ElasticProjectionGroupName,
+		esdb.ConnectToPersistentSubscriptionOptions{},
+	)
 	if err != nil {
 		return err
 	}
@@ -117,8 +122,8 @@ func (o *elasticProjection) When(ctx context.Context, evt es.Event) error {
 		return o.onCancel(ctx, evt)
 	case v1.OrderCompleted:
 		return o.onComplete(ctx, evt)
-	case v1.DeliveryAddressUpdated:
-		return o.onOrderDeliveryAddressUpdated(ctx, evt)
+	case v1.DeliveryAddressChanged:
+		return o.onDeliveryAddressChnaged(ctx, evt)
 
 	default:
 		o.log.Warnf("(elasticProjection) [When unknown EventType] eventType: {%s}", evt.EventType)

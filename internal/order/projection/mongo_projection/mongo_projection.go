@@ -41,7 +41,12 @@ func (o *mongoProjection) Subscribe(ctx context.Context, prefixes []string, pool
 		}
 	}
 
-	stream, err := o.db.ConnectToPersistentSubscription(ctx, constants.EsAll, o.cfg.Subscriptions.MongoProjectionGroupName, esdb.ConnectToPersistentSubscriptionOptions{})
+	stream, err := o.db.ConnectToPersistentSubscription(
+		ctx,
+		constants.EsAll,
+		o.cfg.Subscriptions.MongoProjectionGroupName,
+		esdb.ConnectToPersistentSubscriptionOptions{},
+	)
 	if err != nil {
 		return err
 	}
@@ -117,8 +122,8 @@ func (o *mongoProjection) When(ctx context.Context, evt es.Event) error {
 		return o.onCancel(ctx, evt)
 	case v1.OrderCompleted:
 		return o.onCompleted(ctx, evt)
-	case v1.DeliveryAddressUpdated:
-		return o.onDeliveryAddressUpdated(ctx, evt)
+	case v1.DeliveryAddressChanged:
+		return o.onDeliveryAddressChnaged(ctx, evt)
 
 	default:
 		o.log.Warnf("(mongoProjection) [When unknown EventType] eventType: {%s}", evt.EventType)
