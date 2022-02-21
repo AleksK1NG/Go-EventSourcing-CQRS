@@ -11,9 +11,9 @@ const (
 	OrderCreated                = "V1_ORDER_CREATED"
 	OrderPaid                   = "V1_ORDER_PAID"
 	OrderSubmitted              = "V1_ORDER_SUBMITTED"
-	OrderDelivered              = "V1_ORDER_DELIVERED"
+	OrderCompleted              = "V1_ORDER_COMPLETED"
 	OrderCanceled               = "V1_ORDER_CANCELED"
-	OrderUpdated                = "V1_ORDER_UPDATED"
+	ShoppingCartUpdated         = "V1_SHOPPING_CART_UPDATED"
 	OrderDeliveryAddressUpdated = "V1_ORDER_DELIVERY_ADDRESS_UPDATED"
 )
 
@@ -54,7 +54,7 @@ type OrderUpdatedEvent struct {
 
 func NewOrderUpdatedEvent(aggregate es.Aggregate, shopItems []*models.ShopItem) (es.Event, error) {
 	eventData := OrderUpdatedEvent{ShopItems: shopItems}
-	event := es.NewBaseEvent(aggregate, OrderUpdated)
+	event := es.NewBaseEvent(aggregate, ShoppingCartUpdated)
 	if err := event.SetJsonData(&eventData); err != nil {
 		return es.Event{}, err
 	}
@@ -88,13 +88,13 @@ func NewOrderCanceledEvent(aggregate es.Aggregate, cancelReason string) (es.Even
 	return event, nil
 }
 
-type OrderDeliveredEvent struct {
+type OrderCompletedEvent struct {
 	DeliveryTimestamp time.Time `json:"deliveryTimestamp"`
 }
 
-func NewOrderDeliveredEvent(aggregate es.Aggregate, deliveryTimestamp time.Time) (es.Event, error) {
-	eventData := OrderDeliveredEvent{DeliveryTimestamp: deliveryTimestamp}
-	event := es.NewBaseEvent(aggregate, OrderDelivered)
+func NewOrderCompletedEvent(aggregate es.Aggregate, deliveryTimestamp time.Time) (es.Event, error) {
+	eventData := OrderCompletedEvent{DeliveryTimestamp: deliveryTimestamp}
+	event := es.NewBaseEvent(aggregate, OrderCompleted)
 	err := event.SetJsonData(&eventData)
 	if err != nil {
 		return es.Event{}, err

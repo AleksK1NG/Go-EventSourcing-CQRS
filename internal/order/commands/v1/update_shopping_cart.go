@@ -11,22 +11,22 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 )
 
-type UpdateOrderCommandHandler interface {
-	Handle(ctx context.Context, command *OrderUpdatedCommand) error
+type UpdateShoppingCartCommandHandler interface {
+	Handle(ctx context.Context, command *UpdateShoppingCartCommand) error
 }
 
-type updateOrderCmdHandler struct {
+type updateShoppingCartCmdHandler struct {
 	log logger.Logger
 	cfg *config.Config
 	es  es.AggregateStore
 }
 
-func NewUpdateOrderCmdHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore) *updateOrderCmdHandler {
-	return &updateOrderCmdHandler{log: log, cfg: cfg, es: es}
+func NewUpdateShoppingCartCmdHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore) *updateShoppingCartCmdHandler {
+	return &updateShoppingCartCmdHandler{log: log, cfg: cfg, es: es}
 }
 
-func (c *updateOrderCmdHandler) Handle(ctx context.Context, command *OrderUpdatedCommand) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "updateOrderCmdHandler.Handle")
+func (c *updateShoppingCartCmdHandler) Handle(ctx context.Context, command *UpdateShoppingCartCommand) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "updateShoppingCartCmdHandler.Handle")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
@@ -35,7 +35,7 @@ func (c *updateOrderCmdHandler) Handle(ctx context.Context, command *OrderUpdate
 		return err
 	}
 
-	if err := order.UpdateOrder(ctx, command.ShopItems); err != nil {
+	if err := order.UpdateShoppingCart(ctx, command.ShopItems); err != nil {
 		return err
 	}
 

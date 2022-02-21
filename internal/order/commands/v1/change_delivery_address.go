@@ -11,22 +11,22 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 )
 
-type ChangeOrderDeliveryAddressCommandHandler interface {
-	Handle(ctx context.Context, command *OrderChangeDeliveryAddressCommand) error
+type ChangeDeliveryAddressCommandHandler interface {
+	Handle(ctx context.Context, command *ChangeDeliveryAddressCommand) error
 }
 
-type changeOrderDeliveryAddressCmdHandler struct {
+type changeDeliveryAddressCmdHandler struct {
 	log logger.Logger
 	cfg *config.Config
 	es  es.AggregateStore
 }
 
-func NewChangeOrderDeliveryAddressCmdHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore) *changeOrderDeliveryAddressCmdHandler {
-	return &changeOrderDeliveryAddressCmdHandler{log: log, cfg: cfg, es: es}
+func NewChangeDeliveryAddressCmdHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore) *changeDeliveryAddressCmdHandler {
+	return &changeDeliveryAddressCmdHandler{log: log, cfg: cfg, es: es}
 }
 
-func (c *changeOrderDeliveryAddressCmdHandler) Handle(ctx context.Context, command *OrderChangeDeliveryAddressCommand) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "changeOrderDeliveryAddressCmdHandler.Handle")
+func (c *changeDeliveryAddressCmdHandler) Handle(ctx context.Context, command *ChangeDeliveryAddressCommand) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "changeDeliveryAddressCmdHandler.Handle")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 

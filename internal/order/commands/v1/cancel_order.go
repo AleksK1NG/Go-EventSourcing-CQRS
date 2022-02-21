@@ -12,7 +12,7 @@ import (
 )
 
 type CancelOrderCommandHandler interface {
-	Handle(ctx context.Context, command *OrderCanceledCommand) error
+	Handle(ctx context.Context, command *CancelOrderCommand) error
 }
 
 type cancelOrderCommandHandler struct {
@@ -25,7 +25,7 @@ func NewCancelOrderCommandHandler(log logger.Logger, cfg *config.Config, es es.A
 	return &cancelOrderCommandHandler{log: log, cfg: cfg, es: es}
 }
 
-func (c *cancelOrderCommandHandler) Handle(ctx context.Context, command *OrderCanceledCommand) error {
+func (c *cancelOrderCommandHandler) Handle(ctx context.Context, command *CancelOrderCommand) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "cancelOrderCommandHandler.Handle")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))

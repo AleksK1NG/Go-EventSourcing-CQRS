@@ -2,6 +2,7 @@ package mongo_projection
 
 import (
 	"context"
+
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/order/events/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
@@ -110,14 +111,14 @@ func (o *mongoProjection) When(ctx context.Context, evt es.Event) error {
 		return o.onOrderPaid(ctx, evt)
 	case v1.OrderSubmitted:
 		return o.onSubmit(ctx, evt)
-	case v1.OrderUpdated:
+	case v1.ShoppingCartUpdated:
 		return o.onUpdate(ctx, evt)
 	case v1.OrderCanceled:
 		return o.onCancel(ctx, evt)
-	case v1.OrderDelivered:
-		return o.onDelivered(ctx, evt)
+	case v1.OrderCompleted:
+		return o.onCompleted(ctx, evt)
 	case v1.OrderDeliveryAddressUpdated:
-		return o.onOrderDeliveryAddressUpdated(ctx, evt)
+		return o.onDeliveryAddressUpdated(ctx, evt)
 
 	default:
 		o.log.Warnf("(mongoProjection) [When unknown EventType] eventType: {%s}", evt.EventType)

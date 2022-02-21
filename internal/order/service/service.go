@@ -25,10 +25,10 @@ func NewOrderService(
 	createOrderHandler := v1.NewCreateOrderHandler(log, cfg, es)
 	orderPaidHandler := v1.NewOrderPaidHandler(log, cfg, es)
 	submitOrderHandler := v1.NewSubmitOrderHandler(log, cfg, es)
-	updateOrderCmdHandler := v1.NewUpdateOrderCmdHandler(log, cfg, es)
+	updateOrderCmdHandler := v1.NewUpdateShoppingCartCmdHandler(log, cfg, es)
 	cancelOrderCommandHandler := v1.NewCancelOrderCommandHandler(log, cfg, es)
-	deliveryOrderCommandHandler := v1.NewDeliveryOrderCommandHandler(log, cfg, es)
-	changeOrderDeliveryAddressCmdHandler := v1.NewChangeOrderDeliveryAddressCmdHandler(log, cfg, es)
+	deliveryOrderCommandHandler := v1.NewCompleteOrderCommandHandler(log, cfg, es)
+	changeOrderDeliveryAddressCmdHandler := v1.NewChangeDeliveryAddressCmdHandler(log, cfg, es)
 
 	getOrderByIDHandler := queries.NewGetOrderByIDHandler(log, cfg, es, mongoRepo)
 	searchOrdersHandler := queries.NewSearchOrdersHandler(log, cfg, es, elasticRepository)

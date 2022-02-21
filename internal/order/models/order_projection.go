@@ -2,9 +2,10 @@ package models
 
 import (
 	"fmt"
+	"time"
+
 	orderService "github.com/AleksK1NG/es-microservice/proto/order"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"time"
 )
 
 type OrderProjection struct {
@@ -19,20 +20,20 @@ type OrderProjection struct {
 	Created         bool        `json:"created,omitempty" bson:"created,omitempty"`
 	Paid            bool        `json:"paid,omitempty" bson:"paid,omitempty"`
 	Submitted       bool        `json:"submitted,omitempty" bson:"submitted,omitempty"`
-	Delivered       bool        `json:"delivered,omitempty" bson:"delivered,omitempty"`
+	Completed       bool        `json:"completed,omitempty" bson:"completed,omitempty"`
 	Canceled        bool        `json:"canceled,omitempty" bson:"canceled,omitempty"`
 	Payment         Payment     `json:"payment,omitempty" bson:"payment,omitempty"`
 }
 
 func (o *OrderProjection) String() string {
 	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, "+
-		"Delivered: {%v}, Canceled: {%v}, CancelReason: {%s}, TotalPrice: {%v}, AccountEmail: {%s}, DeliveryAddress: {%s}, DeliveredTime: {%s}, Payment: {%s}",
+		"Completed: {%v}, Canceled: {%v}, CancelReason: {%s}, TotalPrice: {%v}, AccountEmail: {%s}, DeliveryAddress: {%s}, DeliveredTime: {%s}, Payment: {%s}",
 		o.ID,
 		o.ShopItems,
 		o.Created,
 		o.Paid,
 		o.Submitted,
-		o.Delivered,
+		o.Completed,
 		o.Canceled,
 		o.CancelReason,
 		o.TotalPrice,
@@ -50,7 +51,7 @@ func OrderProjectionToProto(order *OrderProjection) *orderService.Order {
 		Created:           order.Created,
 		Paid:              order.Paid,
 		Submitted:         order.Submitted,
-		Delivered:         order.Delivered,
+		Completed:         order.Completed,
 		Canceled:          order.Canceled,
 		TotalPrice:        order.TotalPrice,
 		AccountEmail:      order.AccountEmail,

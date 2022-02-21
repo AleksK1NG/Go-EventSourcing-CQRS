@@ -3,7 +3,7 @@ package aggregate
 import "github.com/pkg/errors"
 
 var (
-	ErrOrderAlreadyDelivered          = errors.New("Order already delivered")
+	ErrOrderAlreadyCompleted          = errors.New("Order already completed")
 	ErrOrderAlreadyCanceled           = errors.New("Order is already canceled")
 	ErrOrderMustBePaidBeforeDelivered = errors.New("Order must be paid before been delivered")
 	ErrCancelReasonRequired           = errors.New("Cancel reason must be provided")

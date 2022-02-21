@@ -99,8 +99,8 @@ func (a *OrderAggregate) SubmitOrder(ctx context.Context) error {
 	return a.Apply(submitOrderEvent)
 }
 
-func (a *OrderAggregate) UpdateOrder(ctx context.Context, shopItems []*models.ShopItem) error {
-	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.UpdateOrder")
+func (a *OrderAggregate) UpdateShoppingCart(ctx context.Context, shopItems []*models.ShopItem) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.UpdateShoppingCart")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", a.GetID()))
 
@@ -130,8 +130,8 @@ func (a *OrderAggregate) CancelOrder(ctx context.Context, cancelReason string) e
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", a.GetID()))
 
-	if a.Order.Delivered {
-		return ErrOrderAlreadyDelivered
+	if a.Order.Completed {
+		return ErrOrderAlreadyCompleted
 	}
 	if cancelReason == "" {
 		return ErrCancelReasonRequired
@@ -151,13 +151,13 @@ func (a *OrderAggregate) CancelOrder(ctx context.Context, cancelReason string) e
 	return a.Apply(event)
 }
 
-func (a *OrderAggregate) DeliverOrder(ctx context.Context, deliveryTimestamp time.Time) error {
-	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.DeliverOrder")
+func (a *OrderAggregate) CompleteOrder(ctx context.Context, deliveryTimestamp time.Time) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderAggregate.CompleteOrder")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", a.GetID()))
 
-	if a.Order.Delivered {
-		return ErrOrderAlreadyDelivered
+	if a.Order.Completed {
+		return ErrOrderAlreadyCompleted
 	}
 	if a.Order.Canceled {
 		return ErrOrderAlreadyCanceled
@@ -166,10 +166,10 @@ func (a *OrderAggregate) DeliverOrder(ctx context.Context, deliveryTimestamp tim
 		return ErrOrderMustBePaidBeforeDelivered
 	}
 
-	event, err := eventsV1.NewOrderDeliveredEvent(a, deliveryTimestamp)
+	event, err := eventsV1.NewOrderCompletedEvent(a, deliveryTimestamp)
 	if err != nil {
 		tracing.TraceErr(span, err)
-		return errors.Wrap(err, "NewOrderDeliveredEvent")
+		return errors.Wrap(err, "NewOrderCompletedEvent")
 	}
 
 	if err := event.SetMetadata(tracing.ExtractTextMapCarrier(span.Context())); err != nil {
@@ -185,8 +185,8 @@ func (a *OrderAggregate) ChangeDeliveryAddress(ctx context.Context, deliveryAddr
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", a.GetID()))
 
-	if a.Order.Delivered {
-		return ErrOrderAlreadyDelivered
+	if a.Order.Completed {
+		return ErrOrderAlreadyCompleted
 	}
 
 	event, err := eventsV1.NewOrderDeliveryAddressChangedEvent(a, deliveryAddress)

@@ -2,9 +2,10 @@ package models
 
 import (
 	"fmt"
+	"time"
+
 	orderService "github.com/AleksK1NG/es-microservice/proto/order"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"time"
 )
 
 type Order struct {
@@ -18,20 +19,20 @@ type Order struct {
 	Created         bool        `json:"created" bson:"created,omitempty"`
 	Paid            bool        `json:"paid" bson:"paid,omitempty"`
 	Submitted       bool        `json:"submitted" bson:"submitted,omitempty"`
-	Delivered       bool        `json:"delivered" bson:"delivered,omitempty"`
+	Completed       bool        `json:"completed" bson:"completed,omitempty"`
 	Canceled        bool        `json:"canceled" bson:"canceled,omitempty"`
 	Payment         Payment     `json:"payment" bson:"payment,omitempty"`
 }
 
 func (o *Order) String() string {
 	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, "+
-		"Delivered: {%v}, Canceled: {%v}, CancelReason: {%s}, TotalPrice: {%v}, AccountEmail: {%s}, DeliveryAddress: {%s}, DeliveredTime: {%s}, Payment: {%s}",
+		"Completed: {%v}, Canceled: {%v}, CancelReason: {%s}, TotalPrice: {%v}, AccountEmail: {%s}, DeliveryAddress: {%s}, DeliveredTime: {%s}, Payment: {%s}",
 		o.ID,
 		o.ShopItems,
 		o.Created,
 		o.Paid,
 		o.Submitted,
-		o.Delivered,
+		o.Completed,
 		o.Canceled,
 		o.CancelReason,
 		o.TotalPrice,
@@ -48,7 +49,7 @@ func NewOrder() *Order {
 		Created:   false,
 		Paid:      false,
 		Submitted: false,
-		Delivered: false,
+		Completed: false,
 		Canceled:  false,
 	}
 }
@@ -60,7 +61,7 @@ func OrderToProto(order *Order, id string) *orderService.Order {
 		Created:           order.Created,
 		Paid:              order.Paid,
 		Submitted:         order.Submitted,
-		Delivered:         order.Delivered,
+		Completed:         order.Completed,
 		Canceled:          order.Canceled,
 		CancelReason:      order.CancelReason,
 		DeliveryTimestamp: timestamppb.New(order.DeliveredTime),

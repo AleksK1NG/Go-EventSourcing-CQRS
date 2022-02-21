@@ -45,11 +45,11 @@ func (a *OrderAggregate) When(evt es.Event) error {
 		return a.onOrderPaid(evt)
 	case v1.OrderSubmitted:
 		return a.onOrderSubmitted(evt)
-	case v1.OrderDelivered:
-		return a.onOrderDelivered(evt)
+	case v1.OrderCompleted:
+		return a.onOrderCompleted(evt)
 	case v1.OrderCanceled:
 		return a.onOrderCanceled(evt)
-	case v1.OrderUpdated:
+	case v1.ShoppingCartUpdated:
 		return a.onOrderUpdated(evt)
 	case v1.OrderDeliveryAddressUpdated:
 		return a.onOrderChangeDeliveryAddress(evt)
@@ -89,13 +89,13 @@ func (a *OrderAggregate) onOrderSubmitted(evt es.Event) error {
 	return nil
 }
 
-func (a *OrderAggregate) onOrderDelivered(evt es.Event) error {
-	var eventData v1.OrderDeliveredEvent
+func (a *OrderAggregate) onOrderCompleted(evt es.Event) error {
+	var eventData v1.OrderCompletedEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		return errors.Wrap(err, "GetJsonData")
 	}
 
-	a.Order.Delivered = true
+	a.Order.Completed = true
 	a.Order.DeliveredTime = eventData.DeliveryTimestamp
 	a.Order.Canceled = false
 	return nil
@@ -108,7 +108,7 @@ func (a *OrderAggregate) onOrderCanceled(evt es.Event) error {
 	}
 
 	a.Order.Canceled = true
-	a.Order.Delivered = false
+	a.Order.Completed = false
 	a.Order.CancelReason = eventData.CancelReason
 	return nil
 }

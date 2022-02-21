@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"encoding/json"
+
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/dto"
 	"github.com/AleksK1NG/es-microservice/internal/mappers"
@@ -74,7 +75,7 @@ func (e *elasticRepository) GetByID(ctx context.Context, orderID string) (*model
 }
 
 func (e *elasticRepository) UpdateOrder(ctx context.Context, order *models.OrderProjection) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticRepository.UpdateOrder")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticRepository.UpdateShoppingCart")
 	defer span.Finish()
 	span.LogFields(log.String("OrderID", order.OrderID))
 
@@ -84,7 +85,7 @@ func (e *elasticRepository) UpdateOrder(ctx context.Context, order *models.Order
 		return errors.Wrap(err, "elasticClient.Update")
 	}
 
-	e.log.Debugf("(UpdateOrder) result: {%s}", res.Result)
+	e.log.Debugf("(UpdateShoppingCart) result: {%s}", res.Result)
 	return nil
 }
 

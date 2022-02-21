@@ -27,7 +27,7 @@ type OrderServiceClient interface {
 	SubmitOrder(ctx context.Context, in *SubmitOrderReq, opts ...grpc.CallOption) (*SubmitOrderRes, error)
 	UpdateOrder(ctx context.Context, in *UpdateOrderReq, opts ...grpc.CallOption) (*UpdateOrderRes, error)
 	CancelOrder(ctx context.Context, in *CancelOrderReq, opts ...grpc.CallOption) (*CancelOrderRes, error)
-	DeliveryOrder(ctx context.Context, in *DeliveryOrderReq, opts ...grpc.CallOption) (*DeliveryOrderRes, error)
+	CompleteOrder(ctx context.Context, in *CompleteOrderReq, opts ...grpc.CallOption) (*CompleteOrderRes, error)
 	ChangeDeliveryAddress(ctx context.Context, in *ChangeDeliveryAddressReq, opts ...grpc.CallOption) (*ChangeDeliveryAddressRes, error)
 	GetOrderByID(ctx context.Context, in *GetOrderByIDReq, opts ...grpc.CallOption) (*GetOrderByIDRes, error)
 	Search(ctx context.Context, in *SearchReq, opts ...grpc.CallOption) (*SearchRes, error)
@@ -70,7 +70,7 @@ func (c *orderServiceClient) SubmitOrder(ctx context.Context, in *SubmitOrderReq
 
 func (c *orderServiceClient) UpdateOrder(ctx context.Context, in *UpdateOrderReq, opts ...grpc.CallOption) (*UpdateOrderRes, error) {
 	out := new(UpdateOrderRes)
-	err := c.cc.Invoke(ctx, "/orderService.orderService/UpdateOrder", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/orderService.orderService/UpdateShoppingCart", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,9 +86,9 @@ func (c *orderServiceClient) CancelOrder(ctx context.Context, in *CancelOrderReq
 	return out, nil
 }
 
-func (c *orderServiceClient) DeliveryOrder(ctx context.Context, in *DeliveryOrderReq, opts ...grpc.CallOption) (*DeliveryOrderRes, error) {
-	out := new(DeliveryOrderRes)
-	err := c.cc.Invoke(ctx, "/orderService.orderService/DeliveryOrder", in, out, opts...)
+func (c *orderServiceClient) CompleteOrder(ctx context.Context, in *CompleteOrderReq, opts ...grpc.CallOption) (*CompleteOrderRes, error) {
+	out := new(CompleteOrderRes)
+	err := c.cc.Invoke(ctx, "/orderService.orderService/CompleteOrder", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ type OrderServiceServer interface {
 	SubmitOrder(context.Context, *SubmitOrderReq) (*SubmitOrderRes, error)
 	UpdateOrder(context.Context, *UpdateOrderReq) (*UpdateOrderRes, error)
 	CancelOrder(context.Context, *CancelOrderReq) (*CancelOrderRes, error)
-	DeliveryOrder(context.Context, *DeliveryOrderReq) (*DeliveryOrderRes, error)
+	CompleteOrder(context.Context, *CompleteOrderReq) (*CompleteOrderRes, error)
 	ChangeDeliveryAddress(context.Context, *ChangeDeliveryAddressReq) (*ChangeDeliveryAddressRes, error)
 	GetOrderByID(context.Context, *GetOrderByIDReq) (*GetOrderByIDRes, error)
 	Search(context.Context, *SearchReq) (*SearchRes, error)
@@ -151,13 +151,13 @@ func (UnimplementedOrderServiceServer) SubmitOrder(context.Context, *SubmitOrder
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitOrder not implemented")
 }
 func (UnimplementedOrderServiceServer) UpdateOrder(context.Context, *UpdateOrderReq) (*UpdateOrderRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrder not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateShoppingCart not implemented")
 }
 func (UnimplementedOrderServiceServer) CancelOrder(context.Context, *CancelOrderReq) (*CancelOrderRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelOrder not implemented")
 }
-func (UnimplementedOrderServiceServer) DeliveryOrder(context.Context, *DeliveryOrderReq) (*DeliveryOrderRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeliveryOrder not implemented")
+func (UnimplementedOrderServiceServer) CompleteOrder(context.Context, *CompleteOrderReq) (*CompleteOrderRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CompleteOrder not implemented")
 }
 func (UnimplementedOrderServiceServer) ChangeDeliveryAddress(context.Context, *ChangeDeliveryAddressReq) (*ChangeDeliveryAddressRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeDeliveryAddress not implemented")
@@ -244,7 +244,7 @@ func _OrderService_UpdateOrder_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/orderService.orderService/UpdateOrder",
+		FullMethod: "/orderService.orderService/UpdateShoppingCart",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServiceServer).UpdateOrder(ctx, req.(*UpdateOrderReq))
@@ -270,20 +270,20 @@ func _OrderService_CancelOrder_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_DeliveryOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeliveryOrderReq)
+func _OrderService_CompleteOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CompleteOrderReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).DeliveryOrder(ctx, in)
+		return srv.(OrderServiceServer).CompleteOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/orderService.orderService/DeliveryOrder",
+		FullMethod: "/orderService.orderService/CompleteOrder",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).DeliveryOrder(ctx, req.(*DeliveryOrderReq))
+		return srv.(OrderServiceServer).CompleteOrder(ctx, req.(*CompleteOrderReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -362,7 +362,7 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OrderService_SubmitOrder_Handler,
 		},
 		{
-			MethodName: "UpdateOrder",
+			MethodName: "UpdateShoppingCart",
 			Handler:    _OrderService_UpdateOrder_Handler,
 		},
 		{
@@ -370,8 +370,8 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OrderService_CancelOrder_Handler,
 		},
 		{
-			MethodName: "DeliveryOrder",
-			Handler:    _OrderService_DeliveryOrder_Handler,
+			MethodName: "CompleteOrder",
+			Handler:    _OrderService_CompleteOrder_Handler,
 		},
 		{
 			MethodName: "ChangeDeliveryAddress",

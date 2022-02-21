@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/order/models"
 	"github.com/AleksK1NG/es-microservice/pkg/constants"
@@ -54,7 +55,7 @@ func (m *mongoRepository) GetByID(ctx context.Context, orderID string) (*models.
 }
 
 func (m *mongoRepository) UpdateOrder(ctx context.Context, order *models.OrderProjection) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoRepository.UpdateOrder")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "mongoRepository.UpdateShoppingCart")
 	defer span.Finish()
 	span.LogFields(log.String("OrderID", order.OrderID))
 
@@ -68,7 +69,7 @@ func (m *mongoRepository) UpdateOrder(ctx context.Context, order *models.OrderPr
 		return err
 	}
 
-	m.log.Debugf("(UpdateOrder) result OrderID: {%s}", res.OrderID)
+	m.log.Debugf("(UpdateShoppingCart) result OrderID: {%s}", res.OrderID)
 	return nil
 }
 
@@ -121,7 +122,7 @@ func (m *mongoRepository) UpdateDelivery(ctx context.Context, order *models.Orde
 	ops.SetReturnDocument(options.After)
 	ops.SetUpsert(false)
 
-	update := bson.M{"$set": bson.M{constants.Delivered: order.Delivered, constants.DeliveredTime: order.DeliveredTime}}
+	update := bson.M{"$set": bson.M{constants.Delivered: order.Completed, constants.DeliveredTime: order.DeliveredTime}}
 	var res models.OrderProjection
 	if err := m.getOrdersCollection().FindOneAndUpdate(ctx, bson.M{constants.OrderId: order.OrderID}, update, ops).Decode(&res); err != nil {
 		tracing.TraceErr(span, err)

@@ -2,22 +2,22 @@ package v1
 
 type OrderCommands struct {
 	CreateOrder                CreateOrderCommandHandler
-	OrderPaid                  OrderPaidCommandHandler
+	OrderPaid                  PayOrderCommandHandler
 	SubmitOrder                SubmitOrderCommandHandler
-	UpdateOrder                UpdateOrderCommandHandler
+	UpdateOrder                UpdateShoppingCartCommandHandler
 	CancelOrder                CancelOrderCommandHandler
-	DeliveryOrder              DeliveryOrderCommandHandler
-	ChangeOrderDeliveryAddress ChangeOrderDeliveryAddressCommandHandler
+	CompleteOrder              CompleteOrderCommandHandler
+	ChangeOrderDeliveryAddress ChangeDeliveryAddressCommandHandler
 }
 
 func NewOrderCommands(
 	createOrder CreateOrderCommandHandler,
-	orderPaid OrderPaidCommandHandler,
+	orderPaid PayOrderCommandHandler,
 	submitOrder SubmitOrderCommandHandler,
-	updateOrder UpdateOrderCommandHandler,
+	updateOrder UpdateShoppingCartCommandHandler,
 	cancelOrder CancelOrderCommandHandler,
-	deliveryOrder DeliveryOrderCommandHandler,
-	changeOrderDeliveryAddress ChangeOrderDeliveryAddressCommandHandler,
+	deliveryOrder CompleteOrderCommandHandler,
+	changeOrderDeliveryAddress ChangeDeliveryAddressCommandHandler,
 ) *OrderCommands {
 	return &OrderCommands{
 		CreateOrder:                createOrder,
@@ -25,7 +25,7 @@ func NewOrderCommands(
 		SubmitOrder:                submitOrder,
 		UpdateOrder:                updateOrder,
 		CancelOrder:                cancelOrder,
-		DeliveryOrder:              deliveryOrder,
+		CompleteOrder:              deliveryOrder,
 		ChangeOrderDeliveryAddress: changeOrderDeliveryAddress,
 	}
 }

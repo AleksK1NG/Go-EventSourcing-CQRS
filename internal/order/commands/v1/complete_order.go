@@ -11,22 +11,22 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 )
 
-type DeliveryOrderCommandHandler interface {
-	Handle(ctx context.Context, command *OrderDeliveredCommand) error
+type CompleteOrderCommandHandler interface {
+	Handle(ctx context.Context, command *CompleteOrderCommand) error
 }
 
-type deliveryOrderCommandHandler struct {
+type completeOrderCommandHandler struct {
 	log logger.Logger
 	cfg *config.Config
 	es  es.AggregateStore
 }
 
-func NewDeliveryOrderCommandHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore) *deliveryOrderCommandHandler {
-	return &deliveryOrderCommandHandler{log: log, cfg: cfg, es: es}
+func NewCompleteOrderCommandHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore) *completeOrderCommandHandler {
+	return &completeOrderCommandHandler{log: log, cfg: cfg, es: es}
 }
 
-func (c *deliveryOrderCommandHandler) Handle(ctx context.Context, command *OrderDeliveredCommand) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "deliveryOrderCommandHandler.Handle")
+func (c *completeOrderCommandHandler) Handle(ctx context.Context, command *CompleteOrderCommand) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "completeOrderCommandHandler.Handle")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
@@ -35,7 +35,7 @@ func (c *deliveryOrderCommandHandler) Handle(ctx context.Context, command *Order
 		return err
 	}
 
-	if err := order.DeliverOrder(ctx, command.DeliveryTimestamp); err != nil {
+	if err := order.CompleteOrder(ctx, command.DeliveryTimestamp); err != nil {
 		return err
 	}
 
