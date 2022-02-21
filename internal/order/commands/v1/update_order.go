@@ -1,11 +1,10 @@
-package commands
+package v1
 
 import (
 	"context"
 
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
-	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/opentracing/opentracing-go"
@@ -13,7 +12,7 @@ import (
 )
 
 type UpdateOrderCommandHandler interface {
-	Handle(ctx context.Context, command *v1.OrderUpdatedCommand) error
+	Handle(ctx context.Context, command *OrderUpdatedCommand) error
 }
 
 type updateOrderCmdHandler struct {
@@ -26,7 +25,7 @@ func NewUpdateOrderCmdHandler(log logger.Logger, cfg *config.Config, es es.Aggre
 	return &updateOrderCmdHandler{log: log, cfg: cfg, es: es}
 }
 
-func (c *updateOrderCmdHandler) Handle(ctx context.Context, command *v1.OrderUpdatedCommand) error {
+func (c *updateOrderCmdHandler) Handle(ctx context.Context, command *OrderUpdatedCommand) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "updateOrderCmdHandler.Handle")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))

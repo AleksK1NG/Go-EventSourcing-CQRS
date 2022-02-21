@@ -1,4 +1,4 @@
-package commands
+package v1
 
 type OrderCommands struct {
 	CreateOrder                CreateOrderCommandHandler

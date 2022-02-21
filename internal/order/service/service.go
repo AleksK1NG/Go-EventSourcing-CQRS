@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/AleksK1NG/es-microservice/config"
-	"github.com/AleksK1NG/es-microservice/internal/order/commands"
+	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
 	"github.com/AleksK1NG/es-microservice/internal/order/queries"
 	"github.com/AleksK1NG/es-microservice/internal/order/repository"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
@@ -10,7 +10,7 @@ import (
 )
 
 type OrderService struct {
-	Commands *commands.OrderCommands
+	Commands *v1.OrderCommands
 	Queries  *queries.OrderQueries
 }
 
@@ -22,18 +22,18 @@ func NewOrderService(
 	elasticRepository repository.ElasticOrderRepository,
 ) *OrderService {
 
-	createOrderHandler := commands.NewCreateOrderHandler(log, cfg, es)
-	orderPaidHandler := commands.NewOrderPaidHandler(log, cfg, es)
-	submitOrderHandler := commands.NewSubmitOrderHandler(log, cfg, es)
-	updateOrderCmdHandler := commands.NewUpdateOrderCmdHandler(log, cfg, es)
-	cancelOrderCommandHandler := commands.NewCancelOrderCommandHandler(log, cfg, es)
-	deliveryOrderCommandHandler := commands.NewDeliveryOrderCommandHandler(log, cfg, es)
-	changeOrderDeliveryAddressCmdHandler := commands.NewChangeOrderDeliveryAddressCmdHandler(log, cfg, es)
+	createOrderHandler := v1.NewCreateOrderHandler(log, cfg, es)
+	orderPaidHandler := v1.NewOrderPaidHandler(log, cfg, es)
+	submitOrderHandler := v1.NewSubmitOrderHandler(log, cfg, es)
+	updateOrderCmdHandler := v1.NewUpdateOrderCmdHandler(log, cfg, es)
+	cancelOrderCommandHandler := v1.NewCancelOrderCommandHandler(log, cfg, es)
+	deliveryOrderCommandHandler := v1.NewDeliveryOrderCommandHandler(log, cfg, es)
+	changeOrderDeliveryAddressCmdHandler := v1.NewChangeOrderDeliveryAddressCmdHandler(log, cfg, es)
 
 	getOrderByIDHandler := queries.NewGetOrderByIDHandler(log, cfg, es, mongoRepo)
 	searchOrdersHandler := queries.NewSearchOrdersHandler(log, cfg, es, elasticRepository)
 
-	orderCommands := commands.NewOrderCommands(
+	orderCommands := v1.NewOrderCommands(
 		createOrderHandler,
 		orderPaidHandler,
 		submitOrderHandler,
