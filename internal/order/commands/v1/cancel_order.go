@@ -1,33 +1,32 @@
-package commands
+package v1
 
 import (
 	"context"
 
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/AleksK1NG/es-microservice/internal/order/aggregate"
-	"github.com/AleksK1NG/es-microservice/internal/order/commands/v1"
 	"github.com/AleksK1NG/es-microservice/pkg/es"
 	"github.com/AleksK1NG/es-microservice/pkg/logger"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
 )
 
-type OrderPaidCommandHandler interface {
-	Handle(ctx context.Context, command *v1.OrderPaidCommand) error
+type CancelOrderCommandHandler interface {
+	Handle(ctx context.Context, command *OrderCanceledCommand) error
 }
 
-type orderPaidHandler struct {
+type cancelOrderCommandHandler struct {
 	log logger.Logger
 	cfg *config.Config
 	es  es.AggregateStore
 }
 
-func NewOrderPaidHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore) *orderPaidHandler {
-	return &orderPaidHandler{log: log, cfg: cfg, es: es}
+func NewCancelOrderCommandHandler(log logger.Logger, cfg *config.Config, es es.AggregateStore) *cancelOrderCommandHandler {
+	return &cancelOrderCommandHandler{log: log, cfg: cfg, es: es}
 }
 
-func (c *orderPaidHandler) Handle(ctx context.Context, command *v1.OrderPaidCommand) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "orderPaidHandler.Handle")
+func (c *cancelOrderCommandHandler) Handle(ctx context.Context, command *OrderCanceledCommand) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "cancelOrderCommandHandler.Handle")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", command.GetAggregateID()))
 
@@ -36,7 +35,7 @@ func (c *orderPaidHandler) Handle(ctx context.Context, command *v1.OrderPaidComm
 		return err
 	}
 
-	if err := order.PayOrder(ctx, command.Payment); err != nil {
+	if err := order.CancelOrder(ctx, command.CancelReason); err != nil {
 		return err
 	}
 
