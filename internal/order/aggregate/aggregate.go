@@ -51,7 +51,7 @@ func (a *OrderAggregate) When(evt es.Event) error {
 		return a.onOrderCanceled(evt)
 	case v1.ShoppingCartUpdated:
 		return a.onShoppingCartUpdated(evt)
-	case v1.DeliveryAddressUpdated:
+	case v1.DeliveryAddressChanged:
 		return a.onChangeDeliveryAddress(evt)
 
 	default:

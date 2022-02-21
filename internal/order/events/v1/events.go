@@ -14,7 +14,7 @@ const (
 	OrderCompleted         = "V1_ORDER_COMPLETED"
 	OrderCanceled          = "V1_ORDER_CANCELED"
 	ShoppingCartUpdated    = "V1_SHOPPING_CART_UPDATED"
-	DeliveryAddressUpdated = "V1_DELIVERY_ADDRESS_UPDATED"
+	DeliveryAddressChanged = "V1_DELIVERY_ADDRESS_CHANGED"
 )
 
 type OrderCreatedEvent struct {
@@ -67,7 +67,7 @@ type OrderDeliveryAddressChangedEvent struct {
 
 func NewDeliveryAddressChangedEvent(aggregate es.Aggregate, deliveryAddress string) (es.Event, error) {
 	eventData := OrderDeliveryAddressChangedEvent{DeliveryAddress: deliveryAddress}
-	event := es.NewBaseEvent(aggregate, DeliveryAddressUpdated)
+	event := es.NewBaseEvent(aggregate, DeliveryAddressChanged)
 	if err := event.SetJsonData(&eventData); err != nil {
 		return es.Event{}, err
 	}
