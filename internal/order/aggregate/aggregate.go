@@ -50,9 +50,9 @@ func (a *OrderAggregate) When(evt es.Event) error {
 	case v1.OrderCanceled:
 		return a.onOrderCanceled(evt)
 	case v1.ShoppingCartUpdated:
-		return a.onOrderUpdated(evt)
-	case v1.OrderDeliveryAddressUpdated:
-		return a.onOrderChangeDeliveryAddress(evt)
+		return a.onShoppingCartUpdated(evt)
+	case v1.DeliveryAddressUpdated:
+		return a.onChangeDeliveryAddress(evt)
 
 	default:
 		return es.ErrInvalidEventType
@@ -113,8 +113,8 @@ func (a *OrderAggregate) onOrderCanceled(evt es.Event) error {
 	return nil
 }
 
-func (a *OrderAggregate) onOrderUpdated(evt es.Event) error {
-	var eventData v1.OrderUpdatedEvent
+func (a *OrderAggregate) onShoppingCartUpdated(evt es.Event) error {
+	var eventData v1.ShoppingCartUpdatedEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		return errors.Wrap(err, "GetJsonData")
 	}
@@ -124,7 +124,7 @@ func (a *OrderAggregate) onOrderUpdated(evt es.Event) error {
 	return nil
 }
 
-func (a *OrderAggregate) onOrderChangeDeliveryAddress(evt es.Event) error {
+func (a *OrderAggregate) onChangeDeliveryAddress(evt es.Event) error {
 	var eventData v1.OrderDeliveryAddressChangedEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		return errors.Wrap(err, "GetJsonData")

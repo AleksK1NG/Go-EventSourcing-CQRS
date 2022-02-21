@@ -25,7 +25,7 @@ type OrderServiceClient interface {
 	CreateOrder(ctx context.Context, in *CreateOrderReq, opts ...grpc.CallOption) (*CreateOrderRes, error)
 	PayOrder(ctx context.Context, in *PayOrderReq, opts ...grpc.CallOption) (*PayOrderRes, error)
 	SubmitOrder(ctx context.Context, in *SubmitOrderReq, opts ...grpc.CallOption) (*SubmitOrderRes, error)
-	UpdateOrder(ctx context.Context, in *UpdateOrderReq, opts ...grpc.CallOption) (*UpdateOrderRes, error)
+	UpdateShoppingCart(ctx context.Context, in *UpdateShoppingCartReq, opts ...grpc.CallOption) (*UpdateShoppingCartRes, error)
 	CancelOrder(ctx context.Context, in *CancelOrderReq, opts ...grpc.CallOption) (*CancelOrderRes, error)
 	CompleteOrder(ctx context.Context, in *CompleteOrderReq, opts ...grpc.CallOption) (*CompleteOrderRes, error)
 	ChangeDeliveryAddress(ctx context.Context, in *ChangeDeliveryAddressReq, opts ...grpc.CallOption) (*ChangeDeliveryAddressRes, error)
@@ -68,8 +68,8 @@ func (c *orderServiceClient) SubmitOrder(ctx context.Context, in *SubmitOrderReq
 	return out, nil
 }
 
-func (c *orderServiceClient) UpdateOrder(ctx context.Context, in *UpdateOrderReq, opts ...grpc.CallOption) (*UpdateOrderRes, error) {
-	out := new(UpdateOrderRes)
+func (c *orderServiceClient) UpdateShoppingCart(ctx context.Context, in *UpdateShoppingCartReq, opts ...grpc.CallOption) (*UpdateShoppingCartRes, error) {
+	out := new(UpdateShoppingCartRes)
 	err := c.cc.Invoke(ctx, "/orderService.orderService/UpdateShoppingCart", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ type OrderServiceServer interface {
 	CreateOrder(context.Context, *CreateOrderReq) (*CreateOrderRes, error)
 	PayOrder(context.Context, *PayOrderReq) (*PayOrderRes, error)
 	SubmitOrder(context.Context, *SubmitOrderReq) (*SubmitOrderRes, error)
-	UpdateOrder(context.Context, *UpdateOrderReq) (*UpdateOrderRes, error)
+	UpdateShoppingCart(context.Context, *UpdateShoppingCartReq) (*UpdateShoppingCartRes, error)
 	CancelOrder(context.Context, *CancelOrderReq) (*CancelOrderRes, error)
 	CompleteOrder(context.Context, *CompleteOrderReq) (*CompleteOrderRes, error)
 	ChangeDeliveryAddress(context.Context, *ChangeDeliveryAddressReq) (*ChangeDeliveryAddressRes, error)
@@ -150,7 +150,7 @@ func (UnimplementedOrderServiceServer) PayOrder(context.Context, *PayOrderReq) (
 func (UnimplementedOrderServiceServer) SubmitOrder(context.Context, *SubmitOrderReq) (*SubmitOrderRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitOrder not implemented")
 }
-func (UnimplementedOrderServiceServer) UpdateOrder(context.Context, *UpdateOrderReq) (*UpdateOrderRes, error) {
+func (UnimplementedOrderServiceServer) UpdateShoppingCart(context.Context, *UpdateShoppingCartReq) (*UpdateShoppingCartRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateShoppingCart not implemented")
 }
 func (UnimplementedOrderServiceServer) CancelOrder(context.Context, *CancelOrderReq) (*CancelOrderRes, error) {
@@ -234,20 +234,20 @@ func _OrderService_SubmitOrder_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_UpdateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateOrderReq)
+func _OrderService_UpdateShoppingCart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateShoppingCartReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).UpdateOrder(ctx, in)
+		return srv.(OrderServiceServer).UpdateShoppingCart(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
 		FullMethod: "/orderService.orderService/UpdateShoppingCart",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).UpdateOrder(ctx, req.(*UpdateOrderReq))
+		return srv.(OrderServiceServer).UpdateShoppingCart(ctx, req.(*UpdateShoppingCartReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -363,7 +363,7 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 		},
 		{
 			MethodName: "UpdateShoppingCart",
-			Handler:    _OrderService_UpdateOrder_Handler,
+			Handler:    _OrderService_UpdateShoppingCart_Handler,
 		},
 		{
 			MethodName: "CancelOrder",

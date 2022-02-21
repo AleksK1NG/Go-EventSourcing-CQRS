@@ -72,7 +72,7 @@ const (
 	OrderId         = "orderId"
 	DeliveryAddress = "deliveryAddress"
 	Submitted       = "submitted"
-	Delivered       = "delivered"
+	Completed       = "completed"
 	DeliveredTime   = "deliveredTime"
 	Payment         = "payment"
 	Paid            = "paid"

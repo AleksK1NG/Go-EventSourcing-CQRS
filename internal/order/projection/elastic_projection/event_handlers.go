@@ -69,12 +69,12 @@ func (o *elasticProjection) onSubmit(ctx context.Context, evt es.Event) error {
 	return o.elasticRepository.UpdateOrder(ctx, projection)
 }
 
-func (o *elasticProjection) onUpdate(ctx context.Context, evt es.Event) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.onUpdate")
+func (o *elasticProjection) onShoppingCartUpdate(ctx context.Context, evt es.Event) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "elasticProjection.onShoppingCartUpdate")
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", evt.GetAggregateID()))
 
-	var eventData v1.OrderUpdatedEvent
+	var eventData v1.ShoppingCartUpdatedEvent
 	if err := evt.GetJsonData(&eventData); err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "evt.GetJsonData")

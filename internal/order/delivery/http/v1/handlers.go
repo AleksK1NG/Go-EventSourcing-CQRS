@@ -226,20 +226,20 @@ func (h *orderHandlers) CancelOrder() echo.HandlerFunc {
 	}
 }
 
-// DeliverOrder
+// CompleteOrder
 // @Tags Orders
-// @Summary Deliver order
-// @Description Deliver existing order
+// @Summary Complete order
+// @Description Complete existing order
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
 // @Success 200 {string} id ""
-// @Router /orders/delivery/{id} [post]
-func (h *orderHandlers) DeliverOrder() echo.HandlerFunc {
+// @Router /orders/complete/{id} [post]
+func (h *orderHandlers) CompleteOrder() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.CompleteOrder")
 		defer span.Finish()
-		h.metrics.SubmitOrderHttpRequests.Inc()
+		h.metrics.CompleteOrderHttpRequests.Inc()
 
 		orderID, err := uuid.FromString(c.Param(constants.ID))
 		if err != nil {
@@ -281,7 +281,7 @@ func (h *orderHandlers) ChangeDeliveryAddress() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.ChangeDeliveryAddress")
 		defer span.Finish()
-		h.metrics.SubmitOrderHttpRequests.Inc()
+		h.metrics.ChangeAddressOrderHttpRequests.Inc()
 
 		param := c.Param(constants.ID)
 		orderID, err := uuid.FromString(param)
@@ -317,17 +317,17 @@ func (h *orderHandlers) ChangeDeliveryAddress() echo.HandlerFunc {
 	}
 }
 
-// UpdateOrder
+// UpdateShoppingCart
 // @Tags Orders
-// @Summary Update order
-// @Description Update existing order
+// @Summary Update order shopping cart
+// @Description Update existing order shopping cart
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
-// @Param order body dto.UpdateOrderItemsReqDto true "update order"
+// @Param order body dto.UpdateShoppingItemsReqDto true "update order"
 // @Success 200 {string} id ""
-// @Router /orders/{id} [put]
-func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
+// @Router /orders/cart/{id} [put]
+func (h *orderHandlers) UpdateShoppingCart() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx, span := tracing.StartHttpServerTracerSpan(c, "orderHandlers.UpdateShoppingCart")
 		defer span.Finish()
@@ -340,7 +340,7 @@ func (h *orderHandlers) UpdateOrder() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err, h.cfg.Http.DebugErrorsResponse)
 		}
 
-		var reqDto dto.UpdateOrderItemsReqDto
+		var reqDto dto.UpdateShoppingItemsReqDto
 		if err := c.Bind(&reqDto); err != nil {
 			h.log.Errorf("(Bind) err: {%v}", err)
 			tracing.TraceErr(span, err)

@@ -71,12 +71,12 @@ message GetOrderByIDRes {
   Order Order = 1;
 }
 
-message UpdateOrderReq {
+message UpdateShoppingCartReq {
   string AggregateID = 1;
   repeated ShopItem ShopItems = 2;
 }
 
-message UpdateOrderRes {}
+message UpdateShoppingCartRes {}
 
 message CancelOrderReq {
   string AggregateID = 1;
@@ -122,7 +122,7 @@ service orderService {
   rpc CreateOrder(CreateOrderReq) returns (CreateOrderRes);
   rpc PayOrder(PayOrderReq) returns (PayOrderRes);
   rpc SubmitOrder(SubmitOrderReq) returns (SubmitOrderRes);
-  rpc UpdateOrder(UpdateOrderReq) returns (UpdateOrderRes);
+  rpc UpdateShoppingCart(UpdateShoppingCartReq) returns (UpdateShoppingCartRes);
   rpc CancelOrder(CancelOrderReq) returns (CancelOrderRes);
   rpc CompleteOrder(CompleteOrderReq) returns (CompleteOrderRes);
   rpc ChangeDeliveryAddress(ChangeDeliveryAddressReq) returns (ChangeDeliveryAddressRes);

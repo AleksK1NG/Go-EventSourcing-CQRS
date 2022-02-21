@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"fmt"
+
 	"github.com/AleksK1NG/es-microservice/config"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -18,18 +19,20 @@ type ESMicroserviceMetrics struct {
 	GetOrderByIdGrpcRequests       prometheus.Counter
 	SearchOrderGrpcRequests        prometheus.Counter
 	CancelOrderGrpcRequests        prometheus.Counter
-	DeliverOrderGrpcRequests       prometheus.Counter
+	CompleteOrderGrpcRequests      prometheus.Counter
 	ChangeAddressOrderGrpcRequests prometheus.Counter
 
 	SuccessHttpRequests prometheus.Counter
 	ErrorHttpRequests   prometheus.Counter
 
-	CreateOrderHttpRequests  prometheus.Counter
-	UpdateOrderHttpRequests  prometheus.Counter
-	PayOrderHttpRequests     prometheus.Counter
-	SubmitOrderHttpRequests  prometheus.Counter
-	GetOrderByIdHttpRequests prometheus.Counter
-	SearchOrderHttpRequests  prometheus.Counter
+	CreateOrderHttpRequests        prometheus.Counter
+	UpdateOrderHttpRequests        prometheus.Counter
+	PayOrderHttpRequests           prometheus.Counter
+	SubmitOrderHttpRequests        prometheus.Counter
+	GetOrderByIdHttpRequests       prometheus.Counter
+	SearchOrderHttpRequests        prometheus.Counter
+	CompleteOrderHttpRequests      prometheus.Counter
+	ChangeAddressOrderHttpRequests prometheus.Counter
 
 	SuccessKafkaMessages prometheus.Counter
 	ErrorKafkaMessages   prometheus.Counter
@@ -110,11 +113,15 @@ func NewESMicroserviceMetrics(cfg *config.Config) *ESMicroserviceMetrics {
 			Name: fmt.Sprintf("%s_cancel_order_http_requests_total", cfg.ServiceName),
 			Help: "The total number of cancel order http requests",
 		}),
-		DeliverOrderGrpcRequests: promauto.NewCounter(prometheus.CounterOpts{
-			Name: fmt.Sprintf("%s_deliver_order_http_requests_total", cfg.ServiceName),
-			Help: "The total number of deliver order http requests",
+		CompleteOrderGrpcRequests: promauto.NewCounter(prometheus.CounterOpts{
+			Name: fmt.Sprintf("%s_complete_order_http_requests_total", cfg.ServiceName),
+			Help: "The total number of complete order http requests",
 		}),
 		ChangeAddressOrderGrpcRequests: promauto.NewCounter(prometheus.CounterOpts{
+			Name: fmt.Sprintf("%s_change_address_order_gRPC_requests_total", cfg.ServiceName),
+			Help: "The total number of change address order gRPC requests",
+		}),
+		ChangeAddressOrderHttpRequests: promauto.NewCounter(prometheus.CounterOpts{
 			Name: fmt.Sprintf("%s_change_address_order_http_requests_total", cfg.ServiceName),
 			Help: "The total number of change address order http requests",
 		}),

@@ -36,9 +36,9 @@ definitions:
         type: string
       canceled:
         type: boolean
-      created:
+      completed:
         type: boolean
-      delivered:
+      created:
         type: boolean
       deliveredTime:
         type: string
@@ -108,7 +108,7 @@ definitions:
       title:
         type: string
     type: object
-  dto.UpdateOrderItemsReqDto:
+  dto.UpdateShoppingItemsReqDto:
     properties:
       shopItems:
         items:
@@ -176,32 +176,6 @@ paths:
       summary: Get order
       tags:
       - Orders
-    put:
-      consumes:
-      - application/json
-      description: Update existing order
-      parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: update order
-        in: body
-        name: order
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateOrderItemsReqDto'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: Update order
-      tags:
-      - Orders
   /orders/address/{id}:
     put:
       consumes:
@@ -256,11 +230,38 @@ paths:
       summary: Cancel order
       tags:
       - Orders
-  /orders/delivery/{id}:
+  /orders/cart/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update existing order shopping cart
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: update order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateShoppingItemsReqDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Update order shopping cart
+      tags:
+      - Orders
+  /orders/complete/{id}:
     post:
       consumes:
       - application/json
-      description: Deliver existing order
+      description: Complete existing order
       parameters:
       - description: Order ID
         in: path
@@ -274,7 +275,7 @@ paths:
           description: OK
           schema:
             type: string
-      summary: Deliver order
+      summary: Complete order
       tags:
       - Orders
   /orders/pay/{id}:

@@ -132,9 +132,9 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "/orders/delivery/{id}": {
-            "post": {
-                "description": "Deliver existing order",
+        "/orders/cart/{id}": {
+            "put": {
+                "description": "Update existing order shopping cart",
                 "consumes": [
                     "application/json"
                 ],
@@ -144,7 +144,48 @@ const docTemplate_swagger = `{
                 "tags": [
                     "Orders"
                 ],
-                "summary": "Deliver order",
+                "summary": "Update order shopping cart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "update order",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateShoppingItemsReqDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/complete/{id}": {
+            "post": {
+                "description": "Complete existing order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Complete order",
                 "parameters": [
                     {
                         "type": "string",
@@ -310,45 +351,6 @@ const docTemplate_swagger = `{
                         }
                     }
                 }
-            },
-            "put": {
-                "description": "Update existing order",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "Update order",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Order ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "update order",
-                        "name": "order",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UpdateOrderItemsReqDto"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
             }
         }
     },
@@ -412,10 +414,10 @@ const docTemplate_swagger = `{
                 "canceled": {
                     "type": "boolean"
                 },
-                "created": {
+                "completed": {
                     "type": "boolean"
                 },
-                "delivered": {
+                "created": {
                     "type": "boolean"
                 },
                 "deliveredTime": {
@@ -519,7 +521,7 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "dto.UpdateOrderItemsReqDto": {
+        "dto.UpdateShoppingItemsReqDto": {
             "type": "object",
             "required": [
                 "shopItems"

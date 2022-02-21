@@ -112,12 +112,12 @@ func (o *mongoProjection) When(ctx context.Context, evt es.Event) error {
 	case v1.OrderSubmitted:
 		return o.onSubmit(ctx, evt)
 	case v1.ShoppingCartUpdated:
-		return o.onUpdate(ctx, evt)
+		return o.onShoppingCartUpdate(ctx, evt)
 	case v1.OrderCanceled:
 		return o.onCancel(ctx, evt)
 	case v1.OrderCompleted:
 		return o.onCompleted(ctx, evt)
-	case v1.OrderDeliveryAddressUpdated:
+	case v1.DeliveryAddressUpdated:
 		return o.onDeliveryAddressUpdated(ctx, evt)
 
 	default:
