@@ -23,17 +23,16 @@ message ShopItem {
 message Order {
   string ID = 1;
   repeated ShopItem ShopItems = 2;
-  bool Created = 3;
-  bool Paid = 4;
-  bool Submitted = 5;
-  bool Completed = 6;
-  bool Canceled = 7;
-  double TotalPrice = 8;
-  string AccountEmail = 9;
-  string CancelReason = 10;
-  string DeliveryAddress = 11;
-  google.protobuf.Timestamp  DeliveryTimestamp = 12;
-  Payment Payment = 13;
+  bool Paid = 3;
+  bool Submitted = 4;
+  bool Completed = 5;
+  bool Canceled = 6;
+  double TotalPrice = 7;
+  string AccountEmail = 8;
+  string CancelReason = 9;
+  string DeliveryAddress = 10;
+  google.protobuf.Timestamp  DeliveryTimestamp = 11;
+  Payment Payment = 12;
 }
 
 message CreateOrderReq {

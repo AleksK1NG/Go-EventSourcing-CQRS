@@ -7,7 +7,7 @@ var (
 	ErrOrderAlreadyCanceled           = errors.New("Order is already canceled")
 	ErrOrderMustBePaidBeforeDelivered = errors.New("Order must be paid before been delivered")
 	ErrCancelReasonRequired           = errors.New("Cancel reason must be provided")
-	ErrAlreadyCreatedOrCancelled      = errors.New("order created or cancelled")
+	ErrOrderAlreadyCancelled          = errors.New("order already cancelled")
 	ErrAlreadyPaid                    = errors.New("already paid")
 	ErrAlreadySubmitted               = errors.New("already submitted")
 	ErrOrderNotPaid                   = errors.New("order not paid")

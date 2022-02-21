@@ -27,7 +27,6 @@ func (o *elasticProjection) onOrderCreate(ctx context.Context, evt es.Event) err
 	op := &models.OrderProjection{
 		OrderID:      aggregate.GetOrderAggregateID(evt.AggregateID),
 		ShopItems:    eventData.ShopItems,
-		Created:      true,
 		AccountEmail: eventData.AccountEmail,
 		TotalPrice:   aggregate.GetShopItemsTotalPrice(eventData.ShopItems),
 	}

@@ -67,7 +67,6 @@ func (a *OrderAggregate) onOrderCreated(evt es.Event) error {
 
 	a.Order.AccountEmail = eventData.AccountEmail
 	a.Order.ShopItems = eventData.ShopItems
-	a.Order.Created = true
 	a.Order.TotalPrice = GetShopItemsTotalPrice(eventData.ShopItems)
 	a.Order.DeliveryAddress = eventData.DeliveryAddress
 	return nil

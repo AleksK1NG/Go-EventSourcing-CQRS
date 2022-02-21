@@ -16,7 +16,6 @@ type Order struct {
 	CancelReason    string      `json:"cancelReason" bson:"cancelReason,omitempty"`
 	TotalPrice      float64     `json:"totalPrice" bson:"totalPrice,omitempty"`
 	DeliveredTime   time.Time   `json:"deliveredTime" bson:"deliveredTime,omitempty"`
-	Created         bool        `json:"created" bson:"created,omitempty"`
 	Paid            bool        `json:"paid" bson:"paid,omitempty"`
 	Submitted       bool        `json:"submitted" bson:"submitted,omitempty"`
 	Completed       bool        `json:"completed" bson:"completed,omitempty"`
@@ -25,11 +24,10 @@ type Order struct {
 }
 
 func (o *Order) String() string {
-	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, "+
+	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Paid: {%v}, Submitted: {%v}, "+
 		"Completed: {%v}, Canceled: {%v}, CancelReason: {%s}, TotalPrice: {%v}, AccountEmail: {%s}, DeliveryAddress: {%s}, DeliveredTime: {%s}, Payment: {%s}",
 		o.ID,
 		o.ShopItems,
-		o.Created,
 		o.Paid,
 		o.Submitted,
 		o.Completed,
@@ -46,7 +44,6 @@ func (o *Order) String() string {
 func NewOrder() *Order {
 	return &Order{
 		ShopItems: make([]*ShopItem, 0),
-		Created:   false,
 		Paid:      false,
 		Submitted: false,
 		Completed: false,
@@ -58,7 +55,6 @@ func OrderToProto(order *Order, id string) *orderService.Order {
 	return &orderService.Order{
 		ID:                id,
 		ShopItems:         ShopItemsToProto(order.ShopItems),
-		Created:           order.Created,
 		Paid:              order.Paid,
 		Submitted:         order.Submitted,
 		Completed:         order.Completed,

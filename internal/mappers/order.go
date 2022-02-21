@@ -12,7 +12,6 @@ func OrderProjectionFromAggregate(orderAggregate *aggregate.OrderAggregate) *mod
 	return &models.OrderProjection{
 		OrderID:         aggregate.GetOrderAggregateID(orderAggregate.GetID()),
 		ShopItems:       orderAggregate.Order.ShopItems,
-		Created:         orderAggregate.Order.Created,
 		Paid:            orderAggregate.Order.Paid,
 		Submitted:       orderAggregate.Order.Submitted,
 		Completed:       orderAggregate.Order.Completed,
@@ -36,7 +35,6 @@ func OrderResponseFromProjection(projection *models.OrderProjection) dto.OrderRe
 		CancelReason:    projection.CancelReason,
 		TotalPrice:      projection.TotalPrice,
 		DeliveredTime:   projection.DeliveredTime,
-		Created:         projection.Created,
 		Paid:            projection.Paid,
 		Submitted:       projection.Submitted,
 		Completed:       projection.Completed,
@@ -54,7 +52,6 @@ func OrderResponseDtoFromProto(orderProto *orderService.Order) dto.OrderResponse
 		CancelReason:    orderProto.GetCancelReason(),
 		TotalPrice:      orderProto.GetTotalPrice(),
 		DeliveredTime:   orderProto.GetDeliveryTimestamp().AsTime(),
-		Created:         orderProto.GetCreated(),
 		Paid:            orderProto.GetPaid(),
 		Submitted:       orderProto.GetSubmitted(),
 		Completed:       orderProto.GetCompleted(),
@@ -75,7 +72,6 @@ func OrderResponseDtoToProto(orderDto dto.OrderResponseDto) *orderService.Order 
 	return &orderService.Order{
 		ID:                orderDto.OrderID,
 		ShopItems:         ShopItemsResponseToProto(orderDto.ShopItems),
-		Created:           orderDto.Created,
 		Paid:              orderDto.Paid,
 		Submitted:         orderDto.Submitted,
 		Completed:         orderDto.Completed,

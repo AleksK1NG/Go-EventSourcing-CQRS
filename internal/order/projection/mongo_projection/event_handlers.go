@@ -28,7 +28,6 @@ func (o *mongoProjection) onOrderCreate(ctx context.Context, evt es.Event) error
 	op := &models.OrderProjection{
 		OrderID:         aggregate.GetOrderAggregateID(evt.AggregateID),
 		ShopItems:       eventData.ShopItems,
-		Created:         true,
 		AccountEmail:    eventData.AccountEmail,
 		TotalPrice:      aggregate.GetShopItemsTotalPrice(eventData.ShopItems),
 		DeliveryAddress: eventData.DeliveryAddress,

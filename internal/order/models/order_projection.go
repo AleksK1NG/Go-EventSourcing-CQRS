@@ -17,7 +17,6 @@ type OrderProjection struct {
 	CancelReason    string      `json:"cancelReason,omitempty" bson:"cancelReason,omitempty"`
 	TotalPrice      float64     `json:"totalPrice,omitempty" bson:"totalPrice,omitempty"`
 	DeliveredTime   time.Time   `json:"deliveredTime,omitempty" bson:"deliveredTime,omitempty"`
-	Created         bool        `json:"created,omitempty" bson:"created,omitempty"`
 	Paid            bool        `json:"paid,omitempty" bson:"paid,omitempty"`
 	Submitted       bool        `json:"submitted,omitempty" bson:"submitted,omitempty"`
 	Completed       bool        `json:"completed,omitempty" bson:"completed,omitempty"`
@@ -26,11 +25,10 @@ type OrderProjection struct {
 }
 
 func (o *OrderProjection) String() string {
-	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Created: {%v}, Paid: {%v}, Submitted: {%v}, "+
+	return fmt.Sprintf("ID: {%s}, ShopItems: {%+v}, Paid: {%v}, Submitted: {%v}, "+
 		"Completed: {%v}, Canceled: {%v}, CancelReason: {%s}, TotalPrice: {%v}, AccountEmail: {%s}, DeliveryAddress: {%s}, DeliveredTime: {%s}, Payment: {%s}",
 		o.ID,
 		o.ShopItems,
-		o.Created,
 		o.Paid,
 		o.Submitted,
 		o.Completed,
@@ -48,7 +46,6 @@ func OrderProjectionToProto(order *OrderProjection) *orderService.Order {
 	return &orderService.Order{
 		ID:                order.OrderID,
 		ShopItems:         ShopItemsToProto(order.ShopItems),
-		Created:           order.Created,
 		Paid:              order.Paid,
 		Submitted:         order.Submitted,
 		Completed:         order.Completed,

@@ -17,9 +17,6 @@ func (a *OrderAggregate) CreateOrder(ctx context.Context, shopItems []*models.Sh
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", a.GetID()))
 
-	if a.Order.Created {
-		return ErrAlreadyCreated
-	}
 	if shopItems == nil {
 		return ErrOrderShopItemsIsRequired
 	}
@@ -46,8 +43,8 @@ func (a *OrderAggregate) PayOrder(ctx context.Context, payment models.Payment) e
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", a.GetID()))
 
-	if !a.Order.Created || a.Order.Canceled {
-		return ErrAlreadyCreatedOrCancelled
+	if a.Order.Canceled {
+		return ErrOrderAlreadyCancelled
 	}
 	if a.Order.Paid {
 		return ErrAlreadyPaid
@@ -75,8 +72,8 @@ func (a *OrderAggregate) SubmitOrder(ctx context.Context) error {
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", a.GetID()))
 
-	if !a.Order.Created || a.Order.Canceled {
-		return ErrAlreadyCreatedOrCancelled
+	if a.Order.Canceled {
+		return ErrOrderAlreadyCancelled
 	}
 	if !a.Order.Paid {
 		return ErrOrderNotPaid
@@ -104,8 +101,8 @@ func (a *OrderAggregate) UpdateShoppingCart(ctx context.Context, shopItems []*mo
 	defer span.Finish()
 	span.LogFields(log.String("AggregateID", a.GetID()))
 
-	if !a.Order.Created || a.Order.Canceled {
-		return ErrAlreadyCreatedOrCancelled
+	if a.Order.Canceled {
+		return ErrOrderAlreadyCancelled
 	}
 	if a.Order.Submitted {
 		return ErrAlreadySubmitted
