@@ -106,6 +106,14 @@ func InitConfig() (*Config, error) {
 	if jaegerAddr != "" {
 		cfg.Jaeger.HostPort = jaegerAddr
 	}
+	eventStoreConnectionString := os.Getenv(constants.EventStoreConnectionString)
+	if eventStoreConnectionString != "" {
+		cfg.EventStoreConfig.ConnectionString = eventStoreConnectionString
+	}
+	elasticUrl := os.Getenv(constants.ElasticUrl)
+	if elasticUrl != "" {
+		cfg.Elastic.URL = elasticUrl
+	}
 
 	return cfg, nil
 }
