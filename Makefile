@@ -7,6 +7,10 @@ run_es:
 # ==============================================================================
 # Docker
 
+dev:
+	@echo Starting dev docker compose
+	docker-compose -f docker-compose.yaml up -d --build
+
 local:
 	@echo Starting local docker compose
 	docker-compose -f docker-compose.local.yaml up -d --build
