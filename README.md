@@ -41,7 +41,10 @@ http://localhost:5601/app/home#/
 For local development 🙌👨‍💻🚀:
 
 ```
-make local // for run docker compose files
-make swagger // generate swagger documentation
+make local // for run docker compose
 make run_es // run microservice
+```
+or 
+```
+make dev // run all in docker compose with hot reload
 ```
