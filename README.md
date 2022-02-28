@@ -27,7 +27,7 @@ http://localhost:9090
 
 ### Grafana UI:
 
-http://localhost:3000
+http://localhost:3005
 
 ### Swagger UI:
 
